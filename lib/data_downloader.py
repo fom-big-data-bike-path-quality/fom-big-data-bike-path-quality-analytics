@@ -9,7 +9,6 @@ from google.cloud import firestore_v1 as firestore_v1
 class DataDownloader():
 
     def run(self):
-
         # Set script path
         script_path = os.path.dirname(__file__)
 
@@ -25,9 +24,11 @@ class DataDownloader():
         coll_ref = open_database_connection(cred, firebase_database_url, firebase_collection_name)
 
         # Download data
+        # download_data_once(coll_ref, script_path)
         download_data(coll_ref, script_path)
 
         print("DataDownloader finished.")
+
 
 def load_private_key(script_path, firebase_private_key_file):
     cert_path = os.path.join(script_path, firebase_private_key_file)
@@ -43,6 +44,26 @@ def open_database_connection(cred, firebase_database_url, firebase_collection_na
 
 
 def download_data(coll_ref, script_path):
+    """Downloads data from Firebase Firestore"""
+
+    for doc in coll_ref.stream():
+        file_name = doc.id + ".json"
+
+        print("✔️ Downloading " + script_path + "/../data/" + file_name)
+
+        json_file = open(script_path + "/../data/" + file_name, "w")
+        json.dump(doc.to_dict(), json_file)
+        json_file.close()
+
+
+def download_data_once(coll_ref, script_path):
+    """
+    Downloads data from Firebase Firestore only if it has not been downloaded already
+    Beware: This will not work with more than 10 arguments
+        status = StatusCode.INVALID_ARGUMENT
+	    details = "'NOT_IN' supports up to 10 comparison values."
+    """
+
     existing = list(map(lambda e: coll_ref.document(os.path.basename(e).replace('.json', '')), glob.glob(script_path + "/../data/*.json")))
 
     for doc in coll_ref.where(firestore_v1.field_path.FieldPath.document_id(), "not-in", existing).stream():
