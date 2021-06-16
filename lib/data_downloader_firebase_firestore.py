@@ -7,32 +7,6 @@ from firebase_admin import credentials, firestore
 from google.cloud import firestore_v1 as firestore_v1
 
 
-class FirebaseFirestoreDownloader():
-
-    def run(self, reload=False):
-        # Set script path
-        script_path = os.path.dirname(__file__)
-
-        # Set project specific parameters
-        firebase_database_url = "https://bike-path-quality.firebaseio.com/"
-        firebase_private_key_file = "bike-path-quality-firebase-adminsdk-cgjm5-640ce5b722.json"
-        firebase_collection_name = "BikeActivities"
-
-        # Load connection credentials
-        cred = load_private_key(script_path, firebase_private_key_file)
-
-        # Retrieve collection reference
-        coll_ref = open_database_connection(cred, firebase_database_url, firebase_collection_name)
-
-        # Download data
-        if reload:
-            download_data(coll_ref, script_path)
-        else:
-            download_data_once(coll_ref, script_path)
-
-        print("FirebaseFirestoreDownloader finished.")
-
-
 def load_private_key(script_path, firebase_private_key_file):
     cert_path = os.path.join(script_path, firebase_private_key_file)
     cred = credentials.Certificate(cert_path)
@@ -77,3 +51,33 @@ def download_data_once(coll_ref, script_path):
         json_file = open(script_path + "/../data/" + file_name, "w")
         json.dump(doc.to_dict(), json_file)
         json_file.close()
+
+
+#
+# Main
+#
+
+class FirebaseFirestoreDownloader:
+
+    def run(self, reload=False):
+        # Set script path
+        script_path = os.path.dirname(__file__)
+
+        # Set project specific parameters
+        firebase_database_url = "https://bike-path-quality.firebaseio.com/"
+        firebase_private_key_file = "bike-path-quality-firebase-adminsdk-cgjm5-640ce5b722.json"
+        firebase_collection_name = "BikeActivities"
+
+        # Load connection credentials
+        cred = load_private_key(script_path, firebase_private_key_file)
+
+        # Retrieve collection reference
+        coll_ref = open_database_connection(cred, firebase_database_url, firebase_collection_name)
+
+        # Download data
+        if reload:
+            download_data(coll_ref, script_path)
+        else:
+            download_data_once(coll_ref, script_path)
+
+        print("FirebaseFirestoreDownloader finished.")
