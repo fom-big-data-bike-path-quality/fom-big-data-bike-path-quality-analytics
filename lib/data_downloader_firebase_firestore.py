@@ -23,12 +23,15 @@ def open_database_connection(cred, firebase_database_url, firebase_collection_na
 def download_data(coll_ref, script_path):
     """Downloads data from Firebase Firestore"""
 
+    results_path = script_path + "/../data/measurements/json/"
+    os.makedirs(results_path, exist_ok=True)
+
     for doc in coll_ref.stream():
         file_name = doc.id + ".json"
 
-        print("✔️ Downloading " + script_path + "/../data/" + file_name)
+        print("✔️ Downloading " + file_name)
 
-        json_file = open(script_path + "/../data/" + file_name, "w")
+        json_file = open(results_path + "/" + file_name, "w")
         json.dump(doc.to_dict(), json_file)
         json_file.close()
 
@@ -41,14 +44,17 @@ def download_data_once(coll_ref, script_path):
 	    details = "'NOT_IN' supports up to 10 comparison values."
     """
 
+    results_path = script_path + "/../data/measurements/json/"
+    os.makedirs(results_path, exist_ok=True)
+
     existing = list(map(lambda e: coll_ref.document(os.path.basename(e).replace('.json', '')), glob.glob(script_path + "/../data/*.json")))
 
     for doc in coll_ref.where(firestore_v1.field_path.FieldPath.document_id(), "not-in", existing).stream():
         file_name = doc.id + ".json"
 
-        print("✔️ Downloading " + script_path + "/../data/" + file_name)
+        print("✔️ Downloading " + file_name)
 
-        json_file = open(script_path + "/../data/" + file_name, "w")
+        json_file = open(results_path + "/" + file_name, "w")
         json.dump(doc.to_dict(), json_file)
         json_file.close()
 

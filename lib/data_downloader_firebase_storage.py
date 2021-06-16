@@ -14,6 +14,8 @@ class FirebaseStorageDownloader:
     def run(self, reload=False):
         # Set script path
         script_path = os.path.dirname(__file__)
+        results_path = script_path + "/../data/measurements/json/"
+        os.makedirs(results_path, exist_ok=True)
 
         firebase_private_key_file = "bike-path-quality-firebase-adminsdk-cgjm5-640ce5b722.json"
         config = {
@@ -29,7 +31,7 @@ class FirebaseStorageDownloader:
         files = firebase.storage().child("measurements").child("json").list_files()
         for file in files:
             file_name = os.path.basename(file.name)
-            file_path = script_path + "/../data/measurements/json/" + file_name
+            file_path = results_path + "/" + file_name
 
             if file_name.endswith(".json") and not Path(file_path).exists() or reload:
                 print("✔️ Downloading " + file_path)

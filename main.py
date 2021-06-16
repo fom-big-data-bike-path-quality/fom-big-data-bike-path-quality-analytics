@@ -11,12 +11,15 @@ for p in library_paths:
         sys.path.insert(0, p)
 
 # Import library classes
-from data_downloader_firebase_firestore import FirebaseFirestoreDownloader
 from data_downloader_firebase_storage import FirebaseStorageDownloader
+from data_transformer_geojson import DataTransformerGeoJson
 
 # Configuration
 RELOAD_DATA = False
+RECONVERT_DATA = False
 
 # Download data from Firebase Firestore
-# FirebaseFirestoreDownloader().run(RELOAD_DATA)
 FirebaseStorageDownloader().run(RELOAD_DATA)
+
+# Convert data from json to geojson
+DataTransformerGeoJson().run(RECONVERT_DATA)
