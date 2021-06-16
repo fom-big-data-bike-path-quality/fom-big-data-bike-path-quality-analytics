@@ -1,17 +1,20 @@
 attrs==21.2.0
+brotlipy==0.7.0
 CacheControl==0.12.6
 cachetools==4.2.2
 certifi==2020.12.5
-cffi==1.14.5
-chardet==4.0.0
+cffi @ file:///Users/runner/miniforge3/conda-bld/cffi_1613413897768/work
+chardet @ file:///Users/runner/miniforge3/conda-bld/chardet_1610093485994/work
 click==7.1.2
 click-plugins==1.1.1
 cligj==0.7.1
+cryptography @ file:///Users/runner/miniforge3/conda-bld/cryptography_1616851693031/work
 cycler==0.10.0
 decorator==4.4.2
 descartes==1.1.0
 Fiona==1.8.19
 firebase-admin==5.0.0
+gcloud==0.17.0
 geographiclib==1.50
 geojson==2.5.0
 geopandas==0.9.0
@@ -28,13 +31,15 @@ google-resumable-media==1.3.0
 googleapis-common-protos==1.53.0
 grpcio==1.38.0
 httplib2==0.19.1
-idna==2.10
+idna @ file:///home/conda/feedstock_root/build_artifacts/idna_1593328102638/work
+jws==0.1.3
 kiwisolver==1.3.1
 matplotlib==3.4.2
 msgpack==1.0.2
 munch==2.5.0
 networkx==2.5.1
 numpy==1.20.3
+oauth2client==3.0.0
 osmnx==0.11.3
 packaging==20.9
 pandas==1.2.4
@@ -43,16 +48,22 @@ proto-plus==1.18.1
 protobuf==3.17.0
 pyasn1==0.4.8
 pyasn1-modules==0.2.8
-pycparser==2.20
+pycparser @ file:///home/conda/feedstock_root/build_artifacts/pycparser_1593275161868/work
+pycryptodome==3.4.3
+pyOpenSSL @ file:///home/conda/feedstock_root/build_artifacts/pyopenssl_1608055815057/work
 pyparsing==2.4.7
 pyproj==3.0.1
+Pyrebase==3.0.27
+PySocks @ file:///Users/runner/miniforge3/conda-bld/pysocks_1610291468418/work
 python-dateutil==2.8.1
+python-jwt==2.0.1
 pytz==2021.1
-requests==2.25.1
+requests @ file:///home/conda/feedstock_root/build_artifacts/requests_1608156231189/work
+requests-toolbelt==0.7.0
 rsa==4.7.2
 Rtree==0.9.7
 Shapely==1.7.1
-six==1.16.0
+six @ file:///home/conda/feedstock_root/build_artifacts/six_1620240208055/work
 tqdm==4.60.0
 uritemplate==3.0.1
-urllib3==1.26.4
+urllib3 @ file:///home/conda/feedstock_root/build_artifacts/urllib3_1622056799390/work

@@ -11,6 +11,12 @@ for p in library_paths:
         sys.path.insert(0, p)
 
 # Import library classes
-from data_downloader import DataDownloader
+from data_downloader_firebase_firestore import FirebaseFirestoreDownloader
+from data_downloader_firebase_storage import FirebaseStorageDownloader
 
-DataDownloader().run()
+# Configuration
+RELOAD_DATA = False
+
+# Download data from Firebase Firestore
+# FirebaseFirestoreDownloader().run(RELOAD_DATA)
+FirebaseStorageDownloader().run(RELOAD_DATA)

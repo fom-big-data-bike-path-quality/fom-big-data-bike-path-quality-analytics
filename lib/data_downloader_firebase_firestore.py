@@ -6,9 +6,10 @@ import firebase_admin
 from firebase_admin import credentials, firestore
 from google.cloud import firestore_v1 as firestore_v1
 
-class DataDownloader():
 
-    def run(self):
+class FirebaseFirestoreDownloader():
+
+    def run(self, reload=False):
         # Set script path
         script_path = os.path.dirname(__file__)
 
@@ -24,10 +25,12 @@ class DataDownloader():
         coll_ref = open_database_connection(cred, firebase_database_url, firebase_collection_name)
 
         # Download data
-        # download_data_once(coll_ref, script_path)
-        download_data(coll_ref, script_path)
+        if reload:
+            download_data(coll_ref, script_path)
+        else:
+            download_data_once(coll_ref, script_path)
 
-        print("DataDownloader finished.")
+        print("FirebaseFirestoreDownloader finished.")
 
 
 def load_private_key(script_path, firebase_private_key_file):
