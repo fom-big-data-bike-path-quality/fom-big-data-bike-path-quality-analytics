@@ -13,6 +13,7 @@ for p in library_paths:
 # Import library classes
 from data_downloader_firebase_storage import FirebaseStorageDownloader
 from data_transformer_geojson import DataTransformerGeoJson
+from data_uploader_geojson import DataUploaderGeoJson
 
 # Configuration
 RELOAD_DATA = False
@@ -23,3 +24,4 @@ FirebaseStorageDownloader().run(RELOAD_DATA)
 
 # Convert data from json to geojson
 DataTransformerGeoJson().run(RECONVERT_DATA)
+DataUploaderGeoJson().run()

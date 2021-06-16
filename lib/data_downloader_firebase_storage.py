@@ -34,7 +34,7 @@ class FirebaseStorageDownloader:
             file_path = results_path + "/" + file_name
 
             if file_name.endswith(".json") and not Path(file_path).exists() or reload:
-                print("✔️ Downloading " + file_path)
+                print("✔️ Downloading " + file_name)
                 firebase.storage().child("measurements").child("json").child(file_name).download(file_path)
 
         print("FirebaseStorageDownloader finished.")
