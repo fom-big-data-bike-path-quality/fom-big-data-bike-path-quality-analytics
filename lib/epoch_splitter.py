@@ -31,7 +31,7 @@ class EpochSplitter:
                 for row in csv_reader:
 
                     # Determine bike activity UID and bike activity sample UID
-                    bike_activity_uid = row["bike_activity_ui"]
+                    bike_activity_uid = row["bike_activity_uid"]
                     bike_activity_sample_uid = row["bike_activity_sample_uid"]
 
                     if bike_activity_sample_uid not in epochs:
