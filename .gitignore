@@ -1,5 +1,9 @@
 *.iml
 /.idea
 
+*.DS_Store
+
 /lib/bike-path-quality-firebase-adminsdk-cgjm5-640ce5b722.json
+/lib/__pycache__/*
 /results/
+/workspace/
