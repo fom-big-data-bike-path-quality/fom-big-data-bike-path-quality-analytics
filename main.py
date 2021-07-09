@@ -12,6 +12,7 @@ for p in library_paths:
 
 # Import library classes
 from epoch_splitter import EpochSplitter
+from data_transformer import DataTransformer
 
 # Configuration
 
@@ -28,5 +29,10 @@ workspace_path = script_path + "/workspace"
 
 EpochSplitter().run(
     data_path=data_path + "/measurements/csv",
-    results_path=workspace_path + "/epochs",
+    results_path=workspace_path + "/epochs/raw",
+)
+
+DataTransformer().run(
+    data_path=workspace_path + "/epochs/raw",
+    results_path=workspace_path + "/epochs/transformed",
 )
