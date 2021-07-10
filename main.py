@@ -13,6 +13,7 @@ for p in library_paths:
 # Import library classes
 from epoch_splitter import EpochSplitter
 from data_transformer import DataTransformer
+from bike_activity_sample_plotter import BikeActivitySamplePlotter
 
 # Configuration
 
@@ -22,6 +23,7 @@ script_path = os.path.dirname(file_path)
 
 data_path = script_path + "/data/data"
 workspace_path = script_path + "/workspace"
+results_path = script_path + "/results"
 
 #
 # Data preparation
@@ -35,4 +37,12 @@ EpochSplitter().run(
 DataTransformer().run(
     data_path=workspace_path + "/epochs/raw",
     results_path=workspace_path + "/epochs/transformed",
+)
+
+BikeActivitySamplePlotter().run(
+    data_path=workspace_path + "/epochs/transformed",
+    results_path=results_path + "/plots/bike-activity-sample",
+    xlabel="time",
+    ylabel="acceleration",
+    clean=True
 )
