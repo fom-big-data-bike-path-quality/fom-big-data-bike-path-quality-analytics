@@ -1,5 +1,6 @@
 import csv
 import glob
+import math
 import os
 from email.utils import formatdate
 from pathlib import Path
@@ -31,26 +32,27 @@ class BikeActivityPlotter:
 
                 csv_reader = csv.DictReader(csv_file)
 
-                data_x = []
-                data_y = []
-                data_z = []
+                data_accelerometer = []
+                data_speed = []
 
                 for row in csv_reader:
-                    bike_activity_measurement_accelerometer_x = row["bike_activity_measurement_accelerometer_x"]
-                    bike_activity_measurement_accelerometer_y = row["bike_activity_measurement_accelerometer_y"]
-                    bike_activity_measurement_accelerometer_z = row["bike_activity_measurement_accelerometer_z"]
-                    data_x.append(float(bike_activity_measurement_accelerometer_x))
-                    data_y.append(float(bike_activity_measurement_accelerometer_y))
-                    data_z.append(float(bike_activity_measurement_accelerometer_z))
+                    bike_activity_measurement_accelerometer_x = float(row["bike_activity_measurement_accelerometer_x"])
+                    bike_activity_measurement_accelerometer_y = float(row["bike_activity_measurement_accelerometer_y"])
+                    bike_activity_measurement_accelerometer_z = float(row["bike_activity_measurement_accelerometer_z"])
+                    bike_activity_measurement_accelerometer = math.sqrt((bike_activity_measurement_accelerometer_x ** 2
+                                                                         + bike_activity_measurement_accelerometer_y ** 2
+                                                                         + bike_activity_measurement_accelerometer_z ** 2) / 3)
+                    bike_activity_measurement_speed = float(row["bike_activity_measurement_speed"])
+                    data_accelerometer.append(float(bike_activity_measurement_accelerometer))
+                    data_speed.append(bike_activity_measurement_speed)
 
                 plt.figure(2)
                 plt.clf()
                 plt.title("Bike activity " + file_name)
                 plt.xlabel(xlabel)
                 plt.ylabel(ylabel)
-                plt.plot(data_x)
-                plt.plot(data_y)
-                plt.plot(data_z)
+                plt.plot(data_accelerometer)
+                plt.plot(data_speed)
 
                 plt.savefig(fname=results_path + "/" + file_base_name + ".png",
                             format="png",

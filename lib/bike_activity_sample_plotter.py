@@ -31,18 +31,22 @@ class BikeActivitySamplePlotter:
 
                 csv_reader = csv.DictReader(csv_file)
 
-                data = []
+                data_accelerometer = []
+                data_speed = []
 
                 for row in csv_reader:
-                    bike_activity_measurement_accelerometer = row["bike_activity_measurement_accelerometer"]
-                    data.append(float(bike_activity_measurement_accelerometer))
+                    bike_activity_measurement_accelerometer = float(row["bike_activity_measurement_accelerometer"])
+                    bike_activity_measurement_speed = float(row["bike_activity_measurement_speed"])
+                    data_accelerometer.append(bike_activity_measurement_accelerometer)
+                    data_speed.append(bike_activity_measurement_speed)
 
                 plt.figure(2)
                 plt.clf()
                 plt.title("Bike activity sample " + file_name)
                 plt.xlabel(xlabel)
                 plt.ylabel(ylabel)
-                plt.plot(data)
+                plt.plot(data_accelerometer)
+                plt.plot(data_speed)
 
                 plt.savefig(fname=results_path + "/" + file_base_name + ".png",
                             format="png",
