@@ -51,8 +51,9 @@ class BikeActivityPlotter:
                 plt.title("Bike activity " + file_name)
                 plt.xlabel(xlabel)
                 plt.ylabel(ylabel)
-                plt.plot(data_accelerometer)
-                plt.plot(data_speed)
+                plt.plot(data_accelerometer, label="accelerometer")
+                plt.plot(data_speed, label="speed")
+                plt.legend()
 
                 plt.savefig(fname=results_path + "/" + file_base_name + ".png",
                             format="png",
