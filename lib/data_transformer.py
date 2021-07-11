@@ -12,6 +12,8 @@ from pathlib import Path
 
 class DataTransformer:
 
+    BIKE_ACTIVITY_MEASUREMENT_SPEED_LIMIT = 5
+
     def run(self, data_path, results_path, clean=False):
         # Make results path
         os.makedirs(results_path, exist_ok=True)
@@ -30,6 +32,7 @@ class DataTransformer:
             with open(str(file_path)) as csv_file:
 
                 csv_reader = csv.DictReader(csv_file)
+                bike_activity_measurement_speed_valid = True
 
                 with open(os.path.join(results_path, file_name), "w") as out_file:
                     # Make results path
@@ -39,9 +42,12 @@ class DataTransformer:
                     csv_writer.writeheader()
 
                     for row in csv_reader:
-                        # Determine bike activity UID and bike activity sample UID
                         bike_activity_uid = row["bike_activity_uid"]
                         bike_activity_sample_uid = row["bike_activity_sample_uid"]
+                        bike_activity_measurement_speed = float(row["bike_activity_measurement_speed"])
+
+                        if bike_activity_measurement_speed * 3.6 < self.BIKE_ACTIVITY_MEASUREMENT_SPEED_LIMIT:
+                            bike_activity_measurement_speed_valid = False
 
                         bike_activity_measurement_accelerometer_x = float(row["bike_activity_measurement_accelerometer_x"])
                         bike_activity_measurement_accelerometer_y = float(row["bike_activity_measurement_accelerometer_y"])
@@ -53,6 +59,12 @@ class DataTransformer:
                         row.update({"bike_activity_measurement_accelerometer": bike_activity_measurement_accelerometer})
                         csv_writer.writerow(row)
 
-            print("✔️ Transforming " + file_name)
+                if not bike_activity_measurement_speed_valid:
+                    os.remove(os.path.join(results_path, file_name))
+
+            if bike_activity_measurement_speed_valid:
+                print("✔️ Transforming " + file_name)
+            else:
+                print("✗️ Skipping " + file_name)
 
         print("DataTransformer finished.")
