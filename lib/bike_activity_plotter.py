@@ -43,7 +43,7 @@ class BikeActivityPlotter:
                                                                          + bike_activity_measurement_accelerometer_y ** 2
                                                                          + bike_activity_measurement_accelerometer_z ** 2) / 3)
                     bike_activity_measurement_speed = float(row["bike_activity_measurement_speed"])
-                    data_accelerometer.append(float(bike_activity_measurement_accelerometer))
+                    data_accelerometer.append(bike_activity_measurement_accelerometer * 3.6)
                     data_speed.append(bike_activity_measurement_speed)
 
                 plt.figure(2)

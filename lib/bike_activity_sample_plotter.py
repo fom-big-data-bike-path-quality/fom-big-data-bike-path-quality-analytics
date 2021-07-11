@@ -37,7 +37,7 @@ class BikeActivitySamplePlotter:
                 for row in csv_reader:
                     bike_activity_measurement_accelerometer = float(row["bike_activity_measurement_accelerometer"])
                     bike_activity_measurement_speed = float(row["bike_activity_measurement_speed"])
-                    data_accelerometer.append(bike_activity_measurement_accelerometer)
+                    data_accelerometer.append(bike_activity_measurement_accelerometer * 3.6)
                     data_speed.append(bike_activity_measurement_speed)
 
                 plt.figure(2)

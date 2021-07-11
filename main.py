@@ -44,7 +44,7 @@ BikeActivitySamplePlotter().run(
     data_path=workspace_path + "/epochs/transformed",
     results_path=results_path + "/plots/bike-activity-sample",
     xlabel="time",
-    ylabel="acceleration/speed",
+    ylabel="acceleration [m/sˆ2]/ speed [km/h]",
     clean=True
 )
 
@@ -52,6 +52,6 @@ BikeActivityPlotter().run(
     data_path=data_path + "/measurements/csv",
     results_path=results_path + "/plots/bike-activity",
     xlabel="time",
-    ylabel="acceleration/speed",
+    ylabel="acceleration [m/sˆ2]/ speed [km/h]",
     clean=True
 )
