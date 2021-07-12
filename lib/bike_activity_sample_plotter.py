@@ -19,7 +19,7 @@ class BikeActivitySamplePlotter:
 
         # Clean results path
         if clean:
-            files = glob.glob(os.path.join(results_path, "*"))
+            files = glob.glob(os.path.join(results_path, "*.png"))
             for f in files:
                 os.remove(f)
 
@@ -60,6 +60,6 @@ class BikeActivitySamplePlotter:
 
                 plt.close()
 
-            print("✔️ Plotting " + file_name)
+            print("✓️ Plotting " + file_name)
 
         print("BikeActivitySamplePlotter finished.")

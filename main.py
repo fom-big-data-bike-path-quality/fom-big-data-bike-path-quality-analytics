@@ -33,11 +33,13 @@ results_path = script_path + "/results"
 EpochSplitter().run(
     data_path=data_path + "/measurements/csv",
     results_path=workspace_path + "/epochs/raw",
+    clean=True
 )
 
 DataTransformer().run(
     data_path=workspace_path + "/epochs/raw",
     results_path=workspace_path + "/epochs/transformed",
+    clean=True
 )
 
 BikeActivitySamplePlotter().run(

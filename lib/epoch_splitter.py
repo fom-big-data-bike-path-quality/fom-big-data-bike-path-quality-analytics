@@ -16,7 +16,7 @@ class EpochSplitter:
 
         # Clean results path
         if clean:
-            files = glob.glob(os.path.join(results_path, "*"))
+            files = glob.glob(os.path.join(results_path, "*.csv"))
             for f in files:
                 os.remove(f)
 
@@ -50,6 +50,6 @@ class EpochSplitter:
                 for file, _ in epochs.values():
                     file.close()
 
-            print("✔️ Splitting into epochs " + file_name)
+            print("✓️ Splitting into epochs " + file_name)
 
         print("EpochSplitter finished.")

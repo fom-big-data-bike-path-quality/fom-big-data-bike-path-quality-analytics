@@ -19,20 +19,26 @@ class DataTransformer:
 
         # Clean results path
         if clean:
-            files = glob.glob(os.path.join(results_path, "*"))
+            files = glob.glob(os.path.join(results_path, "*.csv"))
             for f in files:
                 os.remove(f)
+
+        file_count_total = 0
+        file_count_processed = 0
 
         for file_path in Path(data_path).rglob("*.csv"):
 
             file_name = os.path.basename(file_path.name)
             file_base_name = file_name.replace(".csv", "")
 
+            file_count_total += 1
+
+            bike_activity_measurement_speed_valid = True
+            bike_activity_measurement_surface_type = True
+
             with open(str(file_path)) as csv_file:
 
                 csv_reader = csv.DictReader(csv_file)
-                bike_activity_measurement_speed_valid = True
-                bike_activity_measurement_surface_type = True
 
                 with open(os.path.join(results_path, file_name), "w") as out_file:
                     # Make results path
@@ -49,9 +55,11 @@ class DataTransformer:
 
                         if bike_activity_measurement_speed * 3.6 < self.BIKE_ACTIVITY_MEASUREMENT_SPEED_LIMIT:
                             bike_activity_measurement_speed_valid = False
+                            break
 
                         if bike_activity_surface_type is not 'mixed':
                             bike_activity_measurement_surface_type = False
+                            break
 
                         bike_activity_measurement_accelerometer_x = float(row["bike_activity_measurement_accelerometer_x"])
                         bike_activity_measurement_accelerometer_y = float(row["bike_activity_measurement_accelerometer_y"])
@@ -63,13 +71,16 @@ class DataTransformer:
                         row.update({"bike_activity_measurement_accelerometer": bike_activity_measurement_accelerometer})
                         csv_writer.writerow(row)
 
-                if not bike_activity_measurement_speed_valid \
-                        or not bike_activity_measurement_surface_type:
-                    os.remove(os.path.join(results_path, file_name))
+            if not bike_activity_measurement_speed_valid or not bike_activity_measurement_surface_type:
+                os.remove(os.path.join(results_path, file_name))
 
-            if bike_activity_measurement_speed_valid:
-                print("✔️ Transforming " + file_name)
+            if not bike_activity_measurement_speed_valid:
+                print("✗️ Skipping " + file_name + " (containing slow measurements)")
+            elif not bike_activity_measurement_surface_type:
+                print("✗️ Skipping " + file_name + " (containing undefined surface type)")
             else:
-                print("✗️ Skipping " + file_name)
+                print("✓️ Transforming " + file_name)
+                file_count_processed += 1
 
+        print("Processed " + str(file_count_processed) + "/" + str(file_count_total))
         print("DataTransformer finished.")
