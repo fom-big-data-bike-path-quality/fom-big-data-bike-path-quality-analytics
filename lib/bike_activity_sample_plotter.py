@@ -37,12 +37,13 @@ class BikeActivitySamplePlotter:
                 for row in csv_reader:
                     bike_activity_measurement_accelerometer = float(row["bike_activity_measurement_accelerometer"])
                     bike_activity_measurement_speed = float(row["bike_activity_measurement_speed"])
-                    data_accelerometer.append(bike_activity_measurement_accelerometer * 3.6)
-                    data_speed.append(bike_activity_measurement_speed)
+                    bike_activity_surface_type = row["bike_activity_surface_type"]
+                    data_accelerometer.append(bike_activity_measurement_accelerometer)
+                    data_speed.append(bike_activity_measurement_speed * 3.6)
 
                 plt.figure(2)
                 plt.clf()
-                plt.title("Bike activity sample " + file_name)
+                plt.title("Bike activity sample " + file_name + " (" + bike_activity_surface_type + ")")
                 plt.xlabel(xlabel)
                 plt.ylabel(ylabel)
                 plt.plot(data_accelerometer, label="accelerometer")
