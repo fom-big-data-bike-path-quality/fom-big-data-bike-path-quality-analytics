@@ -57,7 +57,7 @@ class DataTransformer:
                             bike_activity_measurement_speed_valid = False
                             break
 
-                        if bike_activity_surface_type is not 'mixed':
+                        if bike_activity_surface_type == "mixed":
                             bike_activity_measurement_surface_type = False
                             break
 
