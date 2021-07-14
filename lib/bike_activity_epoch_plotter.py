@@ -1,5 +1,6 @@
 import csv
 import glob
+import math
 import os
 from email.utils import formatdate
 from pathlib import Path
@@ -11,7 +12,7 @@ import matplotlib.pyplot as plt
 # Main
 #
 
-class BikeActivitySamplePlotter:
+class BikeActivityEpochPlotter:
 
     def run(self, data_path, results_path, xlabel, ylabel, clean=False):
         # Make results path
@@ -31,21 +32,36 @@ class BikeActivitySamplePlotter:
 
                 csv_reader = csv.DictReader(csv_file)
 
+                data_accelerometer_x = []
+                data_accelerometer_y = []
+                data_accelerometer_z = []
                 data_accelerometer = []
                 data_speed = []
 
                 for row in csv_reader:
-                    bike_activity_measurement_accelerometer = float(row["bike_activity_measurement_accelerometer"])
+                    bike_activity_measurement_accelerometer_x = float(row["bike_activity_measurement_accelerometer_x"])
+                    bike_activity_measurement_accelerometer_y = float(row["bike_activity_measurement_accelerometer_y"])
+                    bike_activity_measurement_accelerometer_z = float(row["bike_activity_measurement_accelerometer_z"])
+                    bike_activity_measurement_accelerometer = math.sqrt((bike_activity_measurement_accelerometer_x ** 2
+                                                                         + bike_activity_measurement_accelerometer_y ** 2
+                                                                         + bike_activity_measurement_accelerometer_z ** 2) / 3)
                     bike_activity_measurement_speed = float(row["bike_activity_measurement_speed"])
                     bike_activity_surface_type = row["bike_activity_surface_type"]
+
+                    data_accelerometer_x.append(bike_activity_measurement_accelerometer_x)
+                    data_accelerometer_y.append(bike_activity_measurement_accelerometer_y)
+                    data_accelerometer_z.append(bike_activity_measurement_accelerometer_z)
                     data_accelerometer.append(bike_activity_measurement_accelerometer)
                     data_speed.append(bike_activity_measurement_speed * 3.6)
 
                 plt.figure(2)
                 plt.clf()
-                plt.title("Bike activity sample " + file_name + " (" + bike_activity_surface_type + ")")
+                plt.title("Bike activity sample " + file_base_name + " (" + bike_activity_surface_type + ")")
                 plt.xlabel(xlabel)
                 plt.ylabel(ylabel)
+                # plt.plot(data_accelerometer_x, label="accelerometer x")
+                # plt.plot(data_accelerometer_y, label="accelerometer y")
+                # plt.plot(data_accelerometer_z, label="accelerometer z")
                 plt.plot(data_accelerometer, label="accelerometer")
                 plt.plot(data_speed, label="speed")
                 plt.legend()
@@ -63,4 +79,4 @@ class BikeActivitySamplePlotter:
 
             print("✓️ Plotting " + file_name)
 
-        print("BikeActivitySamplePlotter finished.")
+        print("BikeActivityEpochPlotter finished.")

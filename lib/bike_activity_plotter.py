@@ -32,6 +32,9 @@ class BikeActivityPlotter:
 
                 csv_reader = csv.DictReader(csv_file)
 
+                data_accelerometer_x = []
+                data_accelerometer_y = []
+                data_accelerometer_z = []
                 data_accelerometer = []
                 data_speed = []
 
@@ -43,6 +46,10 @@ class BikeActivityPlotter:
                                                                          + bike_activity_measurement_accelerometer_y ** 2
                                                                          + bike_activity_measurement_accelerometer_z ** 2) / 3)
                     bike_activity_measurement_speed = float(row["bike_activity_measurement_speed"])
+
+                    data_accelerometer_x.append(bike_activity_measurement_accelerometer_x)
+                    data_accelerometer_y.append(bike_activity_measurement_accelerometer_y)
+                    data_accelerometer_z.append(bike_activity_measurement_accelerometer_z)
                     data_accelerometer.append(bike_activity_measurement_accelerometer)
                     data_speed.append(bike_activity_measurement_speed * 3.6)
 
@@ -51,6 +58,9 @@ class BikeActivityPlotter:
                 plt.title("Bike activity " + file_name)
                 plt.xlabel(xlabel)
                 plt.ylabel(ylabel)
+                # plt.plot(data_accelerometer_x, label="accelerometer x")
+                # plt.plot(data_accelerometer_y, label="accelerometer y")
+                # plt.plot(data_accelerometer_z, label="accelerometer z")
                 plt.plot(data_accelerometer, label="accelerometer")
                 plt.plot(data_speed, label="speed")
                 plt.legend()
