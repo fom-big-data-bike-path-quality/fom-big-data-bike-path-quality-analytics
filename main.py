@@ -12,9 +12,12 @@ for p in library_paths:
 
 # Import library classes
 from epoch_splitter import EpochSplitter
-from data_transformer import DataTransformer
 from bike_activity_plotter import BikeActivityPlotter
-from bike_activity_sample_plotter import BikeActivitySamplePlotter
+from bike_activity_epoch_plotter import BikeActivityEpochPlotter
+
+from data_loader import DataLoader
+from data_filterer import DataFilterer
+from data_transformer import DataTransformer
 
 # Configuration
 
@@ -27,28 +30,20 @@ workspace_path = script_path + "/workspace"
 results_path = script_path + "/results"
 
 #
-# Data preparation
+# Data pre-processing
 #
 
-EpochSplitter().run(
-    data_path=data_path + "/measurements/csv",
-    results_path=workspace_path + "/epochs/raw",
-    clean=True
-)
+# EpochSplitter().run(
+#     data_path=data_path + "/measurements/csv",
+#     results_path=workspace_path + "/epochs/raw",
+#     clean=True
+# )
 
-DataTransformer().run(
-    data_path=workspace_path + "/epochs/raw",
-    results_path=workspace_path + "/epochs/transformed",
-    clean=True
-)
+dataframes = DataLoader().run(data_path=workspace_path + "/epochs/raw")
 
-BikeActivitySamplePlotter().run(
-    data_path=workspace_path + "/epochs/transformed",
-    results_path=results_path + "/plots/bike-activity-sample",
-    xlabel="time",
-    ylabel="acceleration [m/sˆ2]/ speed [km/h]",
-    clean=True
-)
+#
+# Data Understanding
+#
 
 BikeActivityPlotter().run(
     data_path=data_path + "/measurements/csv",
@@ -57,3 +52,26 @@ BikeActivityPlotter().run(
     ylabel="acceleration [m/sˆ2]/ speed [km/h]",
     clean=True
 )
+
+BikeActivityEpochPlotter().run(
+    data_path=workspace_path + "/epochs/raw",
+    results_path=results_path + "/plots/bike-activity-sample",
+    xlabel="time",
+    ylabel="acceleration [m/sˆ2]/ speed [km/h]",
+    clean=True
+)
+
+#
+# Data Preparation
+#
+
+dataframes = DataFilterer().run(dataframes)
+dataframes = DataTransformer().run(dataframes)
+
+#
+# Modeling
+#
+
+#
+# Evaluation
+#
