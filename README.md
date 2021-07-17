@@ -1,3 +1,4 @@
+[![Train model](https://github.com/fom-big-data-bike-path-quality/fom-big-data-bike-path-quality-model/actions/workflows/train-model-workflow.yaml/badge.svg)](https://github.com/fom-big-data-bike-path-quality/fom-big-data-bike-path-quality-model/actions/workflows/train-model-workflow.yaml)
 [![Issues](https://img.shields.io/github/issues/florianschwanz/fom-big-data-bike-path-quality-model)](https://github.com/florianschwanz/fom-big-data-bike-path-quality-model/issues)
 
 <br />
