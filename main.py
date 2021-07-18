@@ -12,12 +12,10 @@ for p in library_paths:
 
 # Import library classes
 from epoch_splitter import EpochSplitter
-from bike_activity_plotter import BikeActivityPlotter
-from bike_activity_epoch_plotter import BikeActivityEpochPlotter
-
 from data_loader import DataLoader
 from data_filterer import DataFilterer
 from data_transformer import DataTransformer
+from train_test_data_splitter import TrainTestDataSplitter
 
 # Configuration
 
@@ -33,11 +31,11 @@ results_path = script_path + "/results"
 # Data pre-processing
 #
 
-# EpochSplitter().run(
-#     data_path=data_path + "/measurements/csv",
-#     results_path=workspace_path + "/epochs/raw",
-#     clean=True
-# )
+EpochSplitter().run(
+    data_path=data_path + "/measurements/csv",
+    results_path=workspace_path + "/epochs/raw",
+    clean=True
+)
 
 dataframes = DataLoader().run(data_path=workspace_path + "/epochs/raw")
 
@@ -71,6 +69,10 @@ dataframes = DataTransformer().run(dataframes)
 #
 # Modeling
 #
+
+random_state = 0
+
+train_dataframes, test_dataframes = TrainTestDataSplitter().run(dataframes=dataframes, test_size=0.15, random_state=random_state)
 
 #
 # Evaluation

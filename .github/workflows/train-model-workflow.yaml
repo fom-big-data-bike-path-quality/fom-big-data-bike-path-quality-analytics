@@ -26,6 +26,7 @@ jobs:
           pip install flake8 pytest
           pip install pandas
           pip install matplotlib
+          pip install sklearn
       - name: Run main script
         id: run-main-script
         run: |
