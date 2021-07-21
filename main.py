@@ -15,6 +15,8 @@ from epoch_splitter import EpochSplitter
 from data_loader import DataLoader
 from data_filterer import DataFilterer
 from data_transformer import DataTransformer
+from bike_activity_plotter import BikeActivityPlotter
+from bike_activity_epoch_plotter import BikeActivityEpochPlotter
 from train_test_data_splitter import TrainTestDataSplitter
 
 # Configuration
