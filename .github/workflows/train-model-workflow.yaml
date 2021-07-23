@@ -27,6 +27,7 @@ jobs:
           pip install pandas
           pip install matplotlib
           pip install sklearn
+          pip install torch
       - name: Run main script
         id: run-main-script
         run: |
