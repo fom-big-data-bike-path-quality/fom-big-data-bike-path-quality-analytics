@@ -12,6 +12,12 @@ class DataFilterer:
 
         for name, dataframe in list(dataframes.items()):
 
+            # Exclude dataframes which contain less than 500 measurements
+            if len(dataframe) < 500:
+                print("✗️ Filtering out " + name + " (less than 500 measurements)")
+                dataframes.pop(name)
+                continue
+
             # Exclude dataframes which contain surface type 'mixed'
             if "mixed" in dataframe.bike_activity_surface_type.values:
                 print("✗️ Filtering out " + name + " (containing undefined surface type)")
