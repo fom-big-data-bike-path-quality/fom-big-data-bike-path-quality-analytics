@@ -15,4 +15,5 @@ class TrainTestDataSplitter:
         train_dataframes = {id: dataframes[id] for id in train_ids}
         test_dataframes = {id: dataframes[id] for id in test_ids}
 
+        print("TrainTestDataSplitter finished.")
         return train_dataframes, test_dataframes
