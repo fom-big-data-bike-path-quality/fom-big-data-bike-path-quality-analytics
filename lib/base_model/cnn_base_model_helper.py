@@ -1,6 +1,6 @@
 import numpy as np
 import torch
-from torch.utils.data import TensorDataset
+from torch.utils.data import TensorDataset, DataLoader
 
 
 def create_array(dataframes):
@@ -34,6 +34,15 @@ def create_dataset(array):
     )
 
 
+def create_loader(dataset, batch_size=128, shuffle=False, num_workers=0):
+    return DataLoader(
+        dataset=dataset,
+        batch_size=batch_size,
+        shuffle=shuffle,
+        num_workers=num_workers
+    )
+
+
 #
 # Main
 #
@@ -48,3 +57,7 @@ class CnnBaseModelHelper:
         # Create data sets
         train_dataset = create_dataset(train_array)
         test_dataset = create_dataset(test_array)
+
+        # Create data loaders
+        train_data_loader = create_loader(train_dataset, shuffle=True)
+        test_data_loader = create_loader(test_dataset, shuffle=False)
