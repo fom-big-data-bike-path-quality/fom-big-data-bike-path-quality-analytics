@@ -3,7 +3,8 @@ import sys
 
 # Make library available in path
 library_paths = [
-    os.path.join(os.getcwd(), 'lib')
+    os.path.join(os.getcwd(), 'lib'),
+    os.path.join(os.getcwd(), 'lib/base_model'),
 ]
 
 for p in library_paths:
@@ -18,6 +19,7 @@ from data_transformer import DataTransformer
 from bike_activity_plotter import BikeActivityPlotter
 from bike_activity_epoch_plotter import BikeActivityEpochPlotter
 from train_test_data_splitter import TrainTestDataSplitter
+from cnn_base_model_helper import CnnBaseModelHelper
 
 # Configuration
 
@@ -75,6 +77,8 @@ dataframes = DataTransformer().run(dataframes)
 random_state = 0
 
 train_dataframes, test_dataframes = TrainTestDataSplitter().run(dataframes=dataframes, test_size=0.15, random_state=random_state)
+
+CnnBaseModelHelper().run(train_dataframes=train_dataframes, test_dataframes=test_dataframes)
 
 #
 # Evaluation
