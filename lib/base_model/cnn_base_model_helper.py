@@ -1,6 +1,20 @@
+import os
+
 import numpy as np
 import torch
 from torch.utils.data import TensorDataset, DataLoader
+
+# Make library available in path
+library_paths = [
+    os.path.join(os.getcwd(), 'lib'),
+    os.path.join(os.getcwd(), 'lib/base_model'),
+]
+
+# Import library classes
+from classifier import Classifier
+
+# Set up device
+device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 
 def create_array(dataframes):
@@ -61,3 +75,9 @@ class CnnBaseModelHelper:
         # Create data loaders
         train_data_loader = create_loader(train_dataset, shuffle=True)
         test_data_loader = create_loader(test_dataset, shuffle=False)
+
+        # Define classifier
+        classifier = Classifier(
+            input_channels=train_array.shape[1],
+            num_classes=18
+        ).to(device)
