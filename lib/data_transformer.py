@@ -1,5 +1,6 @@
 import math
-
+from sklearn.preprocessing import LabelEncoder
+le = LabelEncoder()
 
 def getAccelerometer(row):
     """
@@ -24,6 +25,7 @@ class DataTransformer:
     def run(self, dataframes):
         for name, dataframe in list(dataframes.items()):
             dataframe["bike_activity_measurement_accelerometer"] = dataframe.apply(lambda row: getAccelerometer(row), axis=1)
+            dataframe["bike_activity_surface_type_label_encoded"] = le.fit_transform(dataframe["bike_activity_surface_type"])
 
         print("DataTransformer finished.")
         return dataframes
