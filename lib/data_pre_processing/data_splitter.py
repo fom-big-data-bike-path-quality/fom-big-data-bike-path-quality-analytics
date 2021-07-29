@@ -1,6 +1,6 @@
+import csv
 import glob
 import os
-import csv
 
 
 #
@@ -8,7 +8,7 @@ import csv
 #
 
 
-class EpochSplitter:
+class DataSplitter:
 
     def run(self, data_path, results_path, clean=False):
         # Make results path
@@ -27,14 +27,14 @@ class EpochSplitter:
             with open(file_path) as csv_file:
                 csv_reader = csv.DictReader(csv_file)
 
-                epochs = {}
+                slices = {}
                 for row in csv_reader:
 
                     # Determine bike activity UID and bike activity sample UID
                     bike_activity_uid = row["bike_activity_uid"]
                     bike_activity_sample_uid = row["bike_activity_sample_uid"]
 
-                    if bike_activity_sample_uid not in epochs:
+                    if bike_activity_sample_uid not in slices:
                         # Make results path
                         os.makedirs(results_path + "/" + bike_activity_uid, exist_ok=True)
 
@@ -42,14 +42,14 @@ class EpochSplitter:
                         out_file = open(results_path + "/" + bike_activity_uid + "/" + bike_activity_sample_uid + ".csv", "w")
                         csv_writer = csv.DictWriter(out_file, fieldnames=csv_reader.fieldnames)
                         csv_writer.writeheader()
-                        epochs[bike_activity_sample_uid] = out_file, csv_writer
+                        slices[bike_activity_sample_uid] = out_file, csv_writer
 
                     # Append row
-                    epochs[bike_activity_sample_uid][1].writerow(row)
+                    slices[bike_activity_sample_uid][1].writerow(row)
                 # Close all the files
-                for file, _ in epochs.values():
+                for file, _ in slices.values():
                     file.close()
 
-            print("✓️ Splitting into epochs " + file_name)
+            print("✓️ Splitting into slices " + file_name)
 
-        print("EpochSplitter finished.")
+        print("Data Splitter finished with " + str(len(slices.items())) + " slices")

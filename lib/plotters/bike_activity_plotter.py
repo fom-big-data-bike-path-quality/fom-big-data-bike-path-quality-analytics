@@ -24,6 +24,8 @@ class BikeActivityPlotter:
             for f in files:
                 os.remove(f)
 
+        bike_activities_plotted_count = 0
+
         for file_path in Path(data_path).rglob("*.csv"):
             file_name = os.path.basename(file_path.name)
             file_base_name = file_name.replace(".csv", "")
@@ -76,6 +78,8 @@ class BikeActivityPlotter:
 
                 plt.close()
 
+            bike_activities_plotted_count += 1
             print("✓️ Plotting " + file_name)
 
-        print("BikeActivityPlotter finished.")
+        print("Bike activity plotter finished with " + str(bike_activities_plotted_count) + " activities plotted")
+

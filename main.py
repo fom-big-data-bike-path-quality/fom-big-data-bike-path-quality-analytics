@@ -5,8 +5,11 @@ import sys
 # Make library available in path
 library_paths = [
     os.path.join(os.getcwd(), 'lib'),
-    os.path.join(os.getcwd(), 'lib/base_model'),
+    os.path.join(os.getcwd(), 'lib/data_pre_processing'),
+    os.path.join(os.getcwd(), 'lib/data_preparation'),
     os.path.join(os.getcwd(), 'lib/plotters'),
+    os.path.join(os.getcwd(), 'lib/base_model'),
+    os.path.join(os.getcwd(), 'lib/base_model/layers'),
 ]
 
 for p in library_paths:
@@ -14,12 +17,12 @@ for p in library_paths:
         sys.path.insert(0, p)
 
 # Import library classes
-from epoch_splitter import EpochSplitter
+from data_splitter import DataSplitter
 from data_loader import DataLoader
 from data_filterer import DataFilterer
 from data_transformer import DataTransformer
 from bike_activity_plotter import BikeActivityPlotter
-from bike_activity_epoch_plotter import BikeActivityEpochPlotter
+from bike_activity_slice_plotter import BikeActivitySlicePlotter
 from train_test_data_splitter import TrainTestDataSplitter
 from cnn_base_model_helper import CnnBaseModelHelper
 
@@ -63,9 +66,9 @@ def main(argv):
     # Data pre-processing
     #
 
-    EpochSplitter().run(
+    DataSplitter().run(
         data_path=data_path + "/measurements/csv",
-        results_path=workspace_path + "/epochs/raw",
+        results_path=workspace_path + "/slices/raw",
         clean=True
     )
 
@@ -83,8 +86,8 @@ def main(argv):
         clean=True
     )
 
-    BikeActivityEpochPlotter().run(
-        data_path=workspace_path + "/epochs/raw",
+    BikeActivitySlicePlotter().run(
+        data_path=workspace_path + "/slices/raw",
         results_path=results_path + "/plots/bike-activity-sample",
         xlabel="time",
         ylabel="acceleration [m/sˆ2]/ speed [km/h]",

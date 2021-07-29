@@ -28,5 +28,5 @@ class DataLoader:
 
             dataframes[file_base_name] = dataframe
 
-        print("DataLoader finished.")
+        print("Data loader finished with " + str(len(dataframes)) + " dataframes loaded")
         return dataframes

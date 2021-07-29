@@ -9,5 +9,8 @@
 /lib/__pycache__/*
 /lib/base_model/__pycache__/*
 /lib/base_model/layers/__pycache__/*
+/lib/data_pre_processing/__pycache__/*
+/lib/data_preparation/__pycache__/*
+/lib/plotters/__pycache__/*
 /results/
 /workspace/

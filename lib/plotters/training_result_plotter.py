@@ -49,4 +49,4 @@ class TrainingResultPlotter:
 
         print("✓️ Plotting " + file_name)
 
-        print("TrainingResultPlotter finished.")
+        print("Training result plotter finished")

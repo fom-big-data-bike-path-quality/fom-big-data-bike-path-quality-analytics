@@ -137,7 +137,7 @@ class CnnBaseModelHelper:
 
         TrainingResultPlotter().run(
             data=loss_history,
-            results_path=results_path + "/training",
+            results_path=results_path + "/plots/training",
             file_name="loss",
             title="Validation loss history",
             description="Validation loss history",
@@ -147,7 +147,7 @@ class CnnBaseModelHelper:
 
         TrainingResultPlotter().run(
             data=accuracy_history,
-            results_path=results_path + "/training",
+            results_path=results_path + "/plots/training",
             file_name="accuracy",
             title="Validation accuracy history",
             description="Validation accuracy history",
@@ -155,4 +155,4 @@ class CnnBaseModelHelper:
             ylabel="Accuracy",
             clean=True)
 
-        print("CnnBaseModelHelper finished.")
+        print("CNN base model finished")

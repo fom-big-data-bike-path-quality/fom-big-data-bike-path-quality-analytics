@@ -41,5 +41,5 @@ class DataTransformer:
                             "bike_activity_surface_type",
                             "bike_activity_smoothness_type"], axis=1, inplace=True)
 
-        print("DataTransformer finished.")
+        print("Data transformer finished with " + str(len(dataframes)) + " dataframes transformed")
         return dataframes

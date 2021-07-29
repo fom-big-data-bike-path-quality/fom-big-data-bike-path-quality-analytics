@@ -12,7 +12,7 @@ import matplotlib.pyplot as plt
 # Main
 #
 
-class BikeActivityEpochPlotter:
+class BikeActivitySlicePlotter:
 
     def run(self, data_path, results_path, xlabel, ylabel, clean=False):
         # Make results path
@@ -23,6 +23,8 @@ class BikeActivityEpochPlotter:
             files = glob.glob(os.path.join(results_path, "*.png"))
             for f in files:
                 os.remove(f)
+
+        bike_activity_slices_plotted_count = 0
 
         for file_path in Path(data_path).rglob("*.csv"):
             file_name = os.path.basename(file_path.name)
@@ -77,6 +79,7 @@ class BikeActivityEpochPlotter:
 
                 plt.close()
 
+            bike_activity_slices_plotted_count += 1
             print("✓️ Plotting " + file_name)
 
-        print("BikeActivityEpochPlotter finished.")
+        print("Bike activity slice plotter finished with " + str(bike_activity_slices_plotted_count) + " slices plotted")
