@@ -13,7 +13,8 @@ class TrainTestDataSplitter:
         train_ids, test_ids = train_test_split(ids, test_size=test_size, random_state=random_state)
 
         train_dataframes = {id: dataframes[id] for id in train_ids}
-        test_dataframes = {id: dataframes[id] for id in test_ids}
+        validation_dataframes = {id: dataframes[id] for id in test_ids}
+        test_dataframes = {id: dataframes[id] for id in ids}
 
         print("TrainTestDataSplitter finished.")
-        return train_dataframes, test_dataframes
+        return train_dataframes, validation_dataframes, test_dataframes
