@@ -1,3 +1,4 @@
+import getopt
 import os
 import sys
 
@@ -21,65 +22,98 @@ from bike_activity_epoch_plotter import BikeActivityEpochPlotter
 from train_test_data_splitter import TrainTestDataSplitter
 from cnn_base_model_helper import CnnBaseModelHelper
 
-# Configuration
-
-# Set script path
-file_path = os.path.realpath(__file__)
-script_path = os.path.dirname(file_path)
-
-data_path = script_path + "/data/data"
-workspace_path = script_path + "/workspace"
-results_path = script_path + "/results"
 
 #
-# Data pre-processing
+# Main
 #
 
-EpochSplitter().run(
-    data_path=data_path + "/measurements/csv",
-    results_path=workspace_path + "/epochs/raw",
-    clean=True
-)
+def main(argv):
+    # Set default values
+    epochs = 3000
 
-dataframes = DataLoader().run(data_path=workspace_path + "/epochs/raw")
+    # Read command line arguments
+    try:
+        opts, args = getopt.getopt(argv, "hde:", ["dry-run", "epochs="])
+    except getopt.GetoptError:
+        print("main.py -e <epochs>")
+        sys.exit(2)
+    for opt, arg in opts:
+        if opt == '-h':
+            print("main.py -e <epochs>")
+            sys.exit()
+        elif opt in ("-d", "--dry-run"):
+            epochs = 1
+        elif opt in ("-e", "--epochs"):
+            epochs = int(arg)
 
-#
-# Data Understanding
-#
+    # Print parameters
+    print("Parameters")
+    print("❄ epochs: " + str(epochs))
 
-BikeActivityPlotter().run(
-    data_path=data_path + "/measurements/csv",
-    results_path=results_path + "/plots/bike-activity",
-    xlabel="time",
-    ylabel="acceleration [m/sˆ2]/ speed [km/h]",
-    clean=True
-)
+    # Set paths
+    file_path = os.path.realpath(__file__)
+    script_path = os.path.dirname(file_path)
+    data_path = script_path + "/data/data"
+    workspace_path = script_path + "/workspace"
+    results_path = script_path + "/results"
 
-BikeActivityEpochPlotter().run(
-    data_path=workspace_path + "/epochs/raw",
-    results_path=results_path + "/plots/bike-activity-sample",
-    xlabel="time",
-    ylabel="acceleration [m/sˆ2]/ speed [km/h]",
-    clean=True
-)
+    #
+    # Data pre-processing
+    #
 
-#
-# Data Preparation
-#
+    EpochSplitter().run(
+        data_path=data_path + "/measurements/csv",
+        results_path=workspace_path + "/epochs/raw",
+        clean=True
+    )
 
-dataframes = DataFilterer().run(dataframes)
-dataframes = DataTransformer().run(dataframes)
+    dataframes = DataLoader().run(data_path=workspace_path + "/epochs/raw")
 
-#
-# Modeling
-#
+    #
+    # Data Understanding
+    #
 
-random_state = 0
+    BikeActivityPlotter().run(
+        data_path=data_path + "/measurements/csv",
+        results_path=results_path + "/plots/bike-activity",
+        xlabel="time",
+        ylabel="acceleration [m/sˆ2]/ speed [km/h]",
+        clean=True
+    )
 
-train_dataframes, test_dataframes = TrainTestDataSplitter().run(dataframes=dataframes, test_size=0.15, random_state=random_state)
+    BikeActivityEpochPlotter().run(
+        data_path=workspace_path + "/epochs/raw",
+        results_path=results_path + "/plots/bike-activity-sample",
+        xlabel="time",
+        ylabel="acceleration [m/sˆ2]/ speed [km/h]",
+        clean=True
+    )
 
-CnnBaseModelHelper().run(train_dataframes=train_dataframes, test_dataframes=test_dataframes)
+    #
+    # Data Preparation
+    #
 
-#
-# Evaluation
-#
+    random_state = 0
+
+    dataframes = DataFilterer().run(dataframes)
+    dataframes = DataTransformer().run(dataframes)
+
+    train_dataframes, validation_dataframes, test_dataframes = TrainTestDataSplitter().run(
+        dataframes=dataframes, test_size=0.15,
+        random_state=random_state
+    )
+
+    #
+    # Modeling
+    #
+
+    CnnBaseModelHelper().run(
+        train_dataframes=train_dataframes,
+        validation_dataframes=validation_dataframes,
+        test_dataframes=test_dataframes,
+        n_epochs=epochs
+    )
+
+
+if __name__ == "__main__":
+    main(sys.argv[1:])
