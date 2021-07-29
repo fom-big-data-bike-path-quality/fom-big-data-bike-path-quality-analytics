@@ -1,21 +1,12 @@
-import os
-
 import numpy as np
 import torch
+from classifier import Classifier
 from torch import nn
 from torch import optim
 from torch.nn import functional as F
 from torch.utils.data import TensorDataset, DataLoader
 from tqdm import tqdm
-
-# Make library available in path
-library_paths = [
-    os.path.join(os.getcwd(), 'lib'),
-    os.path.join(os.getcwd(), 'lib/base_model'),
-]
-
-# Import library classes
-from classifier import Classifier
+from training_result_plotter import TrainingResultPlotter
 
 # Set up device
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -67,7 +58,7 @@ def create_loader(dataset, batch_size=128, shuffle=False, num_workers=0):
 
 class CnnBaseModelHelper:
 
-    def run(self, train_dataframes, validation_dataframes, test_dataframes, learning_rate=0.001, n_epochs=3000):
+    def run(self, train_dataframes, validation_dataframes, test_dataframes, learning_rate, n_epochs, workspace_path, results_path):
         # Create arrays
         train_array = create_array(train_dataframes)
         validation_array = create_array(validation_dataframes)
@@ -143,3 +134,25 @@ class CnnBaseModelHelper:
                 if trials >= patience:
                     print("No further improvement after epoch " + str(epoch))
                     break
+
+        TrainingResultPlotter().run(
+            data=loss_history,
+            results_path=results_path + "/training",
+            file_name="loss",
+            title="Validation loss history",
+            description="Validation loss history",
+            xlabel="Epoch",
+            ylabel="Loss",
+            clean=True)
+
+        TrainingResultPlotter().run(
+            data=accuracy_history,
+            results_path=results_path + "/training",
+            file_name="accuracy",
+            title="Validation accuracy history",
+            description="Validation accuracy history",
+            xlabel="Epoch",
+            ylabel="Accuracy",
+            clean=True)
+
+        print("CnnBaseModelHelper finished.")

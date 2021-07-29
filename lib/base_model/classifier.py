@@ -1,21 +1,6 @@
-import os
-import sys
-
-from torch import nn
-
-# Make library available in path
-library_paths = [
-    os.path.join(os.getcwd(), 'lib'),
-    os.path.join(os.getcwd(), 'lib/base_model'),
-    os.path.join(os.getcwd(), 'lib/base_model/layers'),
-]
-
-for p in library_paths:
-    if not (p in sys.path):
-        sys.path.insert(0, p)
-
 from flatten import Flatten
 from separator_conv_1d import SeparatorConv1d
+from torch import nn
 
 
 class Classifier(nn.Module):

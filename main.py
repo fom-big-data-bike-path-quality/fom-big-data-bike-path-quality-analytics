@@ -6,6 +6,7 @@ import sys
 library_paths = [
     os.path.join(os.getcwd(), 'lib'),
     os.path.join(os.getcwd(), 'lib/base_model'),
+    os.path.join(os.getcwd(), 'lib/plotters'),
 ]
 
 for p in library_paths:
@@ -30,6 +31,7 @@ from cnn_base_model_helper import CnnBaseModelHelper
 def main(argv):
     # Set default values
     epochs = 3000
+    learning_rate = 0.001
 
     # Read command line arguments
     try:
@@ -111,7 +113,10 @@ def main(argv):
         train_dataframes=train_dataframes,
         validation_dataframes=validation_dataframes,
         test_dataframes=test_dataframes,
-        n_epochs=epochs
+        n_epochs=epochs,
+        learning_rate=learning_rate,
+        workspace_path=workspace_path,
+        results_path=results_path
     )
 
 
