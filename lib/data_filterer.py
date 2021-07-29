@@ -34,6 +34,7 @@ class DataFilterer:
 
         dataframes_filtered_count = len(dataframes.items())
 
-        print("Keeping " + str(dataframes_filtered_count) + "/" + str(dataframes_count) + " dataframes")
+        print("Keeping " + str(dataframes_filtered_count) + "/" + str(dataframes_count)
+              + " dataframes (" + str(round(dataframes_filtered_count / dataframes_count, 2) * 100) + "%)")
         print("DataFilterer finished.")
         return dataframes
