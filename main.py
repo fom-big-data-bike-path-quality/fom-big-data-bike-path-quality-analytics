@@ -35,19 +35,23 @@ def main(argv):
     # Set default values
     epochs = 3000
     learning_rate = 0.001
+    clean = False
 
     # Read command line arguments
     try:
-        opts, args = getopt.getopt(argv, "hde:", ["dry-run", "epochs="])
+        opts, args = getopt.getopt(argv, "hcde:", ["help", "clean", "dry-run", "epochs="])
     except getopt.GetoptError:
         print("main.py -e <epochs>")
         sys.exit(2)
     for opt, arg in opts:
-        if opt == '-h':
+        if opt == ("-h", "--help"):
             print("main.py -e <epochs>")
             sys.exit()
+        elif opt in ("-c", "--clean"):
+            clean = True
         elif opt in ("-d", "--dry-run"):
             epochs = 1
+            clean = True
         elif opt in ("-e", "--epochs"):
             epochs = int(arg)
 
@@ -69,7 +73,7 @@ def main(argv):
     DataSplitter().run(
         data_path=data_path + "/measurements/csv",
         results_path=workspace_path + "/slices/raw",
-        clean=True
+        clean=clean
     )
 
     dataframes = DataLoader().run(data_path=workspace_path + "/epochs/raw")
@@ -83,7 +87,7 @@ def main(argv):
         results_path=results_path + "/plots/bike-activity",
         xlabel="time",
         ylabel="acceleration [m/sˆ2]/ speed [km/h]",
-        clean=True
+        clean=clean
     )
 
     BikeActivitySlicePlotter().run(
@@ -91,7 +95,7 @@ def main(argv):
         results_path=results_path + "/plots/bike-activity-sample",
         xlabel="time",
         ylabel="acceleration [m/sˆ2]/ speed [km/h]",
-        clean=True
+        clean=clean
     )
 
     #

@@ -30,56 +30,60 @@ class BikeActivityPlotter:
             file_name = os.path.basename(file_path.name)
             file_base_name = file_name.replace(".csv", "")
 
-            with open(str(file_path)) as csv_file:
+            results_file = results_path + "/" + file_base_name + ".png"
 
-                csv_reader = csv.DictReader(csv_file)
+            if not Path(results_file).exists() or clean:
 
-                data_accelerometer_x = []
-                data_accelerometer_y = []
-                data_accelerometer_z = []
-                data_accelerometer = []
-                data_speed = []
+                with open(str(file_path)) as csv_file:
 
-                for row in csv_reader:
-                    bike_activity_measurement_accelerometer_x = float(row["bike_activity_measurement_accelerometer_x"])
-                    bike_activity_measurement_accelerometer_y = float(row["bike_activity_measurement_accelerometer_y"])
-                    bike_activity_measurement_accelerometer_z = float(row["bike_activity_measurement_accelerometer_z"])
-                    bike_activity_measurement_accelerometer = math.sqrt((bike_activity_measurement_accelerometer_x ** 2
-                                                                         + bike_activity_measurement_accelerometer_y ** 2
-                                                                         + bike_activity_measurement_accelerometer_z ** 2) / 3)
-                    bike_activity_measurement_speed = float(row["bike_activity_measurement_speed"])
+                    csv_reader = csv.DictReader(csv_file)
 
-                    data_accelerometer_x.append(bike_activity_measurement_accelerometer_x)
-                    data_accelerometer_y.append(bike_activity_measurement_accelerometer_y)
-                    data_accelerometer_z.append(bike_activity_measurement_accelerometer_z)
-                    data_accelerometer.append(bike_activity_measurement_accelerometer)
-                    data_speed.append(bike_activity_measurement_speed * 3.6)
+                    data_accelerometer_x = []
+                    data_accelerometer_y = []
+                    data_accelerometer_z = []
+                    data_accelerometer = []
+                    data_speed = []
 
-                plt.figure(2)
-                plt.clf()
-                plt.title("Bike activity " + file_name)
-                plt.xlabel(xlabel)
-                plt.ylabel(ylabel)
-                # plt.plot(data_accelerometer_x, label="accelerometer x")
-                # plt.plot(data_accelerometer_y, label="accelerometer y")
-                # plt.plot(data_accelerometer_z, label="accelerometer z")
-                plt.plot(data_accelerometer, label="accelerometer")
-                plt.plot(data_speed, label="speed")
-                plt.legend()
+                    for row in csv_reader:
+                        bike_activity_measurement_accelerometer_x = float(row["bike_activity_measurement_accelerometer_x"])
+                        bike_activity_measurement_accelerometer_y = float(row["bike_activity_measurement_accelerometer_y"])
+                        bike_activity_measurement_accelerometer_z = float(row["bike_activity_measurement_accelerometer_z"])
+                        bike_activity_measurement_accelerometer = math.sqrt((bike_activity_measurement_accelerometer_x ** 2
+                                                                             + bike_activity_measurement_accelerometer_y ** 2
+                                                                             + bike_activity_measurement_accelerometer_z ** 2) / 3)
+                        bike_activity_measurement_speed = float(row["bike_activity_measurement_speed"])
 
-                plt.savefig(fname=results_path + "/" + file_base_name + ".png",
-                            format="png",
-                            metadata={
-                                "Title": "Bike activity " + file_base_name,
-                                "Author": "Florian Schwanz",
-                                "Creation Time": formatdate(timeval=None, localtime=False, usegmt=True),
-                                "Description": "Plot of bike activity sample " + file_base_name
-                            })
+                        data_accelerometer_x.append(bike_activity_measurement_accelerometer_x)
+                        data_accelerometer_y.append(bike_activity_measurement_accelerometer_y)
+                        data_accelerometer_z.append(bike_activity_measurement_accelerometer_z)
+                        data_accelerometer.append(bike_activity_measurement_accelerometer)
+                        data_speed.append(bike_activity_measurement_speed * 3.6)
 
-                plt.close()
+                    plt.figure(2)
+                    plt.clf()
+                    plt.title("Bike activity " + file_name)
+                    plt.xlabel(xlabel)
+                    plt.ylabel(ylabel)
+                    # plt.plot(data_accelerometer_x, label="accelerometer x")
+                    # plt.plot(data_accelerometer_y, label="accelerometer y")
+                    # plt.plot(data_accelerometer_z, label="accelerometer z")
+                    plt.plot(data_accelerometer, label="accelerometer")
+                    plt.plot(data_speed, label="speed")
+                    plt.legend()
 
-            bike_activities_plotted_count += 1
-            print("✓️ Plotting " + file_name)
+                    plt.savefig(fname=results_file,
+                                format="png",
+                                metadata={
+                                    "Title": "Bike activity " + file_base_name,
+                                    "Author": "Florian Schwanz",
+                                    "Creation Time": formatdate(timeval=None, localtime=False, usegmt=True),
+                                    "Description": "Plot of bike activity sample " + file_base_name
+                                })
+
+                    plt.close()
+
+                bike_activities_plotted_count += 1
+                print("✓️ Plotting " + file_name)
 
         print("Bike activity plotter finished with " + str(bike_activities_plotted_count) + " activities plotted")
 
