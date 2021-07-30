@@ -33,13 +33,13 @@ from cnn_base_model_helper import CnnBaseModelHelper
 
 def main(argv):
     # Set default values
+    clean = False
     epochs = 3000
     learning_rate = 0.001
-    clean = False
 
     # Read command line arguments
     try:
-        opts, args = getopt.getopt(argv, "hcde:", ["help", "clean", "dry-run", "epochs="])
+        opts, args = getopt.getopt(argv, "hcdel:", ["help", "clean", "dry-run", "epochs=", "learningrate="])
     except getopt.GetoptError:
         print("main.py -e <epochs>")
         sys.exit(2)
@@ -54,10 +54,13 @@ def main(argv):
             clean = True
         elif opt in ("-e", "--epochs"):
             epochs = int(arg)
+        elif opt in ("-l", "--learningrate"):
+            learning_rate = float(arg)
 
     # Print parameters
     print("Parameters")
     print("❄ epochs: " + str(epochs))
+    print("❄ learningrate: " + str(learning_rate))
 
     # Set paths
     file_path = os.path.realpath(__file__)
@@ -120,7 +123,7 @@ def main(argv):
         train_dataframes=train_dataframes,
         validation_dataframes=validation_dataframes,
         test_dataframes=test_dataframes,
-        n_epochs=epochs,
+        epochs=epochs,
         learning_rate=learning_rate,
         workspace_path=workspace_path,
         results_path=results_path

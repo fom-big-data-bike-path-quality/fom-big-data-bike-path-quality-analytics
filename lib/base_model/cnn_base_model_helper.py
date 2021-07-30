@@ -58,7 +58,7 @@ def create_loader(dataset, batch_size=128, shuffle=False, num_workers=0):
 
 class CnnBaseModelHelper:
 
-    def run(self, train_dataframes, validation_dataframes, test_dataframes, learning_rate, n_epochs, workspace_path, results_path):
+    def run(self, train_dataframes, validation_dataframes, test_dataframes, learning_rate, epochs, workspace_path, results_path):
         # Create arrays
         train_array = create_array(train_dataframes)
         validation_array = create_array(validation_dataframes)
@@ -91,7 +91,7 @@ class CnnBaseModelHelper:
         accuracy_history = []
 
         # Run training loop
-        progress_bar = tqdm(iterable=range(1, n_epochs + 1), unit='epochs', desc="Train model")
+        progress_bar = tqdm(iterable=range(1, epochs + 1), unit='epochs', desc="Train model")
         for epoch in progress_bar:
 
             classifier.train()
