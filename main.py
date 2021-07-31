@@ -79,7 +79,9 @@ def main(argv):
         clean=clean
     )
 
-    dataframes = DataLoader().run(data_path=workspace_path + "/epochs/raw")
+    dataframes = DataLoader().run(
+        data_path=workspace_path + "/slices/raw"
+    )
 
     #
     # Data Understanding
