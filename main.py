@@ -21,6 +21,7 @@ from data_splitter import DataSplitter
 from data_loader import DataLoader
 from data_filterer import DataFilterer
 from data_transformer import DataTransformer
+from data_normalizer import DataNormalizer
 from bike_activity_plotter import BikeActivityPlotter
 from bike_activity_slice_plotter import BikeActivitySlicePlotter
 from train_test_data_splitter import TrainTestDataSplitter
@@ -111,6 +112,7 @@ def main(argv):
 
     dataframes = DataFilterer().run(dataframes)
     dataframes = DataTransformer().run(dataframes)
+    dataframes = DataNormalizer().run(dataframes)
 
     train_dataframes, validation_dataframes, test_dataframes = TrainTestDataSplitter().run(
         dataframes=dataframes, test_size=0.15,
