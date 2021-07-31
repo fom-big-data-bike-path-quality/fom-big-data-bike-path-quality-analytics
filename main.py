@@ -24,6 +24,7 @@ from data_transformer import DataTransformer
 from data_normalizer import DataNormalizer
 from bike_activity_plotter import BikeActivityPlotter
 from bike_activity_slice_plotter import BikeActivitySlicePlotter
+from bike_activity_surface_type_plotter import BikeActivitySurfaceTypePlotter
 from train_test_data_splitter import TrainTestDataSplitter
 from cnn_base_model_helper import CnnBaseModelHelper
 
@@ -104,6 +105,17 @@ def main(argv):
         clean=clean
     )
 
+    BikeActivitySurfaceTypePlotter().run(
+        dataframes=dataframes,
+        results_path=results_path + "/plots/bike-activity-surface-type",
+        file_name="surface_type",
+        title="Surface type distribution",
+        description="Distribution of surfacee types in input data",
+        xlabel="surface type",
+        ylabel="count",
+        clean=clean
+    )
+
     #
     # Data Preparation
     #
@@ -115,7 +127,8 @@ def main(argv):
     dataframes = DataNormalizer().run(dataframes)
 
     train_dataframes, validation_dataframes, test_dataframes = TrainTestDataSplitter().run(
-        dataframes=dataframes, test_size=0.15,
+        dataframes=dataframes,
+        test_size=0.15,
         random_state=random_state
     )
 

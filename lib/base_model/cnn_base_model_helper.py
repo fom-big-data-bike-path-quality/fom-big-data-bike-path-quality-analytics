@@ -30,16 +30,15 @@ def create_array(dataframes):
 
 
 def create_dataset(array):
-    epochs_count = len(array)
     return TensorDataset(
         # 3D array with
         # axis-0 = epoch
         # axis-1 = features in a measurement (INPUT)
         # axis-2 = measurements in an epoch
-        torch.tensor(data=array[:epochs_count, :-1]).float(),
+        torch.tensor(data=array[:, :-1]).float(),
         # 1D array with
         # axis-0 = TARGET of an epoch
-        torch.tensor(data=array[:epochs_count, -1, :][:, 0]).long()
+        torch.tensor(data=array[:, -1, :][:, 0]).long()
     )
 
 
