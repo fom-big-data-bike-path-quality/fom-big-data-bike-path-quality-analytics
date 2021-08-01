@@ -110,7 +110,18 @@ def main(argv):
         results_path=results_path + "/plots/bike-activity-surface-type",
         file_name="surface_type",
         title="Surface type distribution",
-        description="Distribution of surfacee types in input data",
+        description="Distribution of surface types in input data",
+        xlabel="surface type",
+        ylabel="count",
+        clean=clean
+    )
+
+    BikeActivitySurfaceTypePlotter().run(
+        dataframes=DataFilterer().run(dataframes, quiet=True),
+        results_path=results_path + "/plots/bike-activity-surface-type",
+        file_name="surface_type_filtered",
+        title="Surface type distribution (filtered)",
+        description="Distribution of surface types in input data",
         xlabel="surface type",
         ylabel="count",
         clean=clean

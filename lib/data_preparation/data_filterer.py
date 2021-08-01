@@ -6,7 +6,7 @@
 class DataFilterer:
     BIKE_ACTIVITY_MEASUREMENT_SPEED_LIMIT = 5  # in km/h
 
-    def run(self, dataframes):
+    def run(self, dataframes, quiet=False):
 
         dataframes_count = len(dataframes.items())
 
@@ -14,26 +14,31 @@ class DataFilterer:
 
             # Exclude dataframes which contain less than 500 measurements
             if len(dataframe) < 500:
-                print("✗️ Filtering out " + name + " (less than 500 measurements)")
+                if not quiet:
+                    print("✗️ Filtering out " + name + " (less than 500 measurements)")
                 dataframes.pop(name)
                 continue
 
             # Exclude dataframes which contain surface type 'mixed'
             if "mixed" in dataframe.bike_activity_surface_type.values:
-                print("✗️ Filtering out " + name + " (containing undefined surface type)")
+                if not quiet:
+                    print("✗️ Filtering out " + name + " (containing undefined surface type)")
                 dataframes.pop(name)
                 continue
 
             # Exclude dataframes which contain speeds slower than BIKE_ACTIVITY_MEASUREMENT_SPEED_LIMIT
             if (dataframe.bike_activity_measurement_speed.values * 3.6 < self.BIKE_ACTIVITY_MEASUREMENT_SPEED_LIMIT).any():
-                print("✗️ Filtering out " + name + " (containing slow measurements)")
+                if not quiet:
+                    print("✗️ Filtering out " + name + " (containing slow measurements)")
                 dataframes.pop(name)
                 continue
 
-            print("✓️ Keeping " + name)
+            if not quiet:
+                print("✓️ Keeping " + name)
 
         dataframes_filtered_count = len(dataframes.items())
 
-        print("Data filterer finished with " + str(dataframes_filtered_count) + "/" + str(dataframes_count)
-              + " dataframes (" + str(round(dataframes_filtered_count / dataframes_count, 2) * 100) + "%) kept")
+        if not quiet:
+            print("Data filterer finished with " + str(dataframes_filtered_count) + "/" + str(dataframes_count)
+                  + " dataframes (" + str(round(dataframes_filtered_count / dataframes_count, 2) * 100) + "%) kept")
         return dataframes
