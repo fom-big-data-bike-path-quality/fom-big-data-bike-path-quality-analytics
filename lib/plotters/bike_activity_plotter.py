@@ -14,7 +14,7 @@ import matplotlib.pyplot as plt
 
 class BikeActivityPlotter:
 
-    def run(self, data_path, results_path, xlabel, ylabel, clean=False):
+    def run(self, logger, data_path, results_path, xlabel, ylabel, clean=False):
         # Make results path
         os.makedirs(results_path, exist_ok=True)
 
@@ -83,7 +83,7 @@ class BikeActivityPlotter:
                     plt.close()
 
                 bike_activities_plotted_count += 1
-                print("✓️ Plotting " + file_name)
+                logger.log_line("✓️ Plotting " + file_name)
 
-        print("Bike activity plotter finished with " + str(bike_activities_plotted_count) + " activities plotted")
+        logger.log_line("Bike activity plotter finished with " + str(bike_activities_plotted_count) + " activities plotted")
 

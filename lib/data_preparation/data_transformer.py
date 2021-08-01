@@ -23,7 +23,7 @@ def getAccelerometer(row):
 
 class DataTransformer:
 
-    def run(self, dataframes):
+    def run(self, logger, dataframes):
         label_encoder = LabelEncoder()
 
         for name, dataframe in list(dataframes.items()):
@@ -44,5 +44,5 @@ class DataTransformer:
                             "bike_activity_surface_type",
                             "bike_activity_smoothness_type"], axis=1, inplace=True)
 
-        print("Data transformer finished with " + str(len(dataframes)) + " dataframes transformed")
+        logger.log_line("Data transformer finished with " + str(len(dataframes)) + " dataframes transformed")
         return dataframes

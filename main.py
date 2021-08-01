@@ -1,12 +1,14 @@
 import getopt
 import os
 import sys
+from datetime import datetime
 
 # Make library available in path
 library_paths = [
     os.path.join(os.getcwd(), 'lib'),
     os.path.join(os.getcwd(), 'lib/data_pre_processing'),
     os.path.join(os.getcwd(), 'lib/data_preparation'),
+    os.path.join(os.getcwd(), 'lib/log'),
     os.path.join(os.getcwd(), 'lib/plotters'),
     os.path.join(os.getcwd(), 'lib/base_model'),
     os.path.join(os.getcwd(), 'lib/base_model/layers'),
@@ -17,6 +19,7 @@ for p in library_paths:
         sys.path.insert(0, p)
 
 # Import library classes
+from logger_facade import LoggerFacade
 from data_splitter import DataSplitter
 from data_loader import DataLoader
 from data_filterer import DataFilterer
@@ -36,6 +39,7 @@ from cnn_base_model_helper import CnnBaseModelHelper
 def main(argv):
     # Set default values
     clean = False
+    start_time = datetime.now().strftime("%Y-%m-%d-%H:%M:%S")
     epochs = 3000
     learning_rate = 0.001
 
@@ -59,29 +63,37 @@ def main(argv):
         elif opt in ("-l", "--learningrate"):
             learning_rate = float(arg)
 
-    # Print parameters
-    print("Parameters")
-    print("❄ epochs: " + str(epochs))
-    print("❄ learningrate: " + str(learning_rate))
-
     # Set paths
     file_path = os.path.realpath(__file__)
     script_path = os.path.dirname(file_path)
-    data_path = script_path + "/data/data"
-    workspace_path = script_path + "/workspace"
-    results_path = script_path + "/results"
+    data_path = os.path.join(script_path, "data/data")
+    workspace_path = os.path.join(script_path, "workspace")
+    results_path = os.path.join(script_path, "results")
+    log_path = os.path.join(results_path, "runs", start_time)
+
+    # Initialize logger
+    logger = LoggerFacade(log_path, console=True, file=True)
+    logger.log_line("Start Run")
+
+    # Print parameters
+    logger.log_line("Parameters")
+    logger.log_line("❄ starttime: " + str(start_time))
+    logger.log_line("❄ epochs: " + str(epochs))
+    logger.log_line("❄ learningrate: " + str(learning_rate))
 
     #
     # Data pre-processing
     #
 
     DataSplitter().run(
+        logger=logger,
         data_path=data_path + "/measurements/csv",
         results_path=workspace_path + "/slices/raw",
         clean=clean
     )
 
     dataframes = DataLoader().run(
+        logger=logger,
         data_path=workspace_path + "/slices/raw"
     )
 
@@ -90,6 +102,7 @@ def main(argv):
     #
 
     BikeActivityPlotter().run(
+        logger=logger,
         data_path=data_path + "/measurements/csv",
         results_path=results_path + "/plots/bike-activity",
         xlabel="time",
@@ -98,6 +111,7 @@ def main(argv):
     )
 
     BikeActivitySlicePlotter().run(
+        logger=logger,
         data_path=workspace_path + "/slices/raw",
         results_path=results_path + "/plots/bike-activity-sample",
         xlabel="time",
@@ -106,6 +120,7 @@ def main(argv):
     )
 
     BikeActivitySurfaceTypePlotter().run(
+        logger=logger,
         dataframes=dataframes,
         results_path=results_path + "/plots/bike-activity-surface-type",
         file_name="surface_type",
@@ -117,7 +132,8 @@ def main(argv):
     )
 
     BikeActivitySurfaceTypePlotter().run(
-        dataframes=DataFilterer().run(dataframes, quiet=True),
+        logger=logger,
+        dataframes=DataFilterer().run(logger=logger, dataframes=dataframes, quiet=True),
         results_path=results_path + "/plots/bike-activity-surface-type",
         file_name="surface_type_filtered",
         title="Surface type distribution (filtered)",
@@ -133,11 +149,12 @@ def main(argv):
 
     random_state = 0
 
-    dataframes = DataFilterer().run(dataframes)
-    dataframes = DataTransformer().run(dataframes)
-    dataframes = DataNormalizer().run(dataframes)
+    dataframes = DataFilterer().run(logger=logger, dataframes=dataframes)
+    dataframes = DataTransformer().run(logger=logger, dataframes=dataframes)
+    dataframes = DataNormalizer().run(logger=logger, dataframes=dataframes)
 
     train_dataframes, validation_dataframes, test_dataframes = TrainTestDataSplitter().run(
+        logger=logger,
         dataframes=dataframes,
         test_size=0.15,
         random_state=random_state
@@ -148,6 +165,7 @@ def main(argv):
     #
 
     CnnBaseModelHelper().run(
+        logger=logger,
         train_dataframes=train_dataframes,
         validation_dataframes=validation_dataframes,
         test_dataframes=test_dataframes,

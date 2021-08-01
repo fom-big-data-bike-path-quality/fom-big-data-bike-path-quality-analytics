@@ -11,7 +11,7 @@ import pandas as pd
 
 class DataLoader:
 
-    def run(self, data_path):
+    def run(self, logger, data_path):
         dataframes = {}
 
         for file_path in Path(data_path).rglob("*.csv"):
@@ -28,5 +28,5 @@ class DataLoader:
 
             dataframes[file_base_name] = dataframe
 
-        print("Data loader finished with " + str(len(dataframes)) + " dataframes loaded")
+        logger.log_line("Data loader finished with " + str(len(dataframes)) + " dataframes loaded")
         return dataframes

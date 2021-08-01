@@ -57,7 +57,7 @@ def create_loader(dataset, batch_size=128, shuffle=False, num_workers=0):
 
 class CnnBaseModelHelper:
 
-    def run(self, train_dataframes, validation_dataframes, test_dataframes, learning_rate, epochs, workspace_path, results_path):
+    def run(self, logger, train_dataframes, validation_dataframes, test_dataframes, learning_rate, epochs, workspace_path, results_path):
         # Create arrays
         train_array = create_array(train_dataframes)
         validation_array = create_array(validation_dataframes)
@@ -112,16 +112,19 @@ class CnnBaseModelHelper:
             for batch in validation_data_loader:
                 input, target = [t.to(device) for t in batch]
                 output = classifier(input)
-                preds = F.log_softmax(output, dim=1).argmax(dim=1)
+                predictions = F.log_softmax(output, dim=1).argmax(dim=1)
                 total += target.size(0)
-                correct += (preds == target).sum().item()
+                correct += (predictions == target).sum().item()
 
             accuracy = correct / total
             accuracy_history.append(accuracy)
 
             if epoch % base == 0:
-                print("Epoch " + str(epoch) + " loss " + str(round(epoch_loss, 4)) + " accuracy " + str(round(accuracy, 2)))
+                logger.log_line("Epoch " + str(epoch) + " loss " + str(round(epoch_loss, 4)) + " accuracy " + str(round(accuracy, 2)))
                 base *= step
+            else:
+                logger.log_line("Epoch " + str(epoch) + " loss " + str(round(epoch_loss, 4)) + " accuracy " + str(round(accuracy, 2)),
+                                console=False, file=True)
 
             # Check if accuracy increased
             if accuracy > accuracy_max:
@@ -131,10 +134,11 @@ class CnnBaseModelHelper:
             else:
                 trials += 1
                 if trials >= patience:
-                    print("No further improvement after epoch " + str(epoch))
+                    logger.log_line("No further improvement after epoch " + str(epoch))
                     break
 
         TrainingResultPlotter().run(
+            logger=logger,
             data=loss_history,
             results_path=results_path + "/plots/training",
             file_name="loss",
@@ -145,6 +149,7 @@ class CnnBaseModelHelper:
             clean=True)
 
         TrainingResultPlotter().run(
+            logger=logger,
             data=accuracy_history,
             results_path=results_path + "/plots/training",
             file_name="accuracy",
@@ -154,4 +159,4 @@ class CnnBaseModelHelper:
             ylabel="Accuracy",
             clean=True)
 
-        print("CNN base model finished")
+        logger.log_line("CNN base model finished")

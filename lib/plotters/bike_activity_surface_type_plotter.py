@@ -33,7 +33,7 @@ def create_array(dataframes):
 
 class BikeActivitySurfaceTypePlotter:
 
-    def run(self, dataframes, results_path, file_name, title, description, xlabel, ylabel, clean=False):
+    def run(self, logger, dataframes, results_path, file_name, title, description, xlabel, ylabel, clean=False):
         # Make results path
         os.makedirs(results_path, exist_ok=True)
 
@@ -71,6 +71,6 @@ class BikeActivitySurfaceTypePlotter:
 
         plt.close()
 
-        print("✓️ Plotting " + file_name)
+        logger.log_line("✓️ Plotting " + file_name)
 
-        print("Training result plotter finished")
+        logger.log_line("Training result plotter finished")

@@ -11,7 +11,7 @@ from pathlib import Path
 
 class DataSplitter:
 
-    def run(self, data_path, results_path, clean=False):
+    def run(self, logger, data_path, results_path, clean=False):
         # Make results path
         os.makedirs(results_path, exist_ok=True)
 
@@ -61,6 +61,6 @@ class DataSplitter:
                     file.close()
 
             if slices_count > 0:
-                print("✓️ Splitting into slices " + file_name)
+                logger.log_line("✓️ Splitting into slices " + file_name)
 
-        print("Data Splitter finished with " + str(len(slices.items())) + " slices")
+        logger.log_line("Data Splitter finished with " + str(len(slices.items())) + " slices")

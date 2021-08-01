@@ -18,7 +18,7 @@ def smooth(y, box_pts):
 
 class TrainingResultPlotter:
 
-    def run(self, data, results_path, file_name, title, description, xlabel, ylabel, clean=False):
+    def run(self, logger, data, results_path, file_name, title, description, xlabel, ylabel, clean=False):
         # Make results path
         os.makedirs(results_path, exist_ok=True)
 
@@ -47,6 +47,6 @@ class TrainingResultPlotter:
 
         plt.close()
 
-        print("✓️ Plotting " + file_name)
+        logger.log_line("✓️ Plotting " + file_name)
 
-        print("Training result plotter finished")
+        logger.log_line("Training result plotter finished")

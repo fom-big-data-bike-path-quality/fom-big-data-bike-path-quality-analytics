@@ -8,7 +8,7 @@ from sklearn.preprocessing import MinMaxScaler
 
 class DataNormalizer:
 
-    def run(self, dataframes):
+    def run(self, logger, dataframes):
         min_max_scaler = MinMaxScaler()
 
         for name, dataframe in list(dataframes.items()):
@@ -16,5 +16,5 @@ class DataNormalizer:
                 dataframe[['bike_activity_measurement_accelerometer']].values.astype(float))
             dataframe.drop(["bike_activity_measurement_accelerometer"], axis=1, inplace=True)
 
-        print("Data normalizer finished with " + str(len(dataframes)) + " dataframes normalized")
+        logger.log_line("Data normalizer finished with " + str(len(dataframes)) + " dataframes normalized")
         return dataframes
