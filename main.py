@@ -112,7 +112,7 @@ def main(argv):
         title="Surface type distribution",
         description="Distribution of surface types in input data",
         xlabel="surface type",
-        ylabel="count",
+        ylabel="percentage",
         clean=clean
     )
 
@@ -123,7 +123,7 @@ def main(argv):
         title="Surface type distribution (filtered)",
         description="Distribution of surface types in input data",
         xlabel="surface type",
-        ylabel="count",
+        ylabel="percentage",
         clean=clean
     )
 

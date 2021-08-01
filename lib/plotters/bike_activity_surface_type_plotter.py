@@ -4,6 +4,7 @@ from email.utils import formatdate
 
 import matplotlib.pyplot as plt
 import numpy as np
+from matplotlib.ticker import PercentFormatter
 
 
 def create_array(dataframes):
@@ -54,16 +55,19 @@ class BikeActivitySurfaceTypePlotter:
         # axis-0 = TARGET of an epoch
         data = array[:, 12, 1]
 
-        plt.hist(data)
+        plt.hist(data, weights=np.ones(len(data)) / len(data))
+        plt.gca().yaxis.set_major_formatter(PercentFormatter(1))
 
-        plt.savefig(fname=results_path + "/" + file_name + ".png",
-                    format="png",
-                    metadata={
-                        "Title": title,
-                        "Author": "Florian Schwanz",
-                        "Creation Time": formatdate(timeval=None, localtime=False, usegmt=True),
-                        "Description": description
-                    })
+        plt.savefig(
+            fname=results_path + "/" + file_name + ".png",
+            format="png",
+            metadata={
+                "Title": title,
+                "Author": "Florian Schwanz",
+                "Creation Time": formatdate(timeval=None, localtime=False, usegmt=True),
+                "Description": description
+            }
+        )
 
         plt.close()
 
