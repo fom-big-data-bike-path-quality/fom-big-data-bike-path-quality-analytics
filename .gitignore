@@ -11,6 +11,8 @@
 /lib/base_model/layers/__pycache__/*
 /lib/data_pre_processing/__pycache__/*
 /lib/data_preparation/__pycache__/*
+/lib/log/__pycache__/*
+/lib/log/telegram.config
 /lib/plotters/__pycache__/*
 /results/
 /workspace/
