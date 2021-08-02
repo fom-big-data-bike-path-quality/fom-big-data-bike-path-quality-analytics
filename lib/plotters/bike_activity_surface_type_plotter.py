@@ -33,7 +33,7 @@ def create_array(dataframes):
 
 class BikeActivitySurfaceTypePlotter:
 
-    def run(self, logger, dataframes, results_path, file_name, title, description, xlabel, ylabel, clean=False):
+    def run(self, logger, dataframes, target_column, results_path, file_name, title, description, xlabel, ylabel, clean=False):
         # Make results path
         os.makedirs(results_path, exist_ok=True)
 
@@ -53,7 +53,7 @@ class BikeActivitySurfaceTypePlotter:
 
         # 1D array with
         # axis-0 = TARGET of an epoch
-        data = array[:, 12, 1]
+        data = array[:, target_column, 1]
 
         plt.hist(data, weights=np.ones(len(data)) / len(data))
         plt.gca().yaxis.set_major_formatter(PercentFormatter(1))

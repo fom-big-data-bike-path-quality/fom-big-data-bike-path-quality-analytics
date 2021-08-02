@@ -47,7 +47,7 @@ def main(argv):
     try:
         opts, args = getopt.getopt(argv, "hcdel:", ["help", "clean", "dry-run", "epochs=", "learningrate="])
     except getopt.GetoptError:
-        print("main.py -e <epochs>")
+        print("main.py --help --clean --dry-run --epochs <epochs> --learningrate <learningrate>")
         sys.exit(2)
     for opt, arg in opts:
         if opt == ("-h", "--help"):
@@ -122,6 +122,7 @@ def main(argv):
     BikeActivitySurfaceTypePlotter().run(
         logger=logger,
         dataframes=dataframes,
+        target_column=12,
         results_path=results_path + "/plots/bike-activity-surface-type",
         file_name="surface_type",
         title="Surface type distribution",
@@ -134,6 +135,7 @@ def main(argv):
     BikeActivitySurfaceTypePlotter().run(
         logger=logger,
         dataframes=DataFilterer().run(logger=logger, dataframes=dataframes, quiet=True),
+        target_column=12,
         results_path=results_path + "/plots/bike-activity-surface-type",
         file_name="surface_type_filtered",
         title="Surface type distribution (filtered)",
