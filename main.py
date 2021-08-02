@@ -174,7 +174,8 @@ def main(argv):
         epochs=epochs,
         learning_rate=learning_rate,
         workspace_path=workspace_path,
-        results_path=results_path
+        results_path=results_path,
+        log_path=log_path
     )
 
 

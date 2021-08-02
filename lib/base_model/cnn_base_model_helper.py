@@ -1,3 +1,5 @@
+import os
+
 import numpy as np
 import torch
 from classifier import Classifier
@@ -57,7 +59,8 @@ def create_loader(dataset, batch_size=128, shuffle=False, num_workers=0):
 
 class CnnBaseModelHelper:
 
-    def run(self, logger, train_dataframes, validation_dataframes, test_dataframes, learning_rate, epochs, workspace_path, results_path):
+    def run(self, logger, train_dataframes, validation_dataframes, test_dataframes, learning_rate, epochs, workspace_path, results_path,
+            log_path):
         # Create arrays
         train_array = create_array(train_dataframes)
         validation_array = create_array(validation_dataframes)
@@ -130,7 +133,7 @@ class CnnBaseModelHelper:
             if accuracy > accuracy_max:
                 trials = 0
                 accuracy_max = accuracy
-                # torch.save(classifier.state_dict(), 'best.pth')
+                torch.save(classifier.state_dict(), os.path.join(log_path, "model.pickle"))
             else:
                 trials += 1
                 if trials >= patience:
