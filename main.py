@@ -42,6 +42,7 @@ def main(argv):
     start_time = datetime.now().strftime("%Y-%m-%d-%H:%M:%S")
     epochs = 3000
     learning_rate = 0.001
+    random_state = 0
 
     # Read command line arguments
     try:
@@ -104,7 +105,7 @@ def main(argv):
     BikeActivityPlotter().run(
         logger=logger,
         data_path=data_path + "/measurements/csv",
-        results_path=results_path + "/plots/bike-activity",
+        results_path=log_path + "/plots/bike-activity",
         xlabel="time",
         ylabel="acceleration [m/sˆ2]/ speed [km/h]",
         clean=clean
@@ -113,7 +114,7 @@ def main(argv):
     BikeActivitySlicePlotter().run(
         logger=logger,
         data_path=workspace_path + "/slices/raw",
-        results_path=results_path + "/plots/bike-activity-sample",
+        results_path=log_path + "/plots/bike-activity-sample",
         xlabel="time",
         ylabel="acceleration [m/sˆ2]/ speed [km/h]",
         clean=clean
@@ -123,7 +124,7 @@ def main(argv):
         logger=logger,
         dataframes=dataframes,
         target_column=12,
-        results_path=results_path + "/plots/bike-activity-surface-type",
+        results_path=log_path + "/plots/bike-activity-surface-type",
         file_name="surface_type",
         title="Surface type distribution",
         description="Distribution of surface types in input data",
@@ -136,9 +137,43 @@ def main(argv):
         logger=logger,
         dataframes=DataFilterer().run(logger=logger, dataframes=dataframes, quiet=True),
         target_column=12,
-        results_path=results_path + "/plots/bike-activity-surface-type",
+        results_path=log_path + "/plots/bike-activity-surface-type",
         file_name="surface_type_filtered",
         title="Surface type distribution (filtered)",
+        description="Distribution of surface types in input data",
+        xlabel="surface type",
+        ylabel="percentage",
+        clean=clean
+    )
+
+    train_dataframes, validation_dataframes, test_dataframes = TrainTestDataSplitter().run(
+        logger=logger,
+        dataframes=dataframes,
+        test_size=0.15,
+        random_state=random_state,
+        quiet=True
+    )
+
+    BikeActivitySurfaceTypePlotter().run(
+        logger=logger,
+        dataframes=train_dataframes,
+        target_column=12,
+        results_path=log_path + "/plots/bike-activity-surface-type",
+        file_name="surface_type_test",
+        title="Surface type distribution (test)",
+        description="Distribution of surface types in input data",
+        xlabel="surface type",
+        ylabel="percentage",
+        clean=clean
+    )
+
+    BikeActivitySurfaceTypePlotter().run(
+        logger=logger,
+        dataframes=validation_dataframes,
+        target_column=12,
+        results_path=log_path + "/plots/bike-activity-surface-type",
+        file_name="surface_type_validation",
+        title="Surface type distribution (validation)",
         description="Distribution of surface types in input data",
         xlabel="surface type",
         ylabel="percentage",
@@ -148,8 +183,6 @@ def main(argv):
     #
     # Data Preparation
     #
-
-    random_state = 0
 
     dataframes = DataFilterer().run(logger=logger, dataframes=dataframes)
     dataframes = DataTransformer().run(logger=logger, dataframes=dataframes)
@@ -173,8 +206,6 @@ def main(argv):
         test_dataframes=test_dataframes,
         epochs=epochs,
         learning_rate=learning_rate,
-        workspace_path=workspace_path,
-        results_path=results_path,
         log_path=log_path
     )
 

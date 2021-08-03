@@ -59,8 +59,7 @@ def create_loader(dataset, batch_size=128, shuffle=False, num_workers=0):
 
 class CnnBaseModelHelper:
 
-    def run(self, logger, train_dataframes, validation_dataframes, test_dataframes, learning_rate, epochs, workspace_path, results_path,
-            log_path):
+    def run(self, logger, train_dataframes, validation_dataframes, test_dataframes, learning_rate, epochs, log_path):
         # Create arrays
         train_array = create_array(train_dataframes)
         validation_array = create_array(validation_dataframes)
@@ -143,7 +142,7 @@ class CnnBaseModelHelper:
         TrainingResultPlotter().run(
             logger=logger,
             data=loss_history,
-            results_path=results_path + "/plots/training",
+            results_path=log_path + "/plots/training",
             file_name="loss",
             title="Validation loss history",
             description="Validation loss history",
@@ -154,7 +153,7 @@ class CnnBaseModelHelper:
         TrainingResultPlotter().run(
             logger=logger,
             data=accuracy_history,
-            results_path=results_path + "/plots/training",
+            results_path=log_path + "/plots/training",
             file_name="accuracy",
             title="Validation accuracy history",
             description="Validation accuracy history",
