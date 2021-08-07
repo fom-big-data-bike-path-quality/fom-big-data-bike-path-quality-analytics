@@ -69,8 +69,7 @@ def main(argv):
     script_path = os.path.dirname(file_path)
     data_path = os.path.join(script_path, "data/data")
     workspace_path = os.path.join(script_path, "workspace")
-    results_path = os.path.join(script_path, "results")
-    log_path = os.path.join(results_path, "runs", start_time)
+    log_path = os.path.join(script_path, "models", "models", start_time)
 
     # Initialize logger
     logger = LoggerFacade(log_path, console=True, file=True)
