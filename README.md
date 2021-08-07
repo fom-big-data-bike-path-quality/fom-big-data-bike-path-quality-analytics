@@ -24,10 +24,11 @@ tbd
 
 ## Installation
 
-Initialize the submodules of this repository by running the following command.
+Initialize the submodules of this repository by running the following commands.
 
 ```shell script
-git pull --recurse-submodules
+git submodule init
+git submodule update
 ```
 
 Install the following dependencies to fulfill the requirements for this project to run.
@@ -40,7 +41,7 @@ pip install matplotlib
 pip install sklearn
 pip install torch
 pip install tqdm
-pip install telegram_send
+pip install telegram-send
 ```
 
 ## Usage

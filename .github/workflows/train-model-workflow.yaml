@@ -29,7 +29,7 @@ jobs:
           pip install sklearn
           pip install torch
           pip install tqdm
-          pip install telegram_send
+          pip install telegram-send
       - name: Run main script
         id: run-main-script
         run: |
