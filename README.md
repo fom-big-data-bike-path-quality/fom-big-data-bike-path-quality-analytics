@@ -1,16 +1,17 @@
 [![Train model](https://github.com/fom-big-data-bike-path-quality/fom-big-data-bike-path-quality-analytics/actions/workflows/train-model-workflow.yaml/badge.svg)](https://github.com/fom-big-data-bike-path-quality/fom-big-data-bike-path-quality-analytics/actions/workflows/train-model-workflow.yaml)
-[![Issues](https://img.shields.io/github/issues/florianschwanz/fom-big-data-bike-path-quality-analytics)](https://github.com/florianschwanz/fom-big-data-bike-path-quality-analytics/issues)
+[![Issues](https://img.shields.io/github/issues/fom-big-data-bike-path-quality/fom-big-data-bike-path-quality-analytics)](https://github.com/fom-big-data-bike-path-quality/fom-big-data-bike-path-quality-analytics/issues)
 
 <br />
 <p align="center">
-  <a href="https://github.com/florianschwanz/fom-big-data-bike-path-quality-analytics">
+  <a href="https://github.com/fom-big-data-bike-path-quality/fom-big-data-bike-path-quality-analytics">
     <img src="./logo.png" alt="Logo" width="80" height="80">
   </a>
 
   <h1 align="center">Bike Path Quality (Altiplano)</h1>
 
   <p align="center">
-    PyTorch based model that learns from bike activity time series data
+    PyTorch based model that learns from <a href="https://github.com/fom-big-data-bike-path-quality/fom-big-data-bike-path-quality-data">
+    bike activity time series data</a>
   </p>
 </p>
 
@@ -63,7 +64,7 @@ Examples:
 
 ## Roadmap
 
-See the [open issues](https://github.com/florianschwanz/fom-big-data-bike-path-quality-analytics/issues) for a list of proposed features (and
+See the [open issues](https://github.com/fom-big-data-bike-path-quality/fom-big-data-bike-path-quality-analytics/issues) for a list of proposed features (and
  known issues).
 
 ## Contributing
