@@ -29,7 +29,8 @@ from bike_activity_plotter import BikeActivityPlotter
 from bike_activity_slice_plotter import BikeActivitySlicePlotter
 from bike_activity_surface_type_plotter import BikeActivitySurfaceTypePlotter
 from train_test_data_splitter import TrainTestDataSplitter
-from cnn_base_model_helper import CnnBaseModelHelper
+from cnn_base_model import CnnBaseModel
+from cnn_base_model import CnnBaseModelEvaluation
 
 
 #
@@ -40,7 +41,7 @@ def main(argv):
     # Set default values
     clean = False
     start_time = datetime.now().strftime("%Y-%m-%d-%H:%M:%S")
-    epochs = 3000
+    epochs = 50_000
     learning_rate = 0.001
     random_state = 0
 
@@ -73,7 +74,7 @@ def main(argv):
 
     # Initialize logger
     logger = LoggerFacade(log_path, console=True, file=True)
-    logger.log_line("Start Run")
+    logger.log_line("Start Training")
 
     # Print parameters
     logger.log_line("Parameters")
@@ -198,13 +199,22 @@ def main(argv):
     # Modeling
     #
 
-    CnnBaseModelHelper().run(
+    CnnBaseModel().run(
         logger=logger,
         train_dataframes=train_dataframes,
         validation_dataframes=validation_dataframes,
-        test_dataframes=test_dataframes,
         epochs=epochs,
         learning_rate=learning_rate,
+        log_path=log_path
+    )
+
+    #
+    # Evaluation
+    #
+
+    CnnBaseModelEvaluation().run(
+        logger=logger,
+        test_dataframes=test_dataframes,
         log_path=log_path
     )
 

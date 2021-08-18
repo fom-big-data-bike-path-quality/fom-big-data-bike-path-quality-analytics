@@ -57,23 +57,20 @@ def create_loader(dataset, batch_size=128, shuffle=False, num_workers=0):
 # Main
 #
 
-class CnnBaseModelHelper:
+class CnnBaseModel:
 
-    def run(self, logger, train_dataframes, validation_dataframes, test_dataframes, learning_rate, epochs, log_path):
+    def run(self, logger, train_dataframes, validation_dataframes, learning_rate, epochs, log_path):
         # Create arrays
         train_array = create_array(train_dataframes)
         validation_array = create_array(validation_dataframes)
-        test_array = create_array(test_dataframes)
 
         # Create data sets
         train_dataset = create_dataset(train_array)
         validation_dataset = create_dataset(validation_array)
-        test_dataset = create_dataset(test_array)
 
         # Create data loaders
         train_data_loader = create_loader(train_dataset, shuffle=True)
         validation_data_loader = create_loader(validation_dataset, shuffle=True)
-        test_data_loader = create_loader(test_dataset, shuffle=False)
 
         # Define classifier
         classifier = Classifier(
@@ -85,7 +82,7 @@ class CnnBaseModelHelper:
         optimizer = optim.Adam(classifier.parameters(), lr=learning_rate)
 
         accuracy_max = 0
-        patience, trials = 500, 0
+        patience, trials = 50_000, 0
         base = 1
         step = 2
         loss_history = []
@@ -114,9 +111,9 @@ class CnnBaseModelHelper:
             for batch in validation_data_loader:
                 input, target = [t.to(device) for t in batch]
                 output = classifier(input)
-                predictions = F.log_softmax(output, dim=1).argmax(dim=1)
+                y_hat = F.log_softmax(output, dim=1).argmax(dim=1)
                 total += target.size(0)
-                correct += (predictions == target).sum().item()
+                correct += (y_hat == target).sum().item()
 
             accuracy = correct / total
             accuracy_history.append(accuracy)
@@ -162,3 +159,34 @@ class CnnBaseModelHelper:
             clean=True)
 
         logger.log_line("CNN base model finished")
+
+
+class CnnBaseModelEvaluation:
+
+    def run(self, logger, test_dataframes, log_path):
+        # Create arrays
+        test_array = create_array(test_dataframes)
+
+        # Create data sets
+        test_dataset = create_dataset(test_array)
+
+        # Create data loaders
+        test_data_loader = create_loader(test_dataset, shuffle=False)
+
+        test_results = []
+
+        model = Classifier(
+            input_channels=1,  # TODO Derive this value from data
+            # input_channels=train_array.shape[1],
+            num_classes=18
+        ).to(device)
+        model.load_state_dict(torch.load(os.path.join(log_path, "model.pickle")))
+        model.eval()
+
+        for batch in test_data_loader:
+            input, target = [t.to(device) for t in batch]
+            output = model(input)
+            y_hat = F.log_softmax(output, dim=1).argmax(dim=1)
+            test_results.extend(y_hat.tolist())
+
+        logger.log_line("CNN base model evaluation finished")
