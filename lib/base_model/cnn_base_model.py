@@ -112,6 +112,7 @@ class CnnBaseModel:
                 input, target = [t.to(device) for t in batch]
                 output = classifier(input)
                 y_hat = F.log_softmax(output, dim=1).argmax(dim=1)
+
                 total += target.size(0)
                 correct += (y_hat == target).sum().item()
 
@@ -173,8 +174,6 @@ class CnnBaseModelEvaluation:
         # Create data loaders
         test_data_loader = create_loader(test_dataset, shuffle=False)
 
-        test_results = []
-
         model = Classifier(
             input_channels=1,  # TODO Derive this value from data
             # input_channels=train_array.shape[1],
@@ -183,10 +182,16 @@ class CnnBaseModelEvaluation:
         model.load_state_dict(torch.load(os.path.join(log_path, "model.pickle")))
         model.eval()
 
+        correct, total = 0, 0
         for batch in test_data_loader:
             input, target = [t.to(device) for t in batch]
             output = model(input)
             y_hat = F.log_softmax(output, dim=1).argmax(dim=1)
-            test_results.extend(y_hat.tolist())
 
+            total += target.size(0)
+            correct += (y_hat == target).sum().item()
+
+        accuracy = correct / total
+
+        logger.log_line("Accuracy " + str(round(accuracy, 2)))
         logger.log_line("CNN base model evaluation finished")
