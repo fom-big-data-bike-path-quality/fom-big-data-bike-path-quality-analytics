@@ -1,8 +1,14 @@
 import os
+from email.utils import formatdate
 
+import matplotlib.pyplot as plt
 import numpy as np
+import pandas as pd
+import seaborn as sns
 import torch
 from classifier import Classifier
+from label_encoder import LabelEncoder
+from sklearn.metrics import confusion_matrix as cm
 from torch import nn
 from torch import optim
 from torch.nn import functional as F
@@ -12,6 +18,9 @@ from training_result_plotter import TrainingResultPlotter
 
 # Set up device
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+
+# Number of classes
+num_classes = LabelEncoder().num_classes()
 
 
 def create_array(dataframes):
@@ -53,6 +62,35 @@ def create_loader(dataset, batch_size=128, shuffle=False, num_workers=0):
     )
 
 
+def plot_confusion_matrix(results_path, confusion_matrix):
+    confusion_matrix_dataframe = pd.DataFrame(confusion_matrix, index=LabelEncoder().classes, columns=LabelEncoder().classes).astype(int)
+
+    fig, ax = plt.subplots(figsize=(14, 12))
+
+    heatmap = sns.heatmap(confusion_matrix_dataframe, annot=True, fmt="d", cmap='Blues', ax=ax)
+    heatmap.yaxis.set_ticklabels(heatmap.yaxis.get_ticklabels(), rotation=0, ha='right', fontsize=10)
+    heatmap.xaxis.set_ticklabels(heatmap.xaxis.get_ticklabels(), rotation=45, ha='right', fontsize=10)
+
+    bottom, top = heatmap.get_ylim()
+    heatmap.set_ylim(bottom + 0.5, top - 0.5)
+
+    results_file = os.path.join(results_path, "confusion_matrix.png")
+
+    plt.title("Confusion matrix")
+    plt.xlabel("Target")
+    plt.ylabel("Prediction")
+    plt.savefig(fname=results_file,
+                format="png",
+                metadata={
+                    "Title": "Confusion matrix",
+                    "Author": "Florian Schwanz",
+                    "Creation Time": formatdate(timeval=None, localtime=False, usegmt=True),
+                    "Description": "Plot of training confusion matrix"
+                })
+
+    plt.close()
+
+
 #
 # Main
 #
@@ -76,13 +114,13 @@ class CnnBaseModel:
         classifier = Classifier(
             input_channels=1,  # TODO Derive this value from data
             # input_channels=train_array.shape[1],
-            num_classes=18
+            num_classes=num_classes
         ).to(device)
         criterion = nn.CrossEntropyLoss(reduction='sum')
         optimizer = optim.Adam(classifier.parameters(), lr=learning_rate)
 
         accuracy_max = 0
-        patience, trials = 50_000, 0
+        patience, trials = 1_000, 0
         base = 1
         step = 2
         loss_history = []
@@ -174,24 +212,42 @@ class CnnBaseModelEvaluation:
         # Create data loaders
         test_data_loader = create_loader(test_dataset, shuffle=False)
 
+        targets = []
+        predictions = []
+
         model = Classifier(
             input_channels=1,  # TODO Derive this value from data
             # input_channels=train_array.shape[1],
-            num_classes=18
+            num_classes=num_classes
         ).to(device)
         model.load_state_dict(torch.load(os.path.join(log_path, "model.pickle")))
         model.eval()
 
         correct, total = 0, 0
-        for batch in test_data_loader:
-            input, target = [t.to(device) for t in batch]
-            output = model(input)
-            y_hat = F.log_softmax(output, dim=1).argmax(dim=1)
+        confusionmatrix = np.zeros((num_classes, num_classes))
 
-            total += target.size(0)
-            correct += (y_hat == target).sum().item()
+        with torch.no_grad():
+            for i, (input, target) in enumerate(test_data_loader):
+                input = input.to(device)
+                target = target.to(device)
+
+                output = model(input)
+
+                _, prediction = torch.max(output, 1)
+
+                total += target.size(0)
+                correct += (prediction == target).sum().item()
+
+                targets.extend(target.tolist())
+                predictions.extend(prediction.tolist())
+
+                for t, p in zip(target.view(-1), prediction.view(-1)):
+                    confusionmatrix[t.long(), p.long()] += 1
 
         accuracy = correct / total
 
+        plot_confusion_matrix(log_path, confusionmatrix)
+
         logger.log_line("Accuracy " + str(round(accuracy, 2)))
+        logger.log_line("Confusion matrix \n" + str(cm(predictions, targets)))
         logger.log_line("CNN base model evaluation finished")
