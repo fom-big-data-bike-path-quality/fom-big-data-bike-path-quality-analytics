@@ -31,6 +31,7 @@ from bike_activity_surface_type_plotter import BikeActivitySurfaceTypePlotter
 from train_test_data_splitter import TrainTestDataSplitter
 from cnn_base_model import CnnBaseModel
 from cnn_base_model import CnnBaseModelEvaluation
+from result_copier import ResultCopier
 
 
 #
@@ -71,6 +72,7 @@ def main(argv):
     data_path = os.path.join(script_path, "data/data")
     workspace_path = os.path.join(script_path, "workspace")
     log_path = os.path.join(script_path, "models", "models", start_time)
+    log_latest_path = os.path.join(script_path, "models", "models", "latest")
 
     # Initialize logger
     logger = LoggerFacade(log_path, console=True, file=True)
@@ -217,6 +219,12 @@ def main(argv):
         test_dataframes=test_dataframes,
         log_path=log_path
     )
+
+    #
+    #
+    #
+
+    ResultCopier().copyDirectory(log_path, log_latest_path)
 
 
 if __name__ == "__main__":
