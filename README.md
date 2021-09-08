@@ -66,6 +66,13 @@ Examples:
 
 See the [open issues](https://github.com/fom-big-data-bike-path-quality/fom-big-data-bike-path-quality-analytics/issues) for a list of proposed features (and
  known issues).
+ 
+## Metrics
+
+<p>
+    Confusion matrix<br/>
+    <img src="https://github.com/fom-big-data-bike-path-quality/fom-big-data-bike-path-quality-model/blob/main/models/latest/confusion_matrix.png?raw=true" alt="Confusion Matrix">
+</p>
 
 ## Contributing
 
