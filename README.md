@@ -42,6 +42,7 @@ pip install matplotlib
 pip install sklearn
 pip install torch
 pip install tqdm
+pip install seaborn
 pip install telegram-send
 ```
 
