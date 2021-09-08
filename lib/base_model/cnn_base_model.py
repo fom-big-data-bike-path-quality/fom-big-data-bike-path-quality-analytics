@@ -65,7 +65,7 @@ def create_loader(dataset, batch_size=128, shuffle=False, num_workers=0):
 def plot_confusion_matrix(results_path, confusion_matrix):
     confusion_matrix_dataframe = pd.DataFrame(confusion_matrix, index=LabelEncoder().classes, columns=LabelEncoder().classes).astype(int)
 
-    fig, ax = plt.subplots(figsize=(14, 12))
+    fig, ax = plt.subplots(figsize=(16, 14))
 
     heatmap = sns.heatmap(confusion_matrix_dataframe, annot=True, fmt="d", cmap='Blues', ax=ax)
     heatmap.yaxis.set_ticklabels(heatmap.yaxis.get_ticklabels(), rotation=0, ha='right', fontsize=10)
@@ -77,8 +77,8 @@ def plot_confusion_matrix(results_path, confusion_matrix):
     results_file = os.path.join(results_path, "confusion_matrix.png")
 
     plt.title("Confusion matrix")
-    plt.xlabel("Target")
-    plt.ylabel("Prediction")
+    plt.xlabel("Prediction")
+    plt.ylabel("Target")
     plt.savefig(fname=results_file,
                 format="png",
                 metadata={
