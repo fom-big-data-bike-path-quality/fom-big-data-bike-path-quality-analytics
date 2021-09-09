@@ -14,6 +14,7 @@ class LabelEncoder:
         "sett",
         "unhewn cobblestone",
         "cobblestone",
+        "metal",
         "wood",
         "stepping_stones",
         "unpaved",
@@ -24,7 +25,6 @@ class LabelEncoder:
         "pebblestone",
         "ground",
         "dirt",
-        "ground",
         "earth",
         "grass",
         "mud",
@@ -39,11 +39,7 @@ class LabelEncoder:
         return len(self.classes)
 
     def label_to_index(self, label):
-        index = 0
-        while index < len(self.classes):
-            if label == self.classes[index]:
-                return index
-        return 99
+        return self.classes.index(label)
 
     def index_to_label(self, index: int):
         return self.classes[index]
