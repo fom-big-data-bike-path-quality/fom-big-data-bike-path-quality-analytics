@@ -65,6 +65,12 @@ def create_loader(dataset, batch_size=128, shuffle=False, num_workers=0):
 def plot_confusion_matrix(results_path, confusion_matrix):
     confusion_matrix_dataframe = pd.DataFrame(confusion_matrix, index=LabelEncoder().classes, columns=LabelEncoder().classes).astype(int)
 
+    # Limit dataframe to classes actually used
+    used_columns = (confusion_matrix_dataframe != 0).any(axis=0).where(lambda x : x == True).dropna().keys().tolist()
+    used_rows = (confusion_matrix_dataframe != 0).any(axis=1).where(lambda x : x == True).dropna().keys().tolist()
+    used_classes = list(dict.fromkeys(used_columns + used_rows))
+    confusion_matrix_dataframe = confusion_matrix_dataframe.filter(items=used_classes, axis=0).filter(items=used_classes, axis=1)
+
     fig, ax = plt.subplots(figsize=(16, 14))
 
     heatmap = sns.heatmap(confusion_matrix_dataframe, annot=True, fmt="d", cmap='Blues', ax=ax)
