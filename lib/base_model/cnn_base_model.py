@@ -62,15 +62,7 @@ def create_loader(dataset, batch_size=128, shuffle=False, num_workers=0):
     )
 
 
-def plot_confusion_matrix(results_path, confusion_matrix):
-    confusion_matrix_dataframe = pd.DataFrame(confusion_matrix, index=LabelEncoder().classes, columns=LabelEncoder().classes).astype(int)
-
-    # Limit dataframe to classes actually used
-    used_columns = (confusion_matrix_dataframe != 0).any(axis=0).where(lambda x : x == True).dropna().keys().tolist()
-    used_rows = (confusion_matrix_dataframe != 0).any(axis=1).where(lambda x : x == True).dropna().keys().tolist()
-    used_classes = list(dict.fromkeys(used_columns + used_rows))
-    confusion_matrix_dataframe = confusion_matrix_dataframe.filter(items=used_classes, axis=0).filter(items=used_classes, axis=1)
-
+def plot_confusion_matrix(results_path, confusion_matrix_dataframe):
     fig, ax = plt.subplots(figsize=(16, 14))
 
     heatmap = sns.heatmap(confusion_matrix_dataframe, annot=True, fmt="d", cmap='Blues', ax=ax)
@@ -229,8 +221,7 @@ class CnnBaseModelEvaluation:
         model.load_state_dict(torch.load(os.path.join(log_path, "model.pickle")))
         model.eval()
 
-        correct, total = 0, 0
-        confusionmatrix = np.zeros((num_classes, num_classes))
+        confusion_matrix = np.zeros((num_classes, num_classes))
 
         with torch.no_grad():
             for i, (input, target) in enumerate(test_data_loader):
@@ -241,19 +232,21 @@ class CnnBaseModelEvaluation:
 
                 _, prediction = torch.max(output, 1)
 
-                total += target.size(0)
-                correct += (prediction == target).sum().item()
-
                 targets.extend(target.tolist())
                 predictions.extend(prediction.tolist())
 
                 for t, p in zip(target.view(-1), prediction.view(-1)):
-                    confusionmatrix[t.long(), p.long()] += 1
+                    confusion_matrix[t.long(), p.long()] += 1
 
-        accuracy = correct / total
+        # Build confusion matrix, limit to classes actually used
+        confusion_matrix_dataframe = pd.DataFrame(confusion_matrix, index=LabelEncoder().classes, columns=LabelEncoder().classes).astype(int)
+        used_columns = (confusion_matrix_dataframe != 0).any(axis=0).where(lambda x: x == True).dropna().keys().tolist()
+        used_rows = (confusion_matrix_dataframe != 0).any(axis=1).where(lambda x: x == True).dropna().keys().tolist()
+        used_classes = list(dict.fromkeys(used_columns + used_rows))
+        confusion_matrix_dataframe = confusion_matrix_dataframe.filter(items=used_classes, axis=0).filter(items=used_classes, axis=1)
 
-        plot_confusion_matrix(log_path, confusionmatrix)
+        # Plot confusion matrix
+        plot_confusion_matrix(log_path, confusion_matrix_dataframe)
 
-        logger.log_line("Accuracy " + str(round(accuracy, 2)))
         logger.log_line("Confusion matrix \n" + str(cm(predictions, targets)))
         logger.log_line("CNN base model evaluation finished")
