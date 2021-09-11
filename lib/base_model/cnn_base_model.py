@@ -119,8 +119,6 @@ class CnnBaseModel:
 
         accuracy_max = 0
         patience, trials = 1_000, 0
-        base = 1
-        step = 2
         loss_history = []
         accuracy_history = []
 
@@ -155,12 +153,8 @@ class CnnBaseModel:
             accuracy = correct / total
             accuracy_history.append(accuracy)
 
-            if epoch % base == 0:
-                logger.log_line("Epoch " + str(epoch) + " loss " + str(round(epoch_loss, 4)) + " accuracy " + str(round(accuracy, 2)))
-                base *= step
-            else:
-                logger.log_line("Epoch " + str(epoch) + " loss " + str(round(epoch_loss, 4)) + " accuracy " + str(round(accuracy, 2)),
-                                console=False, file=True)
+            logger.log_line("Epoch " + str(epoch) + " loss " + str(round(epoch_loss, 4)) + " accuracy " + str(round(accuracy, 2)),
+                            console=False, file=True)
 
             # Check if accuracy increased
             if accuracy > accuracy_max:
