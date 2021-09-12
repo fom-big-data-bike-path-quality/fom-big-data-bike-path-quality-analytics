@@ -116,6 +116,22 @@ def get_precision(confusion_matrix_dataframe):
     return np.mean(precisions)
 
 
+def get_recall(confusion_matrix_dataframe):
+    recalls = []
+
+    for i in confusion_matrix_dataframe.index:
+        tp = get_true_positives(confusion_matrix_dataframe, i)
+        fn = get_false_negatives(confusion_matrix_dataframe, i)
+        recall = 0
+
+        if (tp + fn) > 0:
+            recall = tp / (tp + fn)
+
+        recalls.append(recall)
+
+    return np.mean(recalls)
+
+
 def get_true_positives(confusion_matrix_dataframe, index):
     return confusion_matrix_dataframe.loc[index, index]
 
@@ -128,6 +144,16 @@ def get_false_positives(confusion_matrix_dataframe, index):
             fp += confusion_matrix_dataframe.loc[i, index]
 
     return fp
+
+
+def get_false_negatives(confusion_matrix_dataframe, index):
+    fn = 0
+
+    for i in confusion_matrix_dataframe.index:
+        if i != index:
+            fn += confusion_matrix_dataframe.loc[index, i]
+
+    return fn
 
 
 def get_total_predictions(confusion_matrix_dataframe):
@@ -296,4 +322,5 @@ class CnnBaseModelEvaluation:
         logger.log_line("Confusion matrix \n" + str(cm(predictions, targets)))
         logger.log_line("Accuracy " + str(round(get_accuracy(confusion_matrix_dataframe), 2)))
         logger.log_line("Precision " + str(round(get_precision(confusion_matrix_dataframe), 2)))
+        logger.log_line("Recall " + str(round(get_recall(confusion_matrix_dataframe), 2)))
         logger.log_line("CNN base model evaluation finished")
