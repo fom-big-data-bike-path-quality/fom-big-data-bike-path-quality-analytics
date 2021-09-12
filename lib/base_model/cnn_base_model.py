@@ -90,19 +90,44 @@ def plot_confusion_matrix(results_path, confusion_matrix_dataframe):
 
 
 def get_accuracy(confusion_matrix_dataframe):
-    tp = get_true_positives(confusion_matrix_dataframe)
+    tp = 0
+
+    for i in confusion_matrix_dataframe.index:
+        tp += get_true_positives(confusion_matrix_dataframe, i)
+
     total = get_total_predictions(confusion_matrix_dataframe)
 
     return tp / total
 
 
-def get_true_positives(confusion_matrix_dataframe):
-    tp = 0
+def get_precision(confusion_matrix_dataframe):
+    precisions = []
 
     for i in confusion_matrix_dataframe.index:
-        tp += confusion_matrix_dataframe.loc[i, i]
+        tp = get_true_positives(confusion_matrix_dataframe, i)
+        fp = get_false_positives(confusion_matrix_dataframe, i)
+        precision = 0
 
-    return tp
+        if (tp + fp) > 0:
+            precision = tp / (tp + fp)
+
+        precisions.append(precision)
+
+    return np.mean(precisions)
+
+
+def get_true_positives(confusion_matrix_dataframe, index):
+    return confusion_matrix_dataframe.loc[index, index]
+
+
+def get_false_positives(confusion_matrix_dataframe, index):
+    fp = 0
+
+    for i in confusion_matrix_dataframe.index:
+        if i != index:
+            fp += confusion_matrix_dataframe.loc[i, index]
+
+    return fp
 
 
 def get_total_predictions(confusion_matrix_dataframe):
@@ -270,4 +295,5 @@ class CnnBaseModelEvaluation:
 
         logger.log_line("Confusion matrix \n" + str(cm(predictions, targets)))
         logger.log_line("Accuracy " + str(round(get_accuracy(confusion_matrix_dataframe), 2)))
+        logger.log_line("Precision " + str(round(get_precision(confusion_matrix_dataframe), 2)))
         logger.log_line("CNN base model evaluation finished")
