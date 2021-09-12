@@ -89,6 +89,31 @@ def plot_confusion_matrix(results_path, confusion_matrix_dataframe):
     plt.close()
 
 
+def get_accuracy(confusion_matrix_dataframe):
+    tp = get_true_positives(confusion_matrix_dataframe)
+    total = get_total_predictions(confusion_matrix_dataframe)
+
+    return tp / total
+
+
+def get_true_positives(confusion_matrix_dataframe):
+    tp = 0
+
+    for i in confusion_matrix_dataframe.index:
+        tp += confusion_matrix_dataframe.loc[i, i]
+
+    return tp
+
+
+def get_total_predictions(confusion_matrix_dataframe):
+    total = 0
+    for i in confusion_matrix_dataframe.index:
+        for j in confusion_matrix_dataframe.index:
+            total += confusion_matrix_dataframe.loc[i, j]
+
+    return total
+
+
 #
 # Main
 #
@@ -233,7 +258,8 @@ class CnnBaseModelEvaluation:
                     confusion_matrix[t.long(), p.long()] += 1
 
         # Build confusion matrix, limit to classes actually used
-        confusion_matrix_dataframe = pd.DataFrame(confusion_matrix, index=LabelEncoder().classes, columns=LabelEncoder().classes).astype(int)
+        confusion_matrix_dataframe = pd.DataFrame(confusion_matrix, index=LabelEncoder().classes, columns=LabelEncoder().classes).astype(
+            int)
         used_columns = (confusion_matrix_dataframe != 0).any(axis=0).where(lambda x: x == True).dropna().keys().tolist()
         used_rows = (confusion_matrix_dataframe != 0).any(axis=1).where(lambda x: x == True).dropna().keys().tolist()
         used_classes = list(dict.fromkeys(used_columns + used_rows))
@@ -243,4 +269,5 @@ class CnnBaseModelEvaluation:
         plot_confusion_matrix(log_path, confusion_matrix_dataframe)
 
         logger.log_line("Confusion matrix \n" + str(cm(predictions, targets)))
+        logger.log_line("Accuracy " + str(round(get_accuracy(confusion_matrix_dataframe), 2)))
         logger.log_line("CNN base model evaluation finished")
