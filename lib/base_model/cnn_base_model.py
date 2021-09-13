@@ -1,5 +1,5 @@
 import os
-import statistics
+import warnings
 from email.utils import formatdate
 
 import matplotlib.pyplot as plt
@@ -18,6 +18,10 @@ from torch.nn import functional as F
 from torch.utils.data import TensorDataset, DataLoader
 from tqdm import tqdm
 from training_result_plotter import TrainingResultPlotter
+
+warnings.filterwarnings("ignore", category=DeprecationWarning)
+warnings.filterwarnings("ignore", category=FutureWarning)
+warnings.filterwarnings("ignore", category=RuntimeWarning)
 
 # Set up device
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -157,7 +161,7 @@ def get_f1_score(confusion_matrix_dataframe):
 
         f1_scores.append(f1_score)
 
-    return statistics.harmonic_mean(f1_scores)
+    return np.mean(f1_scores)
 
 
 def get_cohen_kappa_score(target, prediction):
@@ -233,6 +237,11 @@ class CnnBaseModel:
         patience, trials = 1_000, 0
         loss_history = []
         accuracy_history = []
+        precision_history = []
+        recall_history = []
+        f1_score_history = []
+        cohen_kappa_score_history = []
+        matthew_correlation_coefficient_history = []
 
         # Run training loop
         progress_bar = tqdm(iterable=range(1, epochs + 1), unit='epochs', desc="Train model")
@@ -253,19 +262,52 @@ class CnnBaseModel:
             loss_history.append(epoch_loss)
 
             classifier.eval()
-            correct, total = 0, 0
+
+            targets = []
+            predictions = []
+            confusion_matrix = np.zeros((num_classes, num_classes))
+
             for batch in validation_data_loader:
                 input, target = [t.to(device) for t in batch]
                 output = classifier(input)
-                y_hat = F.log_softmax(output, dim=1).argmax(dim=1)
+                prediction = F.log_softmax(output, dim=1).argmax(dim=1)
 
-                total += target.size(0)
-                correct += (y_hat == target).sum().item()
+                targets.extend(target.tolist())
+                predictions.extend(prediction.tolist())
 
-            accuracy = correct / total
+                for t, p in zip(target.view(-1), prediction.view(-1)):
+                    confusion_matrix[t.long(), p.long()] += 1
+
+            # Build confusion matrix, limit to classes actually used
+            confusion_matrix_dataframe = pd.DataFrame(confusion_matrix, index=LabelEncoder().classes,
+                                                      columns=LabelEncoder().classes).astype("int64")
+            used_columns = (confusion_matrix_dataframe != 0).any(axis=0).where(lambda x: x == True).dropna().keys().tolist()
+            used_rows = (confusion_matrix_dataframe != 0).any(axis=1).where(lambda x: x == True).dropna().keys().tolist()
+            used_classes = list(dict.fromkeys(used_columns + used_rows))
+            confusion_matrix_dataframe = confusion_matrix_dataframe.filter(items=used_classes, axis=0).filter(items=used_classes, axis=1)
+
+            accuracy = get_accuracy(confusion_matrix_dataframe)
+            precision = get_precision(confusion_matrix_dataframe)
+            recall = get_recall(confusion_matrix_dataframe)
+            f1_score = get_f1_score(confusion_matrix_dataframe)
+            cohen_kappa_score = get_cohen_kappa_score(targets, predictions)
+            matthew_correlation_coefficient = get_matthews_corrcoef_score(targets, predictions)
+
             accuracy_history.append(accuracy)
+            precision_history.append(precision)
+            recall_history.append(recall)
+            f1_score_history.append(f1_score)
+            cohen_kappa_score_history.append(cohen_kappa_score)
+            matthew_correlation_coefficient_history.append(matthew_correlation_coefficient)
 
-            logger.log_line("Epoch " + str(epoch) + " loss " + str(round(epoch_loss, 4)) + " accuracy " + str(round(accuracy, 2)),
+            logger.log_line("Epoch " + str(epoch) +
+                            " loss " + str(round(epoch_loss, 4)) + ", " +
+                            " accuracy " + str(round(accuracy, 2)) + ", " +
+                            " precision " + str(round(precision, 2)) + ", " +
+                            " recall " + str(round(recall, 2)) + ", " +
+                            " f1 score " + str(round(f1_score, 2)) + ", " +
+                            " cohen kappa score " + str(round(cohen_kappa_score, 2)) + ", " +
+                            " matthew correlation coefficient " + str(round(matthew_correlation_coefficient, 2)),
                             console=False, file=True)
 
             # Check if accuracy increased
@@ -276,12 +318,13 @@ class CnnBaseModel:
             else:
                 trials += 1
                 if trials >= patience:
-                    logger.log_line("No further improvement after epoch " + str(epoch))
+                    logger.log_line("\nNo further improvement after epoch " + str(epoch))
                     break
 
         TrainingResultPlotter().run(
             logger=logger,
-            data=loss_history,
+            data=[loss_history],
+            labels=["Loss"],
             results_path=log_path + "/plots/training",
             file_name="loss",
             title="Validation loss history",
@@ -292,13 +335,15 @@ class CnnBaseModel:
 
         TrainingResultPlotter().run(
             logger=logger,
-            data=accuracy_history,
+            data=[accuracy_history, precision_history, recall_history, f1_score_history, cohen_kappa_score_history,
+                  matthew_correlation_coefficient_history],
+            labels=["Accuracy", "Precision", "Recall", "F1 Score", "Cohen's Kappa Score", "Matthew's Correlation Coefficient"],
             results_path=log_path + "/plots/training",
-            file_name="accuracy",
-            title="Validation accuracy history",
-            description="Validation accuracy history",
+            file_name="metrics",
+            title="Metrics history",
+            description="Metrics history",
             xlabel="Epoch",
-            ylabel="Accuracy",
+            ylabel="Value",
             clean=True)
 
         logger.log_line("CNN base model finished")
@@ -316,9 +361,6 @@ class CnnBaseModelEvaluation:
         # Create data loaders
         test_data_loader = create_loader(test_dataset, shuffle=False)
 
-        targets = []
-        predictions = []
-
         model = Classifier(
             input_channels=1,  # TODO Derive this value from data
             # input_channels=train_array.shape[1],
@@ -327,16 +369,16 @@ class CnnBaseModelEvaluation:
         model.load_state_dict(torch.load(os.path.join(log_path, "model.pickle")))
         model.eval()
 
+        targets = []
+        predictions = []
         confusion_matrix = np.zeros((num_classes, num_classes))
 
         with torch.no_grad():
             for i, (input, target) in enumerate(test_data_loader):
                 input = input.to(device)
                 target = target.to(device)
-
                 output = model(input)
-
-                _, prediction = torch.max(output, 1)
+                prediction = F.log_softmax(output, dim=1).argmax(dim=1)
 
                 targets.extend(target.tolist())
                 predictions.extend(prediction.tolist())
@@ -345,8 +387,8 @@ class CnnBaseModelEvaluation:
                     confusion_matrix[t.long(), p.long()] += 1
 
         # Build confusion matrix, limit to classes actually used
-        confusion_matrix_dataframe = pd.DataFrame(confusion_matrix, index=LabelEncoder().classes, columns=LabelEncoder().classes).astype(
-            int)
+        confusion_matrix_dataframe = pd.DataFrame(confusion_matrix, index=LabelEncoder().classes, columns=LabelEncoder().classes) \
+            .astype("int64")
         used_columns = (confusion_matrix_dataframe != 0).any(axis=0).where(lambda x: x == True).dropna().keys().tolist()
         used_rows = (confusion_matrix_dataframe != 0).any(axis=1).where(lambda x: x == True).dropna().keys().tolist()
         used_classes = list(dict.fromkeys(used_columns + used_rows))

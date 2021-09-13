@@ -18,7 +18,7 @@ def smooth(y, box_pts):
 
 class TrainingResultPlotter:
 
-    def run(self, logger, data, results_path, file_name, title, description, xlabel, ylabel, clean=False):
+    def run(self, logger, data, labels, results_path, file_name, title, description, xlabel, ylabel, clean=False):
         # Make results path
         os.makedirs(results_path, exist_ok=True)
 
@@ -28,13 +28,16 @@ class TrainingResultPlotter:
             for f in files:
                 os.remove(f)
 
-        plt.figure(2)
+        plt.subplots(figsize=(16, 14))
         plt.clf()
         plt.title(title)
         plt.xlabel(xlabel)
         plt.ylabel(ylabel)
 
-        plt.plot(smooth(data, 5))
+        for i in range(len(data)):
+            plt.plot(smooth(data[i], 5), label=labels[i])
+
+        plt.legend()
 
         plt.savefig(fname=results_path + "/" + file_name + ".png",
                     format="png",
