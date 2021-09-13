@@ -1,4 +1,5 @@
 import os
+import random
 import warnings
 
 import numpy as np
@@ -23,6 +24,11 @@ warnings.filterwarnings("ignore", category=RuntimeWarning)
 
 # Set up device
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+
+# Control sources of randomness
+torch.manual_seed(0)
+random.seed(0)
+np.random.seed(0)
 
 # Number of classes
 num_classes = LabelEncoder().num_classes()
@@ -192,8 +198,8 @@ class CnnBaseModel:
         validation_dataset = create_dataset(validation_array)
 
         # Create data loaders
-        train_data_loader = create_loader(train_dataset, shuffle=True)
-        validation_data_loader = create_loader(validation_dataset, shuffle=True)
+        train_data_loader = create_loader(train_dataset, shuffle=False)
+        validation_data_loader = create_loader(validation_dataset, shuffle=False)
 
         # Define classifier
         classifier = Classifier(
