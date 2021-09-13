@@ -11,6 +11,7 @@ from classifier import Classifier
 from label_encoder import LabelEncoder
 from sklearn.metrics import cohen_kappa_score
 from sklearn.metrics import confusion_matrix as cm
+from sklearn.metrics import matthews_corrcoef
 from torch import nn
 from torch import optim
 from torch.nn import functional as F
@@ -161,6 +162,10 @@ def get_f1_score(confusion_matrix_dataframe):
 
 def get_cohen_kappa_score(target, prediction):
     return cohen_kappa_score(target, prediction)
+
+
+def get_matthews_corrcoef_score(target, prediction):
+    return matthews_corrcoef(target, prediction)
 
 
 def get_true_positives(confusion_matrix_dataframe, index):
@@ -356,4 +361,5 @@ class CnnBaseModelEvaluation:
         logger.log_line("Recall " + str(round(get_recall(confusion_matrix_dataframe), 2)))
         logger.log_line("F1 Score " + str(round(get_f1_score(confusion_matrix_dataframe), 2)))
         logger.log_line("Cohen's Kappa Score " + str(round(get_cohen_kappa_score(targets, predictions), 2)))
+        logger.log_line("Matthew's Correlation Coefficient Score " + str(round(get_matthews_corrcoef_score(targets, predictions), 2)))
         logger.log_line("CNN base model evaluation finished")
