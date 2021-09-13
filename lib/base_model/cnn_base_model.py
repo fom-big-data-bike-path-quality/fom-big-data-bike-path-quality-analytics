@@ -1,4 +1,5 @@
 import os
+import statistics
 from email.utils import formatdate
 
 import matplotlib.pyplot as plt
@@ -130,6 +131,31 @@ def get_recall(confusion_matrix_dataframe):
         recalls.append(recall)
 
     return np.mean(recalls)
+
+
+def get_f1_score(confusion_matrix_dataframe):
+    f1_scores = []
+
+    for i in confusion_matrix_dataframe.index:
+        tp = get_true_positives(confusion_matrix_dataframe, i)
+        fp = get_false_positives(confusion_matrix_dataframe, i)
+        fn = get_false_negatives(confusion_matrix_dataframe, i)
+        precision = 0
+        recall = 0
+        f1_score = 0
+
+        if (tp + fp) > 0:
+            precision = tp / (tp + fp)
+
+        if (tp + fn) > 0:
+            recall = tp / (tp + fn)
+
+        if (precision + recall) > 0:
+            f1_score = (2 * precision * recall) / (precision + recall)
+
+        f1_scores.append(f1_score)
+
+    return statistics.harmonic_mean(f1_scores)
 
 
 def get_true_positives(confusion_matrix_dataframe, index):
@@ -323,4 +349,5 @@ class CnnBaseModelEvaluation:
         logger.log_line("Accuracy " + str(round(get_accuracy(confusion_matrix_dataframe), 2)))
         logger.log_line("Precision " + str(round(get_precision(confusion_matrix_dataframe), 2)))
         logger.log_line("Recall " + str(round(get_recall(confusion_matrix_dataframe), 2)))
+        logger.log_line("F1 Score " + str(round(get_f1_score(confusion_matrix_dataframe), 2)))
         logger.log_line("CNN base model evaluation finished")
