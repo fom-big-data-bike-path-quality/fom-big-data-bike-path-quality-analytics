@@ -9,6 +9,7 @@ import seaborn as sns
 import torch
 from classifier import Classifier
 from label_encoder import LabelEncoder
+from sklearn.metrics import cohen_kappa_score
 from sklearn.metrics import confusion_matrix as cm
 from torch import nn
 from torch import optim
@@ -156,6 +157,10 @@ def get_f1_score(confusion_matrix_dataframe):
         f1_scores.append(f1_score)
 
     return statistics.harmonic_mean(f1_scores)
+
+
+def get_cohen_kappa_score(target, prediction):
+    return cohen_kappa_score(target, prediction)
 
 
 def get_true_positives(confusion_matrix_dataframe, index):
@@ -350,4 +355,5 @@ class CnnBaseModelEvaluation:
         logger.log_line("Precision " + str(round(get_precision(confusion_matrix_dataframe), 2)))
         logger.log_line("Recall " + str(round(get_recall(confusion_matrix_dataframe), 2)))
         logger.log_line("F1 Score " + str(round(get_f1_score(confusion_matrix_dataframe), 2)))
+        logger.log_line("Cohen's Kappa Score " + str(round(get_cohen_kappa_score(targets, predictions), 2)))
         logger.log_line("CNN base model evaluation finished")
