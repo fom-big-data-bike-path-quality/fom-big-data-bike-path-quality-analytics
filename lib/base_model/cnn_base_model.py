@@ -1,13 +1,11 @@
 import os
 import warnings
-from email.utils import formatdate
 
-import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
-import seaborn as sns
 import torch
 from classifier import Classifier
+from confusion_matrix_plotter import ConfusionMatrixPlotter
 from label_encoder import LabelEncoder
 from sklearn.metrics import cohen_kappa_score
 from sklearn.metrics import confusion_matrix as cm
@@ -67,33 +65,6 @@ def create_loader(dataset, batch_size=128, shuffle=False, num_workers=0):
         shuffle=shuffle,
         num_workers=num_workers
     )
-
-
-def plot_confusion_matrix(results_path, confusion_matrix_dataframe):
-    fig, ax = plt.subplots(figsize=(16, 14))
-
-    heatmap = sns.heatmap(confusion_matrix_dataframe, annot=True, fmt="d", cmap='Blues', ax=ax)
-    heatmap.yaxis.set_ticklabels(heatmap.yaxis.get_ticklabels(), rotation=0, ha='right', fontsize=10)
-    heatmap.xaxis.set_ticklabels(heatmap.xaxis.get_ticklabels(), rotation=45, ha='right', fontsize=10)
-
-    bottom, top = heatmap.get_ylim()
-    heatmap.set_ylim(bottom + 0.5, top - 0.5)
-
-    results_file = os.path.join(results_path, "confusion_matrix.png")
-
-    plt.title("Confusion matrix")
-    plt.xlabel("Prediction")
-    plt.ylabel("Target")
-    plt.savefig(fname=results_file,
-                format="png",
-                metadata={
-                    "Title": "Confusion matrix",
-                    "Author": "Florian Schwanz",
-                    "Creation Time": formatdate(timeval=None, localtime=False, usegmt=True),
-                    "Description": "Plot of training confusion matrix"
-                })
-
-    plt.close()
 
 
 def get_accuracy(confusion_matrix_dataframe):
@@ -325,7 +296,7 @@ class CnnBaseModel:
             logger=logger,
             data=[loss_history],
             labels=["Loss"],
-            results_path=log_path + "/plots/training",
+            results_path=os.path.join(log_path, "plots", "training"),
             file_name="loss",
             title="Validation loss history",
             description="Validation loss history",
@@ -338,7 +309,7 @@ class CnnBaseModel:
             data=[accuracy_history, precision_history, recall_history, f1_score_history, cohen_kappa_score_history,
                   matthew_correlation_coefficient_history],
             labels=["Accuracy", "Precision", "Recall", "F1 Score", "Cohen's Kappa Score", "Matthew's Correlation Coefficient"],
-            results_path=log_path + "/plots/training",
+            results_path=os.path.join(log_path, "plots", "training"),
             file_name="metrics",
             title="Metrics history",
             description="Metrics history",
@@ -395,7 +366,7 @@ class CnnBaseModelEvaluation:
         confusion_matrix_dataframe = confusion_matrix_dataframe.filter(items=used_classes, axis=0).filter(items=used_classes, axis=1)
 
         # Plot confusion matrix
-        plot_confusion_matrix(log_path, confusion_matrix_dataframe)
+        ConfusionMatrixPlotter().run(logger, os.path.join(log_path, "plots", "training"), confusion_matrix_dataframe)
 
         logger.log_line("Confusion matrix \n" + str(cm(predictions, targets)))
         logger.log_line("Accuracy " + str(round(get_accuracy(confusion_matrix_dataframe), 2)))
