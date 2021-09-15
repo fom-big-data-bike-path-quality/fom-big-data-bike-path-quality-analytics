@@ -73,4 +73,4 @@ class BikeActivitySurfaceTypePlotter:
 
         logger.log_line("✓️ Plotting " + file_name)
 
-        logger.log_line("Training result plotter finished")
+        logger.log_line("Bike activity surface type plotter finished")

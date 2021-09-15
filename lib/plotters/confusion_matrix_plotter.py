@@ -39,4 +39,4 @@ class ConfusionMatrixPlotter:
 
         plt.close()
 
-        logger.log_line("Confusion Matrix plotter finished")
+        logger.log_line("Confusion matrix plotter finished")
