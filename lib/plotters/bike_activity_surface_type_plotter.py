@@ -1,10 +1,12 @@
 import glob
+import inspect
 import os
 from email.utils import formatdate
 
 import matplotlib.pyplot as plt
 import numpy as np
 from matplotlib.ticker import PercentFormatter
+from tracking_decorator import TrackingDecorator
 
 
 def create_array(dataframes):
@@ -33,7 +35,8 @@ def create_array(dataframes):
 
 class BikeActivitySurfaceTypePlotter:
 
-    def run(self, logger, dataframes, target_column, results_path, file_name, title, description, xlabel, ylabel, clean=False):
+    @TrackingDecorator.track_time
+    def run(self, logger, dataframes, target_column, results_path, file_name, title, description, xlabel, ylabel, clean=False, quiet=False):
         # Make results path
         os.makedirs(results_path, exist_ok=True)
 
@@ -71,6 +74,11 @@ class BikeActivitySurfaceTypePlotter:
 
         plt.close()
 
-        logger.log_line("✓️ Plotting " + file_name)
+        if not quiet:
+            logger.log_line("✓️ Plotting " + file_name)
 
-        logger.log_line("Bike activity surface type plotter finished")
+        class_name = self.__class__.__name__
+        function_name = inspect.currentframe().f_code.co_name
+
+        if not quiet:
+            logger.log_line(class_name + "." + function_name + " plotted surface types")

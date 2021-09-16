@@ -1,10 +1,10 @@
+import inspect
 import os
-from email.utils import formatdate
-
 from email.utils import formatdate
 
 import matplotlib.pyplot as plt
 import seaborn as sns
+from tracking_decorator import TrackingDecorator
 
 
 #
@@ -13,7 +13,8 @@ import seaborn as sns
 
 class ConfusionMatrixPlotter:
 
-    def run(self, logger, results_path, confusion_matrix_dataframe):
+    @TrackingDecorator.track_time
+    def run(self, logger, results_path, confusion_matrix_dataframe, quiet=False):
         fig, ax = plt.subplots(figsize=(16, 14))
 
         heatmap = sns.heatmap(confusion_matrix_dataframe, annot=True, fmt="d", cmap='Blues', ax=ax)
@@ -39,4 +40,8 @@ class ConfusionMatrixPlotter:
 
         plt.close()
 
-        logger.log_line("Confusion matrix plotter finished")
+        class_name = self.__class__.__name__
+        function_name = inspect.currentframe().f_code.co_name
+
+        if not quiet:
+            logger.log_line(class_name + "." + function_name + " plotted confusion matrix")

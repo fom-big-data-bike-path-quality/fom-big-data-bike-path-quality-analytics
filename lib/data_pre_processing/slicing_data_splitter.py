@@ -1,19 +1,20 @@
 import csv
 import glob
+import inspect
 import os
 from pathlib import Path
 
-import numpy as np
+from tracking_decorator import TrackingDecorator
 
 
 #
 # Main
 #
 
-
 class SlicingDataSplitter:
 
-    def run(self, logger, data_path, results_path, clean=False):
+    @TrackingDecorator.track_time
+    def run(self, logger, data_path, results_path, clean=False, quiet=False):
 
         # Make results path
         os.makedirs(results_path, exist_ok=True)
@@ -66,7 +67,11 @@ class SlicingDataSplitter:
 
             slices_count_total += slices_count
 
-            if slices_count > 0:
+            if slices_count > 0 and not quiet:
                 logger.log_line("✓️ Splitting into slices " + file_name)
 
-        logger.log_line("Slicing data splitter finished with " + str(slices_count_total) + " slices")
+        class_name = self.__class__.__name__
+        function_name = inspect.currentframe().f_code.co_name
+
+        if not quiet:
+            logger.log_line(class_name + "." + function_name + " splitted data in " + str(slices_count_total) + " slices")

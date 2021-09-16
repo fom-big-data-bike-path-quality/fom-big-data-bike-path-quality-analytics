@@ -1,17 +1,19 @@
+import inspect
 import os
 from pathlib import Path
 
 import pandas as pd
+from tracking_decorator import TrackingDecorator
 
 
 #
 # Main
 #
 
-
 class DataLoader:
 
-    def run(self, logger, data_path):
+    @TrackingDecorator.track_time
+    def run(self, logger, data_path, quiet=False):
         dataframes = {}
 
         for file_path in Path(data_path).rglob("*.csv"):
@@ -28,5 +30,10 @@ class DataLoader:
 
             dataframes[file_base_name] = dataframe
 
-        logger.log_line("Data loader finished with " + str(len(dataframes)) + " dataframes loaded")
+        class_name = self.__class__.__name__
+        function_name = inspect.currentframe().f_code.co_name
+
+        if not quiet:
+            logger.log_line(class_name + "." + function_name + " loaded " + str(len(dataframes)) + " dataframes")
+
         return dataframes

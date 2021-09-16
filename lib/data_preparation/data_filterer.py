@@ -1,11 +1,16 @@
+import inspect
+
+from tracking_decorator import TrackingDecorator
+
+
 #
 # Main
 #
 
-
 class DataFilterer:
     BIKE_ACTIVITY_MEASUREMENT_SPEED_LIMIT = 5  # in km/h
 
+    @TrackingDecorator.track_time
     def run(self, logger, dataframes, quiet=False):
 
         dataframes_count = len(dataframes.items())
@@ -39,6 +44,10 @@ class DataFilterer:
         dataframes_filtered_count = len(dataframes.items())
 
         if not quiet:
-            logger.log_line("Data filterer finished with " + str(dataframes_filtered_count) + "/" + str(dataframes_count)
-                  + " dataframes (" + str(round(dataframes_filtered_count / dataframes_count, 2) * 100) + "%) kept")
+            class_name = self.__class__.__name__
+            function_name = inspect.currentframe().f_code.co_name
+
+            logger.log_line(class_name + "." + function_name + " kept " + str(dataframes_filtered_count) + "/" + str(dataframes_count)
+                            + " dataframes (" + str(round(dataframes_filtered_count / dataframes_count, 2) * 100) + "%)")
+
         return dataframes

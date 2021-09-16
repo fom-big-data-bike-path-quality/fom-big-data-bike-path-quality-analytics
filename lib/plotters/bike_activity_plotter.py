@@ -1,11 +1,13 @@
 import csv
 import glob
+import inspect
 import math
 import os
 from email.utils import formatdate
 from pathlib import Path
 
 import matplotlib.pyplot as plt
+from tracking_decorator import TrackingDecorator
 
 
 #
@@ -14,7 +16,8 @@ import matplotlib.pyplot as plt
 
 class BikeActivityPlotter:
 
-    def run(self, logger, data_path, results_path, xlabel, ylabel, clean=False):
+    @TrackingDecorator.track_time
+    def run(self, logger, data_path, results_path, xlabel, ylabel, clean=False, quiet=False):
         # Make results path
         os.makedirs(results_path, exist_ok=True)
 
@@ -83,7 +86,12 @@ class BikeActivityPlotter:
                     plt.close()
 
                 bike_activities_plotted_count += 1
-                logger.log_line("✓️ Plotting " + file_name)
 
-        logger.log_line("Bike activity plotter finished with " + str(bike_activities_plotted_count) + " activities plotted")
+                if not quiet:
+                    logger.log_line("✓️ Plotting " + file_name)
 
+        if not quiet:
+            class_name = self.__class__.__name__
+            function_name = inspect.currentframe().f_code.co_name
+
+            logger.log_line(class_name + "." + function_name + " plotted " + str(bike_activities_plotted_count) + " activities")

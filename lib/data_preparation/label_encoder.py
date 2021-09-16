@@ -2,7 +2,6 @@
 # Main
 #
 
-
 class LabelEncoder:
     classes = [
         "paved",

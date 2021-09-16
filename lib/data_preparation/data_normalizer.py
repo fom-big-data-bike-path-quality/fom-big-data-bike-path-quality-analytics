@@ -1,19 +1,27 @@
+import inspect
+
 from sklearn.preprocessing import MinMaxScaler
+from tracking_decorator import TrackingDecorator
 
 
 #
 # Main
 #
 
-
 class DataNormalizer:
 
-    def run(self, logger, dataframes):
+    @TrackingDecorator.track_time
+    def run(self, logger, dataframes, quiet=False):
         min_max_scaler = MinMaxScaler()
 
         for name, dataframe in list(dataframes.items()):
             dataframe["bike_activity_measurement_accelerometer"] = min_max_scaler.fit_transform(
                 dataframe[['bike_activity_measurement_accelerometer']].values.astype(float))
 
-        logger.log_line("Data normalizer finished with " + str(len(dataframes)) + " dataframes normalized")
+        if not quiet:
+            class_name = self.__class__.__name__
+            function_name = inspect.currentframe().f_code.co_name
+
+            logger.log_line(class_name + "." + function_name + " normalized " + str(len(dataframes)) + " dataframes")
+
         return dataframes

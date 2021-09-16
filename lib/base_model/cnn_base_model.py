@@ -1,3 +1,4 @@
+import inspect
 import os
 import random
 import warnings
@@ -16,6 +17,7 @@ from torch import optim
 from torch.nn import functional as F
 from torch.utils.data import TensorDataset, DataLoader
 from tqdm import tqdm
+from tracking_decorator import TrackingDecorator
 from training_result_plotter import TrainingResultPlotter
 
 warnings.filterwarnings("ignore", category=DeprecationWarning)
@@ -188,7 +190,8 @@ def get_total_predictions(confusion_matrix_dataframe):
 
 class CnnBaseModel:
 
-    def run(self, logger, train_dataframes, validation_dataframes, learning_rate, epochs, log_path):
+    @TrackingDecorator.track_time
+    def run(self, logger, train_dataframes, validation_dataframes, learning_rate, epochs, log_path, quiet=False):
         # Create arrays
         train_array = create_array(train_dataframes)
         validation_array = create_array(validation_dataframes)
@@ -277,15 +280,16 @@ class CnnBaseModel:
             cohen_kappa_score_history.append(cohen_kappa_score)
             matthew_correlation_coefficient_history.append(matthew_correlation_coefficient)
 
-            logger.log_line("Epoch " + str(epoch) +
-                            " loss " + str(round(epoch_loss, 4)) + ", " +
-                            " accuracy " + str(round(accuracy, 2)) + ", " +
-                            " precision " + str(round(precision, 2)) + ", " +
-                            " recall " + str(round(recall, 2)) + ", " +
-                            " f1 score " + str(round(f1_score, 2)) + ", " +
-                            " cohen kappa score " + str(round(cohen_kappa_score, 2)) + ", " +
-                            " matthew correlation coefficient " + str(round(matthew_correlation_coefficient, 2)),
-                            console=False, file=True)
+            if not quiet:
+                logger.log_line("Epoch " + str(epoch) +
+                                " loss " + str(round(epoch_loss, 4)) + ", " +
+                                " accuracy " + str(round(accuracy, 2)) + ", " +
+                                " precision " + str(round(precision, 2)) + ", " +
+                                " recall " + str(round(recall, 2)) + ", " +
+                                " f1 score " + str(round(f1_score, 2)) + ", " +
+                                " cohen kappa score " + str(round(cohen_kappa_score, 2)) + ", " +
+                                " matthew correlation coefficient " + str(round(matthew_correlation_coefficient, 2)),
+                                console=False, file=True)
 
             # Check if accuracy increased
             if accuracy > accuracy_max:
@@ -294,7 +298,7 @@ class CnnBaseModel:
                 torch.save(classifier.state_dict(), os.path.join(log_path, "model.pickle"))
             else:
                 trials += 1
-                if trials >= patience:
+                if trials >= patience and not quiet:
                     logger.log_line("\nNo further improvement after epoch " + str(epoch))
                     break
 
@@ -308,7 +312,8 @@ class CnnBaseModel:
             description="Validation loss history",
             xlabel="Epoch",
             ylabel="Loss",
-            clean=True)
+            clean=True,
+            quiet=quiet)
 
         TrainingResultPlotter().run(
             logger=logger,
@@ -321,14 +326,14 @@ class CnnBaseModel:
             description="Metrics history",
             xlabel="Epoch",
             ylabel="Value",
-            clean=True)
+            clean=True,
+            quiet=quiet)
 
-        logger.log_line("CNN base model finished")
+        class_name = self.__class__.__name__
+        function_name = inspect.currentframe().f_code.co_name
 
-
-class CnnBaseModelEvaluation:
-
-    def run(self, logger, test_dataframes, log_path):
+    @TrackingDecorator.track_time
+    def evaluate(self, logger, test_dataframes, log_path, quiet=False):
         # Create arrays
         test_array = create_array(test_dataframes)
 
@@ -374,11 +379,14 @@ class CnnBaseModelEvaluation:
         # Plot confusion matrix
         ConfusionMatrixPlotter().run(logger, os.path.join(log_path, "plots", "training"), confusion_matrix_dataframe)
 
-        logger.log_line("Confusion matrix \n" + str(cm(predictions, targets)))
-        logger.log_line("Accuracy " + str(round(get_accuracy(confusion_matrix_dataframe), 2)))
-        logger.log_line("Precision " + str(round(get_precision(confusion_matrix_dataframe), 2)))
-        logger.log_line("Recall " + str(round(get_recall(confusion_matrix_dataframe), 2)))
-        logger.log_line("F1 Score " + str(round(get_f1_score(confusion_matrix_dataframe), 2)))
-        logger.log_line("Cohen's Kappa Score " + str(round(get_cohen_kappa_score(targets, predictions), 2)))
-        logger.log_line("Matthew's Correlation Coefficient Score " + str(round(get_matthews_corrcoef_score(targets, predictions), 2)))
-        logger.log_line("CNN base model evaluation finished")
+        if not quiet:
+            logger.log_line("Confusion matrix \n" + str(cm(predictions, targets)))
+            logger.log_line("Accuracy " + str(round(get_accuracy(confusion_matrix_dataframe), 2)))
+            logger.log_line("Precision " + str(round(get_precision(confusion_matrix_dataframe), 2)))
+            logger.log_line("Recall " + str(round(get_recall(confusion_matrix_dataframe), 2)))
+            logger.log_line("F1 Score " + str(round(get_f1_score(confusion_matrix_dataframe), 2)))
+            logger.log_line("Cohen's Kappa Score " + str(round(get_cohen_kappa_score(targets, predictions), 2)))
+            logger.log_line("Matthew's Correlation Coefficient Score " + str(round(get_matthews_corrcoef_score(targets, predictions), 2)))
+
+        class_name = self.__class__.__name__
+        function_name = inspect.currentframe().f_code.co_name

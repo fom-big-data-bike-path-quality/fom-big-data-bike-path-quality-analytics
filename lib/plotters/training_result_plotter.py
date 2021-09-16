@@ -1,9 +1,11 @@
 import glob
+import inspect
 import os
 from email.utils import formatdate
 
 import matplotlib.pyplot as plt
 import numpy as np
+from tracking_decorator import TrackingDecorator
 
 
 def smooth(y, box_pts):
@@ -18,7 +20,8 @@ def smooth(y, box_pts):
 
 class TrainingResultPlotter:
 
-    def run(self, logger, data, labels, results_path, file_name, title, description, xlabel, ylabel, clean=False):
+    @TrackingDecorator.track_time
+    def run(self, logger, data, labels, results_path, file_name, title, description, xlabel, ylabel, clean=False, quiet=False):
         # Make results path
         os.makedirs(results_path, exist_ok=True)
 
@@ -50,6 +53,10 @@ class TrainingResultPlotter:
 
         plt.close()
 
-        logger.log_line("✓️ Plotting " + file_name)
+        if not quiet:
+            logger.log_line("✓️ Plotting " + file_name)
 
-        logger.log_line("Training result plotter finished")
+            class_name = self.__class__.__name__
+            function_name = inspect.currentframe().f_code.co_name
+
+            logger.log_line(class_name + "." + function_name + " plotted training result")

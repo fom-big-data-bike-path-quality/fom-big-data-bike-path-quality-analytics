@@ -1,13 +1,16 @@
+import inspect
+
 from sklearn.model_selection import train_test_split
+from tracking_decorator import TrackingDecorator
 
 
 #
 # Main
 #
 
-
 class TrainTestDataSplitter:
 
+    @TrackingDecorator.track_time
     def run(self, logger, dataframes, test_size=0.15, random_state=0, quiet=False):
         ids = sorted(list(dataframes.keys()))
         train_ids, test_ids = train_test_split(ids, test_size=test_size, random_state=random_state)
@@ -17,8 +20,12 @@ class TrainTestDataSplitter:
         test_dataframes = {id: dataframes[id] for id in ids}
 
         if not quiet:
-            logger.log_line("Train/test data splitter finished with "
-                            "train: " + str(len(train_dataframes)) + ", "
+            class_name = self.__class__.__name__
+            function_name = inspect.currentframe().f_code.co_name
+
+            logger.log_line(class_name + "." + function_name + " splitted "
+                            + "train: " + str(len(train_dataframes)) + ", "
                             + "validation:" + str(len(validation_dataframes)) + ", "
                             + "test:" + str(len(test_dataframes)))
+
         return train_dataframes, validation_dataframes, test_dataframes

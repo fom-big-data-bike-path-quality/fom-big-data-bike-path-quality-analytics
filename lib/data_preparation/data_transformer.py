@@ -1,7 +1,9 @@
+import inspect
 import math
 
 import pandas as pd
 from label_encoder import LabelEncoder
+from tracking_decorator import TrackingDecorator
 
 
 def getAccelerometer(row):
@@ -27,10 +29,10 @@ def getLabelEncoding(row):
 # Main
 #
 
-
 class DataTransformer:
 
-    def run(self, logger, dataframes):
+    @TrackingDecorator.track_time
+    def run(self, logger, dataframes, quiet=False):
         for name, dataframe in list(dataframes.items()):
             dataframe["bike_activity_measurement_accelerometer"] = pd.to_numeric(dataframe.apply(lambda row: getAccelerometer(row), axis=1))
             dataframe["bike_activity_surface_type"] = dataframe.apply(lambda row: getLabelEncoding(row), axis=1)
@@ -49,5 +51,10 @@ class DataTransformer:
                             "bike_activity_bike_type",
                             "bike_activity_smoothness_type"], axis=1, inplace=True)
 
-        logger.log_line("Data transformer finished with " + str(len(dataframes)) + " dataframes transformed")
+        if not quiet:
+            class_name = self.__class__.__name__
+            function_name = inspect.currentframe().f_code.co_name
+
+            logger.log_line(class_name + "." + function_name + " transformed " + str(len(dataframes)) + " dataframes")
+
         return dataframes

@@ -1,15 +1,16 @@
 import csv
 import glob
+import inspect
 import os
 from pathlib import Path
 
 import numpy as np
+from tracking_decorator import TrackingDecorator
 
 
 #
 # Main
 #
-
 
 def rolling_window(array, window):
     shape = array.shape[:-1] + (array.shape[-1] - window + 1, window)
@@ -21,7 +22,8 @@ class SlidingWindowDataSplitter:
     width = 500
     step = 20
 
-    def run(self, logger, data_path, results_path, clean=False):
+    @TrackingDecorator.track_time
+    def run(self, logger, data_path, results_path, clean=False, quiet=False):
 
         # Make results path
         os.makedirs(results_path, exist_ok=True)
@@ -50,7 +52,8 @@ class SlidingWindowDataSplitter:
                 try:
                     slices = rolling_window(np.array(rows), self.width)
                 except ValueError:
-                    logger.log_line("✗️ Cannot split " + file_path)
+                    if not quiet:
+                        logger.log_line("✗️ Cannot split " + file_path)
 
                 # Determine bike activity UID
                 bike_activity_uid = os.path.splitext(file_name)[0]
@@ -79,7 +82,11 @@ class SlidingWindowDataSplitter:
                             slices_count = len(slices)
                             slices_count_total += slices_count
 
-            if slices_count > 0:
+            if slices_count > 0 and not quiet:
                 logger.log_line("✓️ Splitting into slices " + file_name)
 
-        logger.log_line("Sliding window data splitter finished with " + str(slices_count_total) + " slices")
+        class_name = self.__class__.__name__
+        function_name = inspect.currentframe().f_code.co_name
+
+        if not quiet:
+            logger.log_line(class_name + "." + function_name + " splitted data in " + str(slices_count_total) + " slices")
