@@ -83,6 +83,8 @@ def main(argv):
     # Print parameters
     logger.log_line("Parameters")
     logger.log_line("❄ starttime: " + str(start_time))
+    logger.log_line("❄ clean: " + str(clean))
+    logger.log_line("❄ quiet: " + str(quiet))
     logger.log_line("❄ epochs: " + str(epochs))
     logger.log_line("❄ learningrate: " + str(learning_rate))
 
