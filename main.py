@@ -20,7 +20,7 @@ for p in library_paths:
 
 # Import library classes
 from logger_facade import LoggerFacade
-from data_splitter import DataSplitter
+from sliding_window_data_splitter import SlidingWindowDataSplitter
 from data_loader import DataLoader
 from data_filterer import DataFilterer
 from data_transformer import DataTransformer
@@ -88,7 +88,7 @@ def main(argv):
     # Data pre-processing
     #
 
-    DataSplitter().run(
+    SlidingWindowDataSplitter().run(
         logger=logger,
         data_path=data_path + "/measurements/csv",
         results_path=workspace_path + "/slices/raw",
