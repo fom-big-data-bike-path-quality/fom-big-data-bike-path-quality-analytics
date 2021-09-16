@@ -54,6 +54,7 @@ class SlidingWindowDataSplitter:
                 except ValueError:
                     if not quiet:
                         logger.log_line("✗️ Cannot split " + file_path)
+                    continue
 
                 # Determine bike activity UID
                 bike_activity_uid = os.path.splitext(file_name)[0]
