@@ -37,48 +37,51 @@ class BikeActivitySurfaceTypePlotter:
 
     @TrackingDecorator.track_time
     def run(self, logger, dataframes, target_column, results_path, file_name, title, description, xlabel, ylabel, clean=False, quiet=False):
-        # Make results path
-        os.makedirs(results_path, exist_ok=True)
+        if len(dataframes) == 0:
+            logger.log_line("✗️ Not plotting " + file_name + " because there are no dataframes to plot")
+        else:
+            # Make results path
+            os.makedirs(results_path, exist_ok=True)
 
-        # Clean results path
-        if clean:
-            files = glob.glob(os.path.join(results_path, "*.png"))
-            for f in files:
-                os.remove(f)
+            # Clean results path
+            if clean:
+                files = glob.glob(os.path.join(results_path, "*.png"))
+                for f in files:
+                    os.remove(f)
 
-        plt.figure(2)
-        plt.clf()
-        plt.title(title)
-        plt.xlabel(xlabel)
-        plt.ylabel(ylabel)
+            plt.figure(2)
+            plt.clf()
+            plt.title(title)
+            plt.xlabel(xlabel)
+            plt.ylabel(ylabel)
 
-        array = create_array(dataframes)
+            array = create_array(dataframes)
 
-        # 1D array with
-        # axis-0 = TARGET of an epoch
-        data = array[:, target_column, 1]
+            # 1D array with
+            # axis-0 = TARGET of an epoch
+            data = array[:, target_column, 1]
 
-        plt.hist(data, weights=np.ones(len(data)) / len(data))
-        plt.gca().yaxis.set_major_formatter(PercentFormatter(1))
+            plt.hist(data, weights=np.ones(len(data)) / len(data))
+            plt.gca().yaxis.set_major_formatter(PercentFormatter(1))
 
-        plt.savefig(
-            fname=results_path + "/" + file_name + ".png",
-            format="png",
-            metadata={
-                "Title": title,
-                "Author": "Florian Schwanz",
-                "Creation Time": formatdate(timeval=None, localtime=False, usegmt=True),
-                "Description": description
-            }
-        )
+            plt.savefig(
+                fname=results_path + "/" + file_name + ".png",
+                format="png",
+                metadata={
+                    "Title": title,
+                    "Author": "Florian Schwanz",
+                    "Creation Time": formatdate(timeval=None, localtime=False, usegmt=True),
+                    "Description": description
+                }
+            )
 
-        plt.close()
+            plt.close()
 
-        if not quiet:
-            logger.log_line("✓️ Plotting " + file_name)
+            if not quiet:
+                logger.log_line("✓️ Plotting " + file_name)
 
-        class_name = self.__class__.__name__
-        function_name = inspect.currentframe().f_code.co_name
+            class_name = self.__class__.__name__
+            function_name = inspect.currentframe().f_code.co_name
 
-        if not quiet:
-            logger.log_line(class_name + "." + function_name + " plotted surface types")
+            if not quiet:
+                logger.log_line(class_name + "." + function_name + " plotted surface types")
