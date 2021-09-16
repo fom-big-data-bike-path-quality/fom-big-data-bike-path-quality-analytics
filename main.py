@@ -30,7 +30,6 @@ from bike_activity_slice_plotter import BikeActivitySlicePlotter
 from bike_activity_surface_type_plotter import BikeActivitySurfaceTypePlotter
 from train_test_data_splitter import TrainTestDataSplitter
 from cnn_base_model import CnnBaseModel
-from cnn_base_model import CnnBaseModelEvaluation
 from result_copier import ResultCopier
 
 
@@ -41,6 +40,7 @@ from result_copier import ResultCopier
 def main(argv):
     # Set default values
     clean = False
+    quiet = False
     start_time = datetime.now().strftime("%Y-%m-%d-%H:%M:%S")
     epochs = 50_000
     learning_rate = 0.001
@@ -48,7 +48,7 @@ def main(argv):
 
     # Read command line arguments
     try:
-        opts, args = getopt.getopt(argv, "hcdel:", ["help", "clean", "dry-run", "epochs=", "learningrate="])
+        opts, args = getopt.getopt(argv, "hcqdel:", ["help", "clean", "quiet", "dry-run", "epochs=", "learningrate="])
     except getopt.GetoptError:
         print("main.py --help --clean --dry-run --epochs <epochs> --learningrate <learningrate>")
         sys.exit(2)
@@ -58,6 +58,8 @@ def main(argv):
             sys.exit()
         elif opt in ("-c", "--clean"):
             clean = True
+        elif opt in ("-q", "--quiet"):
+            quiet = True
         elif opt in ("-d", "--dry-run"):
             epochs = 1
             clean = True
@@ -92,12 +94,14 @@ def main(argv):
         logger=logger,
         data_path=data_path + "/measurements/csv",
         results_path=workspace_path + "/slices/raw",
-        clean=clean
+        clean=clean,
+        quiet=quiet
     )
 
     dataframes = DataLoader().run(
         logger=logger,
-        data_path=workspace_path + "/slices/raw"
+        data_path=workspace_path + "/slices/raw",
+        quiet=quiet
     )
 
     #
@@ -110,7 +114,8 @@ def main(argv):
         results_path=log_path + "/plots/bike-activity",
         xlabel="time",
         ylabel="acceleration [m/sˆ2]/ speed [km/h]",
-        clean=clean
+        clean=clean,
+        quiet=quiet
     )
 
     BikeActivitySlicePlotter().run(
@@ -119,7 +124,8 @@ def main(argv):
         results_path=log_path + "/plots/bike-activity-sample",
         xlabel="time",
         ylabel="acceleration [m/sˆ2]/ speed [km/h]",
-        clean=clean
+        clean=clean,
+        quiet=quiet
     )
 
     BikeActivitySurfaceTypePlotter().run(
@@ -132,7 +138,8 @@ def main(argv):
         description="Distribution of surface types in input data",
         xlabel="surface type",
         ylabel="percentage",
-        clean=clean
+        clean=clean,
+        quiet=quiet
     )
 
     BikeActivitySurfaceTypePlotter().run(
@@ -145,7 +152,8 @@ def main(argv):
         description="Distribution of surface types in input data",
         xlabel="surface type",
         ylabel="percentage",
-        clean=clean
+        clean=clean,
+        quiet=quiet
     )
 
     train_dataframes, validation_dataframes, test_dataframes = TrainTestDataSplitter().run(
@@ -166,7 +174,8 @@ def main(argv):
         description="Distribution of surface types in input data",
         xlabel="surface type",
         ylabel="percentage",
-        clean=clean
+        clean=clean,
+        quiet=quiet
     )
 
     BikeActivitySurfaceTypePlotter().run(
@@ -179,7 +188,8 @@ def main(argv):
         description="Distribution of surface types in input data",
         xlabel="surface type",
         ylabel="percentage",
-        clean=clean
+        clean=clean,
+        quiet=quiet
     )
 
     #
@@ -194,7 +204,8 @@ def main(argv):
         logger=logger,
         dataframes=dataframes,
         test_size=0.15,
-        random_state=random_state
+        random_state=random_state,
+        quiet=quiet
     )
 
     #
@@ -207,17 +218,19 @@ def main(argv):
         validation_dataframes=validation_dataframes,
         epochs=epochs,
         learning_rate=learning_rate,
-        log_path=log_path
+        log_path=log_path,
+        quiet=quiet
     )
 
     #
     # Evaluation
     #
 
-    CnnBaseModelEvaluation().run(
+    CnnBaseModel().evaluate(
         logger=logger,
         test_dataframes=test_dataframes,
-        log_path=log_path
+        log_path=log_path,
+        quiet=quiet
     )
 
     #
