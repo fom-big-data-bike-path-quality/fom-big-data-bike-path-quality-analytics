@@ -1,4 +1,3 @@
-import inspect
 import os
 import random
 import warnings
@@ -184,6 +183,46 @@ def get_total_predictions(confusion_matrix_dataframe):
     return total
 
 
+def get_confusion_matrix_dataframe(classifier, data_loader):
+    targets = []
+    predictions = []
+    confusion_matrix = np.zeros((num_classes, num_classes))
+
+    for batch in data_loader:
+        input, target = [t.to(device) for t in batch]
+        output = classifier(input)
+        prediction = F.log_softmax(output, dim=1).argmax(dim=1)
+
+        targets.extend(target.tolist())
+        predictions.extend(prediction.tolist())
+
+        for t, p in zip(target.view(-1), prediction.view(-1)):
+            confusion_matrix[t.long(), p.long()] += 1
+
+    # Build confusion matrix, limit to classes actually used
+    confusion_matrix_dataframe = pd.DataFrame(confusion_matrix, index=LabelEncoder().classes,
+                                              columns=LabelEncoder().classes).astype("int64")
+    used_columns = (confusion_matrix_dataframe != 0).any(axis=0).where(lambda x: x == True).dropna().keys().tolist()
+    used_rows = (confusion_matrix_dataframe != 0).any(axis=1).where(lambda x: x == True).dropna().keys().tolist()
+    used_classes = list(dict.fromkeys(used_columns + used_rows))
+    confusion_matrix_dataframe = confusion_matrix_dataframe.filter(items=used_classes, axis=0).filter(items=used_classes, axis=1)
+
+    return confusion_matrix_dataframe, targets, predictions
+
+
+def validate(classifier, data_loader):
+    confusion_matrix_dataframe, targets, predictions = get_confusion_matrix_dataframe(classifier, data_loader)
+
+    accuracy = get_accuracy(confusion_matrix_dataframe)
+    precision = get_precision(confusion_matrix_dataframe)
+    recall = get_recall(confusion_matrix_dataframe)
+    f1_score = get_f1_score(confusion_matrix_dataframe)
+    cohen_kappa_score = get_cohen_kappa_score(targets, predictions)
+    matthew_correlation_coefficient = get_matthews_corrcoef_score(targets, predictions)
+
+    return accuracy, precision, recall, f1_score, cohen_kappa_score, matthew_correlation_coefficient
+
+
 #
 # Main
 #
@@ -205,96 +244,106 @@ class CnnBaseModel:
         validation_data_loader = create_loader(validation_dataset, shuffle=False)
 
         # Define classifier
-        classifier = Classifier(
-            input_channels=1,  # TODO Derive this value from data
-            # input_channels=train_array.shape[1],
-            num_classes=num_classes
-        ).to(device)
+        classifier = Classifier(input_channels=1, num_classes=num_classes).to(device)
         criterion = nn.CrossEntropyLoss(reduction='sum')
         optimizer = optim.Adam(classifier.parameters(), lr=learning_rate)
 
-        accuracy_max = 0
+        validation_accuracy_max = 0
         patience, trials = 1_000, 0
-        loss_history = []
-        accuracy_history = []
-        precision_history = []
-        recall_history = []
-        f1_score_history = []
-        cohen_kappa_score_history = []
-        matthew_correlation_coefficient_history = []
+
+        train_loss_history = []
+        train_accuracy_history = []
+        train_precision_history = []
+        train_recall_history = []
+        train_f1_score_history = []
+        train_cohen_kappa_score_history = []
+        train_matthew_correlation_coefficient_history = []
+
+        validation_loss_history = []
+        validation_accuracy_history = []
+        validation_precision_history = []
+        validation_recall_history = []
+        validation_f1_score_history = []
+        validation_cohen_kappa_score_history = []
+        validation_matthew_correlation_coefficient_history = []
 
         # Run training loop
         progress_bar = tqdm(iterable=range(1, epochs + 1), unit='epochs', desc="Train model")
         for epoch in progress_bar:
 
+            # Train model
             classifier.train()
-            epoch_loss = 0
+            train_epoch_loss = 0
             for i, batch in enumerate(train_data_loader):
-                x_raw, y_batch = [t.to(device) for t in batch]
+                input, target = [t.to(device) for t in batch]
                 optimizer.zero_grad()
-                out = classifier(x_raw)
-                loss = criterion(out, y_batch)
-                epoch_loss += loss.item()
+                output = classifier(input)
+                loss = criterion(output, target)
+                train_epoch_loss += loss.item()
                 loss.backward()
                 optimizer.step()
 
-            epoch_loss /= train_array.shape[0]
-            loss_history.append(epoch_loss)
-
+            train_epoch_loss /= train_array.shape[0]
+            train_loss_history.append(train_epoch_loss)
             classifier.eval()
 
-            targets = []
-            predictions = []
-            confusion_matrix = np.zeros((num_classes, num_classes))
+            with torch.no_grad():
+                validation_epoch_loss = 0
+                for i, batch in enumerate(validation_data_loader):
+                    input, target = [t.to(device) for t in batch]
+                    optimizer.zero_grad()
+                    output = classifier(input)
+                    loss = criterion(output, target)
+                    validation_epoch_loss += loss.item()
 
-            for batch in validation_data_loader:
-                input, target = [t.to(device) for t in batch]
-                output = classifier(input)
-                prediction = F.log_softmax(output, dim=1).argmax(dim=1)
+                validation_epoch_loss /= validation_array.shape[0]
+                validation_loss_history.append(validation_epoch_loss)
 
-                targets.extend(target.tolist())
-                predictions.extend(prediction.tolist())
+            # Validate with train dataloader
+            train_accuracy, \
+            train_precision, \
+            train_recall, \
+            train_f1_score, \
+            train_cohen_kappa_score, \
+            train_matthew_correlation_coefficient = validate(classifier, train_data_loader)
 
-                for t, p in zip(target.view(-1), prediction.view(-1)):
-                    confusion_matrix[t.long(), p.long()] += 1
+            train_accuracy_history.append(train_accuracy)
+            train_precision_history.append(train_precision)
+            train_recall_history.append(train_recall)
+            train_f1_score_history.append(train_f1_score)
+            train_cohen_kappa_score_history.append(train_cohen_kappa_score)
+            train_matthew_correlation_coefficient_history.append(train_matthew_correlation_coefficient)
 
-            # Build confusion matrix, limit to classes actually used
-            confusion_matrix_dataframe = pd.DataFrame(confusion_matrix, index=LabelEncoder().classes,
-                                                      columns=LabelEncoder().classes).astype("int64")
-            used_columns = (confusion_matrix_dataframe != 0).any(axis=0).where(lambda x: x == True).dropna().keys().tolist()
-            used_rows = (confusion_matrix_dataframe != 0).any(axis=1).where(lambda x: x == True).dropna().keys().tolist()
-            used_classes = list(dict.fromkeys(used_columns + used_rows))
-            confusion_matrix_dataframe = confusion_matrix_dataframe.filter(items=used_classes, axis=0).filter(items=used_classes, axis=1)
+            # Validate with validation dataloader
+            validation_accuracy, \
+            validation_precision, \
+            validation_recall, \
+            validation_f1_score, \
+            validation_cohen_kappa_score, \
+            validation_matthew_correlation_coefficient = validate(classifier, validation_data_loader)
 
-            accuracy = get_accuracy(confusion_matrix_dataframe)
-            precision = get_precision(confusion_matrix_dataframe)
-            recall = get_recall(confusion_matrix_dataframe)
-            f1_score = get_f1_score(confusion_matrix_dataframe)
-            cohen_kappa_score = get_cohen_kappa_score(targets, predictions)
-            matthew_correlation_coefficient = get_matthews_corrcoef_score(targets, predictions)
-
-            accuracy_history.append(accuracy)
-            precision_history.append(precision)
-            recall_history.append(recall)
-            f1_score_history.append(f1_score)
-            cohen_kappa_score_history.append(cohen_kappa_score)
-            matthew_correlation_coefficient_history.append(matthew_correlation_coefficient)
+            validation_accuracy_history.append(validation_accuracy)
+            validation_precision_history.append(validation_precision)
+            validation_recall_history.append(validation_recall)
+            validation_f1_score_history.append(validation_f1_score)
+            validation_cohen_kappa_score_history.append(validation_cohen_kappa_score)
+            validation_matthew_correlation_coefficient_history.append(validation_matthew_correlation_coefficient)
 
             if not quiet:
                 logger.log_line("Epoch " + str(epoch) +
-                                " loss " + str(round(epoch_loss, 4)) + ", " +
-                                " accuracy " + str(round(accuracy, 2)) + ", " +
-                                " precision " + str(round(precision, 2)) + ", " +
-                                " recall " + str(round(recall, 2)) + ", " +
-                                " f1 score " + str(round(f1_score, 2)) + ", " +
-                                " cohen kappa score " + str(round(cohen_kappa_score, 2)) + ", " +
-                                " matthew correlation coefficient " + str(round(matthew_correlation_coefficient, 2)),
+                                " loss " + str(round(train_epoch_loss, 4)).ljust(4, '0') + ", " +
+                                " accuracy " + str(round(validation_accuracy, 2)) + ", " +
+                                " precision " + str(round(validation_precision, 2)) + ", " +
+                                " recall " + str(round(validation_recall, 2)) + ", " +
+                                " f1 score " + str(round(validation_f1_score, 2)) + ", " +
+                                " cohen kappa score " + str(round(validation_cohen_kappa_score, 2)) + ", " +
+                                " matthew correlation coefficient " + str(round(validation_matthew_correlation_coefficient, 2)),
                                 console=False, file=True)
 
             # Check if accuracy increased
-            if accuracy > accuracy_max:
+            if validation_accuracy > validation_accuracy_max:
                 trials = 0
-                accuracy_max = accuracy
+                validation_accuracy_max = validation_accuracy
                 torch.save(classifier.state_dict(), os.path.join(log_path, "model.pickle"))
             else:
                 trials += 1
@@ -304,12 +353,12 @@ class CnnBaseModel:
 
         TrainingResultPlotter().run(
             logger=logger,
-            data=[loss_history],
-            labels=["Loss"],
+            data=[train_loss_history, validation_loss_history],
+            labels=["Train", "Validation"],
             results_path=os.path.join(log_path, "plots", "training"),
             file_name="loss",
-            title="Validation loss history",
-            description="Validation loss history",
+            title="Loss history",
+            description="Loss history",
             xlabel="Epoch",
             ylabel="Loss",
             clean=True,
@@ -317,8 +366,21 @@ class CnnBaseModel:
 
         TrainingResultPlotter().run(
             logger=logger,
-            data=[accuracy_history, precision_history, recall_history, f1_score_history, cohen_kappa_score_history,
-                  matthew_correlation_coefficient_history],
+            data=[train_accuracy_history, validation_accuracy_history],
+            labels=["Train", "Validation"],
+            results_path=os.path.join(log_path, "plots", "training"),
+            file_name="accuracy",
+            title="Accuracy history",
+            description="Accuracy history",
+            xlabel="Epoch",
+            ylabel="Accuracy",
+            clean=True,
+            quiet=quiet)
+
+        TrainingResultPlotter().run(
+            logger=logger,
+            data=[validation_accuracy_history, validation_precision_history, validation_recall_history, validation_f1_score_history,
+                  validation_cohen_kappa_score_history, validation_matthew_correlation_coefficient_history],
             labels=["Accuracy", "Precision", "Recall", "F1 Score", "Cohen's Kappa Score", "Matthew's Correlation Coefficient"],
             results_path=os.path.join(log_path, "plots", "training"),
             file_name="metrics",
@@ -328,9 +390,6 @@ class CnnBaseModel:
             ylabel="Value",
             clean=True,
             quiet=quiet)
-
-        class_name = self.__class__.__name__
-        function_name = inspect.currentframe().f_code.co_name
 
     @TrackingDecorator.track_time
     def evaluate(self, logger, test_dataframes, log_path, quiet=False):
@@ -343,50 +402,28 @@ class CnnBaseModel:
         # Create data loaders
         test_data_loader = create_loader(test_dataset, shuffle=False)
 
-        model = Classifier(
-            input_channels=1,  # TODO Derive this value from data
-            # input_channels=train_array.shape[1],
-            num_classes=num_classes
-        ).to(device)
-        model.load_state_dict(torch.load(os.path.join(log_path, "model.pickle")))
-        model.eval()
+        # Define classifier
+        classifier = Classifier(input_channels=1, num_classes=num_classes).to(device)
+        classifier.load_state_dict(torch.load(os.path.join(log_path, "model.pickle")))
+        classifier.eval()
 
-        targets = []
-        predictions = []
-        confusion_matrix = np.zeros((num_classes, num_classes))
-
-        with torch.no_grad():
-            for i, (input, target) in enumerate(test_data_loader):
-                input = input.to(device)
-                target = target.to(device)
-                output = model(input)
-                prediction = F.log_softmax(output, dim=1).argmax(dim=1)
-
-                targets.extend(target.tolist())
-                predictions.extend(prediction.tolist())
-
-                for t, p in zip(target.view(-1), prediction.view(-1)):
-                    confusion_matrix[t.long(), p.long()] += 1
-
-        # Build confusion matrix, limit to classes actually used
-        confusion_matrix_dataframe = pd.DataFrame(confusion_matrix, index=LabelEncoder().classes, columns=LabelEncoder().classes) \
-            .astype("int64")
-        used_columns = (confusion_matrix_dataframe != 0).any(axis=0).where(lambda x: x == True).dropna().keys().tolist()
-        used_rows = (confusion_matrix_dataframe != 0).any(axis=1).where(lambda x: x == True).dropna().keys().tolist()
-        used_classes = list(dict.fromkeys(used_columns + used_rows))
-        confusion_matrix_dataframe = confusion_matrix_dataframe.filter(items=used_classes, axis=0).filter(items=used_classes, axis=1)
+        # Validate with test dataloader
+        test_accuracy, \
+        test_precision, \
+        test_recall, \
+        test_f1_score, \
+        test_cohen_kappa_score, \
+        test_matthew_correlation_coefficient = validate(classifier, test_data_loader)
 
         # Plot confusion matrix
-        ConfusionMatrixPlotter().run(logger, os.path.join(log_path, "plots", "training"), confusion_matrix_dataframe)
+        test_confusion_matrix_dataframe, targets, predictions = get_confusion_matrix_dataframe(classifier, test_data_loader)
+        ConfusionMatrixPlotter().run(logger, os.path.join(log_path, "plots", "training"), test_confusion_matrix_dataframe)
 
         if not quiet:
-            logger.log_line("Confusion matrix \n" + str(cm(predictions, targets)))
-            logger.log_line("Accuracy " + str(round(get_accuracy(confusion_matrix_dataframe), 2)))
-            logger.log_line("Precision " + str(round(get_precision(confusion_matrix_dataframe), 2)))
-            logger.log_line("Recall " + str(round(get_recall(confusion_matrix_dataframe), 2)))
-            logger.log_line("F1 Score " + str(round(get_f1_score(confusion_matrix_dataframe), 2)))
-            logger.log_line("Cohen's Kappa Score " + str(round(get_cohen_kappa_score(targets, predictions), 2)))
-            logger.log_line("Matthew's Correlation Coefficient Score " + str(round(get_matthews_corrcoef_score(targets, predictions), 2)))
-
-        class_name = self.__class__.__name__
-        function_name = inspect.currentframe().f_code.co_name
+            logger.log_line("Confusion matrix \n" + str(cm(targets, predictions)))
+            logger.log_line("Accuracy " + str(round(test_accuracy, 2)))
+            logger.log_line("Precision " + str(round(test_precision, 2)))
+            logger.log_line("Recall " + str(round(test_recall, 2)))
+            logger.log_line("F1 Score " + str(round(test_f1_score, 2)))
+            logger.log_line("Cohen's Kappa Score " + str(round(test_cohen_kappa_score, 2)))
+            logger.log_line("Matthew's Correlation Coefficient Score " + str(round(test_matthew_correlation_coefficient, 2)))
