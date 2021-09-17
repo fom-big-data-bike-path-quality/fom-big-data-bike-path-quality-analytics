@@ -31,12 +31,14 @@ from bike_activity_surface_type_plotter import BikeActivitySurfaceTypePlotter
 from train_test_data_splitter import TrainTestDataSplitter
 from cnn_base_model import CnnBaseModel
 from result_copier import ResultCopier
+from tracking_decorator import TrackingDecorator
 
 
 #
 # Main
 #
 
+@TrackingDecorator.track_time
 def main(argv):
     # Set default values
     clean = False
