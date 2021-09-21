@@ -122,15 +122,15 @@ def main(argv):
         quiet=quiet
     )
 
-    BikeActivitySlicePlotter().run(
-        logger=logger,
-        data_path=workspace_path + "/slices/raw",
-        results_path=log_path + "/plots/bike-activity-sample",
-        xlabel="time",
-        ylabel="acceleration [m/sˆ2]/ speed [km/h]",
-        clean=clean,
-        quiet=quiet
-    )
+    # BikeActivitySlicePlotter().run(
+    #     logger=logger,
+    #     data_path=workspace_path + "/slices/raw",
+    #     results_path=log_path + "/plots/bike-activity-sample",
+    #     xlabel="time",
+    #     ylabel="acceleration [m/sˆ2]/ speed [km/h]",
+    #     clean=clean,
+    #     quiet=quiet
+    # )
 
     BikeActivitySurfaceTypePlotter().run(
         logger=logger,
