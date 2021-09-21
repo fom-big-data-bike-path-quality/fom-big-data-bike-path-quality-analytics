@@ -142,19 +142,6 @@ def main(argv):
     #     quiet=quiet
     # )
 
-    BikeActivitySurfaceTypePlotter().run(
-        logger=logger,
-        dataframes=filtered_dataframes,
-        results_path=log_path + "/plots/bike-activity-surface-type",
-        file_name="surface_type",
-        title="Surface type distribution",
-        description="Distribution of surface types in input data",
-        xlabel="surface type",
-        ylabel="percentage",
-        clean=clean,
-        quiet=quiet
-    )
-
     train_dataframes, validation_dataframes, test_dataframes = TrainTestDataSplitter().run(
         logger=logger,
         dataframes=filtered_dataframes,
