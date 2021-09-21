@@ -135,7 +135,6 @@ def main(argv):
     BikeActivitySurfaceTypePlotter().run(
         logger=logger,
         dataframes=dataframes,
-        target_column=12,
         results_path=log_path + "/plots/bike-activity-surface-type",
         file_name="surface_type",
         title="Surface type distribution",
@@ -149,7 +148,6 @@ def main(argv):
     BikeActivitySurfaceTypePlotter().run(
         logger=logger,
         dataframes=DataFilterer().run(logger=logger, dataframes=dataframes, quiet=True),
-        target_column=12,
         results_path=log_path + "/plots/bike-activity-surface-type",
         file_name="surface_type_filtered",
         title="Surface type distribution (filtered)",
@@ -171,7 +169,6 @@ def main(argv):
     BikeActivitySurfaceTypePlotter().run(
         logger=logger,
         dataframes=train_dataframes,
-        target_column=12,
         results_path=log_path + "/plots/bike-activity-surface-type",
         file_name="surface_type_test",
         title="Surface type distribution (test)",
@@ -185,7 +182,6 @@ def main(argv):
     BikeActivitySurfaceTypePlotter().run(
         logger=logger,
         dataframes=validation_dataframes,
-        target_column=12,
         results_path=log_path + "/plots/bike-activity-surface-type",
         file_name="surface_type_validation",
         title="Surface type distribution (validation)",

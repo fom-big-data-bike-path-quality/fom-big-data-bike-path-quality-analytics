@@ -45,7 +45,7 @@ class BikeActivitySurfaceTypePlotter:
 
             # Clean results path
             if clean:
-                files = glob.glob(os.path.join(results_path, "*.png"))
+                files = glob.glob(os.path.join(results_path, file_name + ".png"))
                 for f in files:
                     os.remove(f)
 
@@ -65,7 +65,7 @@ class BikeActivitySurfaceTypePlotter:
             plt.gca().yaxis.set_major_formatter(PercentFormatter(1))
 
             plt.savefig(
-                fname=results_path + "/" + file_name + ".png",
+                fname=os.path.join(results_path, file_name + ".png"),
                 format="png",
                 metadata={
                     "Title": title,

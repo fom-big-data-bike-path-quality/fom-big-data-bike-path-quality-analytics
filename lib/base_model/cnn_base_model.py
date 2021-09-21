@@ -392,7 +392,7 @@ class CnnBaseModel:
             quiet=quiet)
 
     @TrackingDecorator.track_time
-    def evaluate(self, logger, test_dataframes, log_path, quiet=False):
+    def evaluate(self, logger, test_dataframes, log_path, clean=False, quiet=False):
         # Create arrays
         test_array = create_array(test_dataframes)
 
@@ -417,7 +417,7 @@ class CnnBaseModel:
 
         # Plot confusion matrix
         test_confusion_matrix_dataframe, targets, predictions = get_confusion_matrix_dataframe(classifier, test_data_loader)
-        ConfusionMatrixPlotter().run(logger, os.path.join(log_path, "plots", "training"), test_confusion_matrix_dataframe)
+        ConfusionMatrixPlotter().run(logger, os.path.join(log_path, "plots", "training"), test_confusion_matrix_dataframe, clean=clean)
 
         if not quiet:
             logger.log_line("Confusion matrix \n" + str(cm(targets, predictions)))

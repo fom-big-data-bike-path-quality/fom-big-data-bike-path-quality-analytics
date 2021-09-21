@@ -42,7 +42,7 @@ class TrainingResultPlotter:
 
         plt.legend()
 
-        plt.savefig(fname=results_path + "/" + file_name + ".png",
+        plt.savefig(fname=os.path.join(results_path, file_name + ".png"),
                     format="png",
                     metadata={
                         "Title": title,

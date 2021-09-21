@@ -18,6 +18,7 @@ class BikeActivityPlotter:
 
     @TrackingDecorator.track_time
     def run(self, logger, data_path, results_path, xlabel, ylabel, clean=False, quiet=False):
+
         # Make results path
         os.makedirs(results_path, exist_ok=True)
 
@@ -33,7 +34,7 @@ class BikeActivityPlotter:
             file_name = os.path.basename(file_path.name)
             file_base_name = file_name.replace(".csv", "")
 
-            results_file = results_path + "/" + file_base_name + ".png"
+            results_file = os.path.join(results_path, file_base_name + ".png")
 
             if not Path(results_file).exists() or clean:
 

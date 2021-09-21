@@ -1,5 +1,6 @@
 import inspect
 import os
+import glob
 from email.utils import formatdate
 
 import matplotlib.pyplot as plt
@@ -14,7 +15,19 @@ from tracking_decorator import TrackingDecorator
 class ConfusionMatrixPlotter:
 
     @TrackingDecorator.track_time
-    def run(self, logger, results_path, confusion_matrix_dataframe, quiet=False):
+    def run(self, logger, results_path, confusion_matrix_dataframe, clean=False, quiet=False):
+
+        file_name = "confusion_matrix"
+
+        # Make results path
+        os.makedirs(results_path, exist_ok=True)
+
+        # Clean results path
+        if clean:
+            files = glob.glob(os.path.join(results_path, file_name + ".png"))
+            for f in files:
+                os.remove(f)
+
         fig, ax = plt.subplots(figsize=(16, 14))
 
         heatmap = sns.heatmap(confusion_matrix_dataframe, annot=True, fmt="d", cmap='Blues', ax=ax)
@@ -24,12 +37,10 @@ class ConfusionMatrixPlotter:
         bottom, top = heatmap.get_ylim()
         heatmap.set_ylim(bottom + 0.5, top - 0.5)
 
-        results_file = os.path.join(results_path, "confusion_matrix.png")
-
         plt.title("Confusion matrix")
         plt.xlabel("Prediction")
         plt.ylabel("Target")
-        plt.savefig(fname=results_file,
+        plt.savefig(fname=os.path.join(results_path, file_name + ".png"),
                     format="png",
                     metadata={
                         "Title": "Confusion matrix",
