@@ -6,7 +6,7 @@ class TrackingDecorator(object):
 
         def wrap(self, *args, **kwargs):
             start_time = datetime.now()
-            print(func.__qualname__ + " started")
+            print("\n" + func.__qualname__ + " started")
 
             result = func(self, *args, **kwargs)
 
