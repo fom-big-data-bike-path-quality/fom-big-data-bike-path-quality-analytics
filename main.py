@@ -56,8 +56,15 @@ def main(argv):
         print("main.py --help --clean --quiet --transient --dry-run --epochs <epochs> --learningrate <learningrate>")
         sys.exit(2)
     for opt, arg in opts:
-        if opt == ("-h", "--help"):
-            print("main.py -e <epochs>")
+        if opt in ("-h", "--help"):
+            print("main.py")
+            print("--help                           show this help")
+            print("--clean                          clean intermediate results before start")
+            print("--quiet                          do not log outputs")
+            print("--transient                      do not store results")
+            print("--dry-run                        only run a limited training to make sure syntax is correct")
+            print("--epochs <epochs>                number of epochs")
+            print("--learningrate <learningrate>    learning rate")
             sys.exit()
         elif opt in ("-c", "--clean"):
             clean = True
