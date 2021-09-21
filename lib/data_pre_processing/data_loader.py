@@ -25,7 +25,8 @@ class DataLoader:
                 "bike_activity_measurement_lon", "bike_activity_measurement_lat", "bike_activity_measurement_speed",
                 "bike_activity_measurement_accelerometer_x", "bike_activity_measurement_accelerometer_y",
                 "bike_activity_measurement_accelerometer_z", "bike_activity_phone_position", "bike_activity_bike_type",
-                "bike_activity_surface_type", "bike_activity_smoothness_type", "bike_activity_measurement_accelerometer"
+                "bike_activity_flagged_lab_conditions", "bike_activity_surface_type", "bike_activity_smoothness_type",
+                "bike_activity_measurement_accelerometer"
             ])
 
             dataframes[file_base_name] = dataframe

@@ -19,6 +19,13 @@ class DataFilterer:
 
         for name, dataframe in list(copied_dataframes.items()):
 
+            # Exclude dataframes which are not tracked under lab conditions
+            if False in dataframe.bike_activity_flagged_lab_conditions.values:
+                if not quiet:
+                    logger.log_line("✗️ Filtering out " + name + " (not tracked under lab conditions)")
+                copied_dataframes.pop(name)
+                continue
+
             # Exclude dataframes which contain less than 500 measurements
             if len(dataframe) < 500:
                 if not quiet:
