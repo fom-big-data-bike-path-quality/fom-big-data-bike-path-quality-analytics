@@ -36,7 +36,7 @@ def create_array(dataframes):
 class BikeActivitySurfaceTypePlotter:
 
     @TrackingDecorator.track_time
-    def run(self, logger, dataframes, target_column, results_path, file_name, title, description, xlabel, ylabel, clean=False, quiet=False):
+    def run(self, logger, dataframes, results_path, file_name, title, description, xlabel, ylabel, clean=False, quiet=False):
         if len(dataframes) == 0:
             logger.log_line("✗️ Not plotting " + file_name + " because there are no dataframes to plot")
         else:
@@ -56,6 +56,7 @@ class BikeActivitySurfaceTypePlotter:
             plt.ylabel(ylabel)
 
             array = create_array(dataframes)
+            target_column = list(dataframes.values())[0].columns.get_loc("bike_activity_surface_type")
 
             # 1D array with
             # axis-0 = TARGET of an epoch

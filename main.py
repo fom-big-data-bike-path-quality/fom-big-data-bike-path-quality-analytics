@@ -230,6 +230,7 @@ def main(argv):
         logger=logger,
         test_dataframes=test_dataframes,
         log_path=log_path,
+        clean=clean,
         quiet=quiet
     )
 
