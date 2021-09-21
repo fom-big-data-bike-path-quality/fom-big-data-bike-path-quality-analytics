@@ -1,7 +1,7 @@
 from console_logger import ConsoleLogger
 from file_logger import FileLogger
 from telegram_logger import TelegramLogger
-
+import shutil
 
 class LoggerFacade:
 
@@ -10,6 +10,8 @@ class LoggerFacade:
         self.console = console
         self.file = file
         self.telegram = telegram
+
+        shutil.rmtree(results_path, ignore_errors=True)
 
     def log_line(self, message, console=None, file=None, telegram=None):
         if console or (console == None and self.console):

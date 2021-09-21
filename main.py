@@ -43,6 +43,7 @@ def main(argv):
     # Set default values
     clean = False
     quiet = False
+    transient = False
     start_time = datetime.now().strftime("%Y-%m-%d-%H:%M:%S")
     epochs = 50_000
     learning_rate = 0.001
@@ -50,9 +51,9 @@ def main(argv):
 
     # Read command line arguments
     try:
-        opts, args = getopt.getopt(argv, "hcqdel:", ["help", "clean", "quiet", "dry-run", "epochs=", "learningrate="])
+        opts, args = getopt.getopt(argv, "hcqtde:l:", ["help", "clean", "quiet", "transient", "dry-run", "epochs=", "learningrate="])
     except getopt.GetoptError:
-        print("main.py --help --clean --dry-run --epochs <epochs> --learningrate <learningrate>")
+        print("main.py --help --clean --quiet --transient --dry-run --epochs <epochs> --learningrate <learningrate>")
         sys.exit(2)
     for opt, arg in opts:
         if opt == ("-h", "--help"):
@@ -62,6 +63,8 @@ def main(argv):
             clean = True
         elif opt in ("-q", "--quiet"):
             quiet = True
+        elif opt in ("-t", "--transient"):
+            transient = True
         elif opt in ("-d", "--dry-run"):
             epochs = 1
             clean = True
@@ -75,8 +78,13 @@ def main(argv):
     script_path = os.path.dirname(file_path)
     data_path = os.path.join(script_path, "data/data")
     workspace_path = os.path.join(script_path, "workspace")
-    log_path = os.path.join(script_path, "models", "models", start_time)
-    log_latest_path = os.path.join(script_path, "models", "models", "latest")
+
+    if not transient:
+        log_path = os.path.join(script_path, "models", "models", start_time)
+        log_latest_path = os.path.join(script_path, "models", "models", "latest")
+    else:
+        log_path = os.path.join(script_path, "models", "models", "transient")
+        log_latest_path = None
 
     # Initialize logger
     logger = LoggerFacade(log_path, console=True, file=True)
@@ -112,6 +120,8 @@ def main(argv):
     # Data Understanding
     #
 
+    filtered_dataframes = DataFilterer().run(logger=logger, dataframes=dataframes)
+
     BikeActivityPlotter().run(
         logger=logger,
         data_path=data_path + "/measurements/csv",
@@ -134,7 +144,7 @@ def main(argv):
 
     BikeActivitySurfaceTypePlotter().run(
         logger=logger,
-        dataframes=dataframes,
+        dataframes=filtered_dataframes,
         results_path=log_path + "/plots/bike-activity-surface-type",
         file_name="surface_type",
         title="Surface type distribution",
@@ -145,22 +155,9 @@ def main(argv):
         quiet=quiet
     )
 
-    BikeActivitySurfaceTypePlotter().run(
-        logger=logger,
-        dataframes=DataFilterer().run(logger=logger, dataframes=dataframes, quiet=True),
-        results_path=log_path + "/plots/bike-activity-surface-type",
-        file_name="surface_type_filtered",
-        title="Surface type distribution (filtered)",
-        description="Distribution of surface types in input data",
-        xlabel="surface type",
-        ylabel="percentage",
-        clean=clean,
-        quiet=quiet
-    )
-
     train_dataframes, validation_dataframes, test_dataframes = TrainTestDataSplitter().run(
         logger=logger,
-        dataframes=dataframes,
+        dataframes=filtered_dataframes,
         test_size=0.15,
         random_state=random_state,
         quiet=True
@@ -238,7 +235,8 @@ def main(argv):
     #
     #
 
-    ResultCopier().copyDirectory(log_path, log_latest_path)
+    if log_latest_path is not None:
+        ResultCopier().copyDirectory(log_path, log_latest_path)
 
 
 if __name__ == "__main__":
