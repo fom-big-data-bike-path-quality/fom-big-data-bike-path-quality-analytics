@@ -49,6 +49,7 @@ class DataTransformer:
                             "bike_activity_measurement_accelerometer_z",
                             "bike_activity_phone_position",
                             "bike_activity_bike_type",
+                            "bike_activity_flagged_lab_conditions",
                             "bike_activity_smoothness_type"], axis=1, inplace=True)
 
         if not quiet:
