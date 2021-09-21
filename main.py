@@ -167,8 +167,8 @@ def main(argv):
         logger=logger,
         dataframes=train_dataframes,
         results_path=log_path + "/plots/bike-activity-surface-type",
-        file_name="surface_type_test",
-        title="Surface type distribution (test)",
+        file_name="surface_type_train",
+        title="Surface type distribution (train)",
         description="Distribution of surface types in input data",
         xlabel="surface type",
         ylabel="percentage",
@@ -182,6 +182,19 @@ def main(argv):
         results_path=log_path + "/plots/bike-activity-surface-type",
         file_name="surface_type_validation",
         title="Surface type distribution (validation)",
+        description="Distribution of surface types in input data",
+        xlabel="surface type",
+        ylabel="percentage",
+        clean=clean,
+        quiet=quiet
+    )
+
+    BikeActivitySurfaceTypePlotter().run(
+        logger=logger,
+        dataframes=test_dataframes,
+        results_path=log_path + "/plots/bike-activity-surface-type",
+        file_name="surface_type_test",
+        title="Surface type distribution (test)",
         description="Distribution of surface types in input data",
         xlabel="surface type",
         ylabel="percentage",
