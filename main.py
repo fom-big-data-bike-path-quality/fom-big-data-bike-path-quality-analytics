@@ -165,7 +165,7 @@ def main(argv):
     # Data Understanding
     #
 
-    filtered_dataframes = DataFilterer().run(logger=logger, dataframes=dataframes, slice_width=slice_width)
+    filtered_dataframes = DataFilterer().run(logger=logger, dataframes=dataframes, slice_width=slice_width, measurement_speed_limit=measurement_speed_limit)
 
     BikeActivityPlotter().run(
         logger=logger,
