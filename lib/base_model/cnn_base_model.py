@@ -406,7 +406,7 @@ class CnnBaseModel:
             quiet=quiet)
 
     @TrackingDecorator.track_time
-    def evaluate(self, logger, test_dataframes, log_path, clean=False, quiet=False):
+    def evaluate(self, logger, test_dataframes, slice_width, log_path, clean=False, quiet=False):
         # Create arrays
         test_array = create_array(test_dataframes)
 
@@ -416,8 +416,11 @@ class CnnBaseModel:
         # Create data loaders
         test_data_loader = create_loader(test_dataset, shuffle=False)
 
+        # Determine number of linear channels based on slice width
+        linear_channels = get_linear_channels(slice_width)
+
         # Define classifier
-        classifier = Classifier(input_channels=1, num_classes=num_classes).to(device)
+        classifier = Classifier(input_channels=1, num_classes=num_classes, linear_channels=linear_channels).to(device)
         classifier.load_state_dict(torch.load(os.path.join(log_path, "model.pickle")))
         classifier.eval()
 
