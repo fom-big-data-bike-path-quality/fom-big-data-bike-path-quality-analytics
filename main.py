@@ -248,6 +248,7 @@ def main(argv):
         epochs=epochs,
         learning_rate=learning_rate,
         patience=patience,
+        slice_width=slice_width,
         log_path=log_path,
         quiet=quiet
     )

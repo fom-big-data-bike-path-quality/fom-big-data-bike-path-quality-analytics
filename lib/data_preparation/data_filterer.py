@@ -29,7 +29,7 @@ class DataFilterer:
             # Exclude dataframes which contain less than x measurements
             if len(dataframe) < slice_width:
                 if not quiet:
-                    logger.log_line("✗️ Filtering out " + name + " (less than " + slice_width + " measurements)")
+                    logger.log_line("✗️ Filtering out " + name + " (less than " + str(slice_width) + " measurements)")
                 copied_dataframes.pop(name)
                 continue
 

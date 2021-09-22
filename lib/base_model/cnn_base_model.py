@@ -223,6 +223,17 @@ def validate(classifier, data_loader):
     return accuracy, precision, recall, f1_score, cohen_kappa_score, matthew_correlation_coefficient
 
 
+def get_linear_channels(slice_width):
+    if slice_width <= 250:
+        return 256
+    elif slice_width == 300:
+        return 512
+    elif slice_width >= 350:
+        return 768
+    else:
+        return 256
+
+
 #
 # Main
 #
@@ -230,7 +241,7 @@ def validate(classifier, data_loader):
 class CnnBaseModel:
 
     @TrackingDecorator.track_time
-    def run(self, logger, train_dataframes, validation_dataframes, learning_rate, patience, epochs, log_path, quiet=False):
+    def run(self, logger, train_dataframes, validation_dataframes, epochs, learning_rate, patience, slice_width, log_path, quiet=False):
         # Create arrays
         train_array = create_array(train_dataframes)
         validation_array = create_array(validation_dataframes)
@@ -243,8 +254,11 @@ class CnnBaseModel:
         train_data_loader = create_loader(train_dataset, shuffle=False)
         validation_data_loader = create_loader(validation_dataset, shuffle=False)
 
+        # Determine number of linear channels based on slice width
+        linear_channels = get_linear_channels(slice_width)
+
         # Define classifier
-        classifier = Classifier(input_channels=1, num_classes=num_classes).to(device)
+        classifier = Classifier(input_channels=1, num_classes=num_classes, linear_channels=linear_channels).to(device)
         criterion = nn.CrossEntropyLoss(reduction='sum')
         optimizer = optim.Adam(classifier.parameters(), lr=learning_rate)
 

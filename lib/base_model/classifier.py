@@ -4,7 +4,7 @@ from torch import nn
 
 
 class Classifier(nn.Module):
-    def __init__(self, input_channels, num_classes, dropout=.5):
+    def __init__(self, input_channels, num_classes, linear_channels, dropout=.5):
         super().__init__()
 
         self.layers = nn.Sequential(
@@ -15,7 +15,7 @@ class Classifier(nn.Module):
 
             Flatten(),
             nn.Dropout(dropout),
-            nn.Linear(768, 64),
+            nn.Linear(linear_channels, 64),
 
             nn.ReLU(inplace=True),
             nn.Dropout(dropout),
