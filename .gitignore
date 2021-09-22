@@ -14,5 +14,5 @@
 /lib/log/__pycache__/*
 /lib/log/telegram.config
 /lib/plotters/__pycache__/*
-/results/
+/models/
 /workspace/
