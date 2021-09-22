@@ -260,6 +260,7 @@ def main(argv):
     CnnBaseModel().evaluate(
         logger=logger,
         test_dataframes=test_dataframes,
+        slice_width=slice_width,
         log_path=log_path,
         clean=clean,
         quiet=quiet
