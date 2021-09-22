@@ -46,6 +46,7 @@ def main(argv):
     start_time = datetime.now().strftime("%Y-%m-%d-%H:%M:%S")
     epochs = 50_000
     learning_rate = 0.001
+    patience = 500
     slice_width = 500
     window_step = 20
 
@@ -55,10 +56,11 @@ def main(argv):
     # Read command line arguments
     try:
         opts, args = getopt.getopt(argv, "hcqtde:l:s:", ["help", "clean", "quiet", "transient", "dry-run", "epochs=", "learningrate=",
-                                                         "slicewidth=", "windowstep="])
+                                                         "patience=", "slicewidth=", "windowstep="])
     except getopt.GetoptError:
         print(
-            "main.py --help --clean --quiet --transient --dry-run --epochs <epochs> --learningrate <learningrate> --slicewidth <slicewidth> --windowstep <windowstep>")
+            "main.py --help --clean --quiet --transient --dry-run --epochs <epochs> --learningrate <learningrate> --patience "
+            "<patience> --slicewidth <slicewidth> --windowstep <windowstep>")
         sys.exit(2)
     for opt, arg in opts:
         if opt in ("-h", "--help"):
@@ -70,6 +72,7 @@ def main(argv):
             print("--dry-run                        only run a limited training to make sure syntax is correct")
             print("--epochs <epochs>                number of epochs")
             print("--learningrate <learningrate>    learning rate")
+            print("--patience <patience>            number of epochs to wait for improvements before finishing training")
             print("--slicewidth <slicewidth>        number of measurements per slice")
             print("--windowstep <windowstep>        step size used for sliding window data splitter")
             sys.exit()
@@ -86,6 +89,8 @@ def main(argv):
             epochs = int(arg)
         elif opt in ("-l", "--learningrate"):
             learning_rate = float(arg)
+        elif opt in ("-p", "--patience"):
+            patience = int(arg)
         elif opt in ("-s", "--slicewidth"):
             slice_width = int(arg)
         elif opt in ("-w", "--windowstep"):
@@ -115,6 +120,7 @@ def main(argv):
     logger.log_line("❄ quiet: " + str(quiet))
     logger.log_line("❄ epochs: " + str(epochs))
     logger.log_line("❄ learning rate: " + str(learning_rate))
+    logger.log_line("❄ patience: " + str(patience))
     logger.log_line("❄ slice width: " + str(slice_width))
     logger.log_line("❄ window step: " + str(window_step))
     logger.log_line("❄ test size: " + str(test_size))
@@ -241,6 +247,7 @@ def main(argv):
         validation_dataframes=validation_dataframes,
         epochs=epochs,
         learning_rate=learning_rate,
+        patience=patience,
         log_path=log_path,
         quiet=quiet
     )

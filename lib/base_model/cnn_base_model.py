@@ -230,7 +230,7 @@ def validate(classifier, data_loader):
 class CnnBaseModel:
 
     @TrackingDecorator.track_time
-    def run(self, logger, train_dataframes, validation_dataframes, learning_rate, epochs, log_path, quiet=False):
+    def run(self, logger, train_dataframes, validation_dataframes, learning_rate, patience, epochs, log_path, quiet=False):
         # Create arrays
         train_array = create_array(train_dataframes)
         validation_array = create_array(validation_dataframes)
@@ -249,7 +249,7 @@ class CnnBaseModel:
         optimizer = optim.Adam(classifier.parameters(), lr=learning_rate)
 
         validation_accuracy_max = 0
-        patience, trials = 1_000, 0
+        trials = 0
 
         train_loss_history = []
         train_accuracy_history = []
