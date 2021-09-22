@@ -11,7 +11,7 @@ class DataFilterer:
     BIKE_ACTIVITY_MEASUREMENT_SPEED_LIMIT = 5  # in km/h
 
     @TrackingDecorator.track_time
-    def run(self, logger, dataframes, quiet=False):
+    def run(self, logger, dataframes, slice_width, quiet=False):
 
         copied_dataframes = dataframes.copy()
 
@@ -26,10 +26,10 @@ class DataFilterer:
                 copied_dataframes.pop(name)
                 continue
 
-            # Exclude dataframes which contain less than 500 measurements
-            if len(dataframe) < 500:
+            # Exclude dataframes which contain less than x measurements
+            if len(dataframe) < slice_width:
                 if not quiet:
-                    logger.log_line("✗️ Filtering out " + name + " (less than 500 measurements)")
+                    logger.log_line("✗️ Filtering out " + name + " (less than " + slice_width + " measurements)")
                 copied_dataframes.pop(name)
                 continue
 

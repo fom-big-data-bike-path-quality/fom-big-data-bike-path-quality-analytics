@@ -19,11 +19,9 @@ def rolling_window(array, window):
 
 
 class SlidingWindowDataSplitter:
-    width = 500
-    step = 20
 
     @TrackingDecorator.track_time
-    def run(self, logger, data_path, results_path, clean=False, quiet=False):
+    def run(self, logger, data_path, slice_width, window_step, results_path, clean=False, quiet=False):
 
         # Make results path
         os.makedirs(results_path, exist_ok=True)
@@ -50,7 +48,7 @@ class SlidingWindowDataSplitter:
                     rows.append(row)
 
                 try:
-                    slices = rolling_window(np.array(rows), self.width)
+                    slices = rolling_window(np.array(rows), slice_width)
                 except ValueError:
                     if not quiet:
                         logger.log_line("✗️ Cannot split " + file_path)
@@ -61,7 +59,7 @@ class SlidingWindowDataSplitter:
 
                 for index, slice in enumerate(slices):
 
-                    if index % self.step == 0:
+                    if index % window_step == 0:
 
                         result_file = os.path.join(results_path, bike_activity_uid + "-" + str(index).rjust(5, '0') + ".csv")
 

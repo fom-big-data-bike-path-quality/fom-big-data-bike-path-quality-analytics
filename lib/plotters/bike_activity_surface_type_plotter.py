@@ -9,7 +9,7 @@ from matplotlib.ticker import PercentFormatter
 from tracking_decorator import TrackingDecorator
 
 
-def create_array(dataframes):
+def create_array(dataframes, slice_width):
     """
     Converts an array of data frame into a 3D numpy array
 
@@ -21,10 +21,8 @@ def create_array(dataframes):
     array = []
 
     for name, dataframe in dataframes.items():
-        if dataframe.shape[0] == 500:
+        if dataframe.shape[0] == slice_width:
             array.append(dataframe.to_numpy())
-        else:
-            pass
 
     return np.dstack(array).transpose(2, 1, 0)
 
@@ -36,7 +34,7 @@ def create_array(dataframes):
 class BikeActivitySurfaceTypePlotter:
 
     @TrackingDecorator.track_time
-    def run(self, logger, dataframes, results_path, file_name, title, description, xlabel, ylabel, clean=False, quiet=False):
+    def run(self, logger, dataframes, slice_width, results_path, file_name, title, description, xlabel, ylabel, clean=False, quiet=False):
         if len(dataframes) == 0:
             logger.log_line("✗️ Not plotting " + file_name + " because there are no dataframes to plot")
         else:
@@ -55,7 +53,7 @@ class BikeActivitySurfaceTypePlotter:
             plt.xlabel(xlabel)
             plt.ylabel(ylabel)
 
-            array = create_array(dataframes)
+            array = create_array(dataframes, slice_width)
             target_column = list(dataframes.values())[0].columns.get_loc("bike_activity_surface_type")
 
             # 1D array with
