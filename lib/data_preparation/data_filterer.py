@@ -8,10 +8,9 @@ from tracking_decorator import TrackingDecorator
 #
 
 class DataFilterer:
-    BIKE_ACTIVITY_MEASUREMENT_SPEED_LIMIT = 5  # in km/h
 
     @TrackingDecorator.track_time
-    def run(self, logger, dataframes, slice_width, quiet=False):
+    def run(self, logger, dataframes, slice_width, measurement_speed_limit, quiet=False):
 
         copied_dataframes = dataframes.copy()
 
@@ -41,7 +40,7 @@ class DataFilterer:
                 continue
 
             # Exclude dataframes which contain speeds slower than BIKE_ACTIVITY_MEASUREMENT_SPEED_LIMIT
-            if (dataframe.bike_activity_measurement_speed.values * 3.6 < self.BIKE_ACTIVITY_MEASUREMENT_SPEED_LIMIT).any():
+            if (dataframe.bike_activity_measurement_speed.values * 3.6 < measurement_speed_limit).any():
                 if not quiet:
                     logger.log_line("✗️ Filtering out " + name + " (containing slow measurements)")
                 copied_dataframes.pop(name)

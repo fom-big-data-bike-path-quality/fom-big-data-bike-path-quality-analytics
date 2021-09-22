@@ -6,6 +6,7 @@ from datetime import datetime
 # Make library available in path
 library_paths = [
     os.path.join(os.getcwd(), 'lib'),
+    os.path.join(os.getcwd(), 'lib/statistics'),
     os.path.join(os.getcwd(), 'lib/data_pre_processing'),
     os.path.join(os.getcwd(), 'lib/data_preparation'),
     os.path.join(os.getcwd(), 'lib/log'),
@@ -20,6 +21,7 @@ for p in library_paths:
 
 # Import library classes
 from logger_facade import LoggerFacade
+from input_data_statistics import InputDataStatistics
 from sliding_window_data_splitter import SlidingWindowDataSplitter
 from data_loader import DataLoader
 from data_filterer import DataFilterer
@@ -49,6 +51,8 @@ def main(argv):
     patience = 500
     slice_width = 500
     window_step = 20
+
+    measurement_speed_limit = 5.0
 
     test_size = 0.15
     random_state = 0
@@ -124,6 +128,18 @@ def main(argv):
     logger.log_line("❄ slice width: " + str(slice_width))
     logger.log_line("❄ window step: " + str(window_step))
     logger.log_line("❄ test size: " + str(test_size))
+
+    #
+    # Statistics
+    #
+
+    InputDataStatistics().run(
+        logger=logger,
+        data_path=data_path + "/measurements/csv",
+        measurement_speed_limit=measurement_speed_limit,
+        clean=clean,
+        quiet=quiet
+    )
 
     #
     # Data pre-processing
@@ -225,7 +241,7 @@ def main(argv):
     # Data Preparation
     #
 
-    dataframes = DataFilterer().run(logger=logger, dataframes=dataframes, slice_width=slice_width)
+    dataframes = DataFilterer().run(logger=logger, dataframes=dataframes, slice_width=slice_width, measurement_speed_limit=measurement_speed_limit)
     dataframes = DataTransformer().run(logger=logger, dataframes=dataframes)
     dataframes = DataNormalizer().run(logger=logger, dataframes=dataframes)
 
