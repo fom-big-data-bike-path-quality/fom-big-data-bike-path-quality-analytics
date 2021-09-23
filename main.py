@@ -55,6 +55,7 @@ def main(argv):
     measurement_speed_limit = 5.0
 
     test_size = 0.15
+    validation_size = 0.10
     random_state = 0
 
     # Read command line arguments
@@ -191,6 +192,7 @@ def main(argv):
         logger=logger,
         dataframes=filtered_dataframes,
         test_size=test_size,
+        validation_size=validation_size,
         random_state=random_state,
         quiet=True
     )
@@ -249,6 +251,7 @@ def main(argv):
         logger=logger,
         dataframes=dataframes,
         test_size=test_size,
+        validation_size=validation_size,
         random_state=random_state,
         quiet=quiet
     )
