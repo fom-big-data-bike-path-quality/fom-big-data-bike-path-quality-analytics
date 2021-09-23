@@ -90,6 +90,7 @@ def main(argv):
         elif opt in ("-d", "--dry-run"):
             epochs = 1
             clean = True
+            transient = True
         elif opt in ("-e", "--epochs"):
             epochs = int(arg)
         elif opt in ("-l", "--learningrate"):
@@ -166,7 +167,8 @@ def main(argv):
     # Data Understanding
     #
 
-    filtered_dataframes = DataFilterer().run(logger=logger, dataframes=dataframes, slice_width=slice_width, measurement_speed_limit=measurement_speed_limit)
+    filtered_dataframes = DataFilterer().run(logger=logger, dataframes=dataframes, slice_width=slice_width,
+                                             measurement_speed_limit=measurement_speed_limit, quiet=quiet)
 
     BikeActivityPlotter().run(
         logger=logger,
@@ -243,9 +245,9 @@ def main(argv):
     # Data Preparation
     #
 
-    dataframes = DataFilterer().run(logger=logger, dataframes=dataframes, slice_width=slice_width, measurement_speed_limit=measurement_speed_limit)
-    dataframes = DataTransformer().run(logger=logger, dataframes=dataframes)
-    dataframes = DataNormalizer().run(logger=logger, dataframes=dataframes)
+    dataframes = DataFilterer().run(logger=logger, dataframes=dataframes, slice_width=slice_width, measurement_speed_limit=measurement_speed_limit, quiet=quiet)
+    dataframes = DataTransformer().run(logger=logger, dataframes=dataframes, quiet=quiet)
+    dataframes = DataNormalizer().run(logger=logger, dataframes=dataframes, quiet=quiet)
 
     train_dataframes, validation_dataframes, test_dataframes = TrainTestDataSplitter().run(
         logger=logger,
