@@ -72,7 +72,7 @@ See the [open issues](https://github.com/fom-big-data-bike-path-quality/fom-big-
 
 <p>
     Confusion matrix<br/>
-    <img src="https://github.com/fom-big-data-bike-path-quality/fom-big-data-bike-path-quality-model/blob/main/models/latest/confusion_matrix.png?raw=true" alt="Confusion Matrix">
+    <img src="https://raw.githubusercontent.com/fom-big-data-bike-path-quality/fom-big-data-bike-path-quality-model/main/models/latest/plots/training/confusion_matrix.png" alt="Confusion Matrix">
 </p>
 
 ## Contributing
