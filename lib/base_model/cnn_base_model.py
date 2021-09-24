@@ -1,7 +1,7 @@
 import os
 import random
 import warnings
-from sklearn.model_selection import KFold
+
 import numpy as np
 import pandas as pd
 import torch
@@ -11,6 +11,7 @@ from label_encoder import LabelEncoder
 from sklearn.metrics import cohen_kappa_score
 from sklearn.metrics import confusion_matrix as cm
 from sklearn.metrics import matthews_corrcoef
+from sklearn.model_selection import KFold
 from torch import nn
 from torch import optim
 from torch.nn import functional as F
@@ -441,13 +442,21 @@ class CnnBaseModel:
                 quiet=quiet)
 
         if not quiet:
-            logger.log_line("Cross-validation metrics" +
-                            " accuracy " + str(round(np.mean(overall_validation_accuracy_history), 2)) + ", " +
-                            " precision " + str(round(np.mean(overall_validation_precision_history), 2)) + ", " +
-                            " recall " + str(round(np.mean(overall_validation_recall_history), 2)) + ", " +
-                            " f1 score " + str(round(np.mean(overall_validation_f1_score_history), 2)) + ", " +
-                            " cohen kappa score " + str(round(np.mean(overall_validation_cohen_kappa_score_history), 2)) + ", " +
-                            " matthew correlation coefficient " + str(round(np.mean(overall_validation_matthew_correlation_coefficient_history), 2)))
+            logger.log_line("Cross-validation metrics")
+            logger.log_line(
+                "Mean accuracy " + str(round(np.mean(overall_validation_accuracy_history), 2)) + ", " +
+                " precision " + str(round(np.mean(overall_validation_precision_history), 2)) + ", " +
+                " recall " + str(round(np.mean(overall_validation_recall_history), 2)) + ", " +
+                " f1 score " + str(round(np.mean(overall_validation_f1_score_history), 2)) + ", " +
+                " cohen kappa score " + str(round(np.mean(overall_validation_cohen_kappa_score_history), 2)) + ", " +
+                " matthew correlation coefficient " + str(round(np.mean(overall_validation_matthew_correlation_coefficient_history), 2)))
+            logger.log_line(
+                "Standard deviation " + str(round(np.std(overall_validation_accuracy_history), 2)) + ", " +
+                " precision " + str(round(np.std(overall_validation_precision_history), 2)) + ", " +
+                " recall " + str(round(np.std(overall_validation_recall_history), 2)) + ", " +
+                " f1 score " + str(round(np.std(overall_validation_f1_score_history), 2)) + ", " +
+                " cohen kappa score " + str(round(np.std(overall_validation_cohen_kappa_score_history), 2)) + ", " +
+                " matthew correlation coefficient " + str(round(np.std(overall_validation_matthew_correlation_coefficient_history), 2)))
 
     @TrackingDecorator.track_time
     def evaluate(self, logger, dataframes, slice_width, model_path, log_path, clean=False, quiet=False):
