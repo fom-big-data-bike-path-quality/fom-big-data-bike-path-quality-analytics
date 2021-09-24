@@ -365,7 +365,7 @@ class CnnBaseModel:
                 validation_cohen_kappa_score_history.append(validation_cohen_kappa_score)
                 validation_matthew_correlation_coefficient_history.append(validation_matthew_correlation_coefficient)
 
-                if epoch % 10 == 0 and not quiet:
+                if not quiet:
                     logger.log_line("Fold " + str(fold_index) +
                                     " epoch " + str(epoch) +
                                     " loss " + str(round(train_epoch_loss, 4)).ljust(4, '0') + ", " +
