@@ -243,6 +243,9 @@ class CnnBaseModel:
     @TrackingDecorator.track_time
     def run(self, logger, dataframes, k_folds, epochs, learning_rate, patience, slice_width, log_path, quiet=False):
 
+        # Make results path
+        os.makedirs(log_path, exist_ok=True)
+
         kf = KFold(n_splits=k_folds)
         fold_index = 0
 
@@ -401,7 +404,7 @@ class CnnBaseModel:
                 logger=logger,
                 data=[train_loss_history, validation_loss_history],
                 labels=["Train", "Validation"],
-                results_path=os.path.join(log_path, "plots", "training", "fold-" + str(fold_index)),
+                results_path=os.path.join(log_path, "plots", "fold-" + str(fold_index)),
                 file_name="loss",
                 title="Loss history",
                 description="Loss history",
@@ -414,7 +417,7 @@ class CnnBaseModel:
                 logger=logger,
                 data=[train_accuracy_history, validation_accuracy_history],
                 labels=["Train", "Validation"],
-                results_path=os.path.join(log_path, "plots", "training", "fold-" + str(fold_index)),
+                results_path=os.path.join(log_path, "plots", "fold-" + str(fold_index)),
                 file_name="accuracy",
                 title="Accuracy history",
                 description="Accuracy history",
@@ -428,7 +431,7 @@ class CnnBaseModel:
                 data=[validation_accuracy_history, validation_precision_history, validation_recall_history, validation_f1_score_history,
                       validation_cohen_kappa_score_history, validation_matthew_correlation_coefficient_history],
                 labels=["Accuracy", "Precision", "Recall", "F1 Score", "Cohen's Kappa Score", "Matthew's Correlation Coefficient"],
-                results_path=os.path.join(log_path, "plots", "training", "fold-" + str(fold_index)),
+                results_path=os.path.join(log_path, "plots", "fold-" + str(fold_index)),
                 file_name="metrics",
                 title="Metrics history",
                 description="Metrics history",
@@ -447,7 +450,10 @@ class CnnBaseModel:
                             " matthew correlation coefficient " + str(round(np.mean(overall_validation_matthew_correlation_coefficient_history), 2)))
 
     @TrackingDecorator.track_time
-    def evaluate(self, logger, dataframes, slice_width, log_path, clean=False, quiet=False):
+    def evaluate(self, logger, dataframes, slice_width, model_path, log_path, clean=False, quiet=False):
+
+        # Make results path
+        os.makedirs(log_path, exist_ok=True)
 
         # Create data loader
         test_array = create_array(dataframes)
@@ -459,7 +465,7 @@ class CnnBaseModel:
 
         # Define classifier
         classifier = Classifier(input_channels=1, num_classes=num_classes, linear_channels=linear_channels).to(device)
-        classifier.load_state_dict(torch.load(os.path.join(log_path, "model.pickle")))
+        classifier.load_state_dict(torch.load(os.path.join(model_path, "model.pickle")))
         classifier.eval()
 
         # Validate with test dataloader
@@ -472,7 +478,7 @@ class CnnBaseModel:
 
         # Plot confusion matrix
         test_confusion_matrix_dataframe, targets, predictions = get_confusion_matrix_dataframe(classifier, test_data_loader)
-        ConfusionMatrixPlotter().run(logger, os.path.join(log_path, "plots", "training"), test_confusion_matrix_dataframe, clean=clean)
+        ConfusionMatrixPlotter().run(logger, os.path.join(log_path, "plots"), test_confusion_matrix_dataframe, clean=clean)
 
         if not quiet:
             logger.log_line("Confusion matrix \n" + str(cm(targets, predictions)))

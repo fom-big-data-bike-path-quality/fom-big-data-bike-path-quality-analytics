@@ -117,6 +117,10 @@ def main(argv):
         log_path = os.path.join(script_path, "models", "models", "transient")
         log_latest_path = None
 
+    log_path_data_understanding = os.path.join(log_path, "02-data-understanding")
+    log_path_modelling = os.path.join(log_path, "04-modelling")
+    log_path_evaluation = os.path.join(log_path, "05-evaluation")
+
     # Initialize logger
     logger = LoggerFacade(log_path, console=True, file=True)
     logger.log_line("Start Training")
@@ -176,7 +180,7 @@ def main(argv):
     BikeActivityPlotter().run(
         logger=logger,
         data_path=data_path + "/measurements/csv",
-        results_path=log_path + "/plots/bike-activity",
+        results_path=log_path_data_understanding + "/plots/bike-activity",
         xlabel="time",
         ylabel="acceleration [m/sˆ2]/ speed [km/h]",
         clean=clean,
@@ -186,7 +190,7 @@ def main(argv):
     # BikeActivitySlicePlotter().run(
     #     logger=logger,
     #     data_path=workspace_path + "/slices/raw",
-    #     results_path=log_path + "/plots/bike-activity-sample",
+    #     results_path=log_path_data_understanding + "/plots/bike-activity-sample",
     #     xlabel="time",
     #     ylabel="acceleration [m/sˆ2]/ speed [km/h]",
     #     clean=clean,
@@ -205,7 +209,7 @@ def main(argv):
         logger=logger,
         dataframes=train_dataframes,
         slice_width=slice_width,
-        results_path=log_path + "/plots/bike-activity-surface-type",
+        results_path=log_path_data_understanding + "/plots/bike-activity-surface-type",
         file_name="surface_type_train",
         title="Surface type distribution (train)",
         description="Distribution of surface types in input data",
@@ -219,7 +223,7 @@ def main(argv):
         logger=logger,
         dataframes=test_dataframes,
         slice_width=slice_width,
-        results_path=log_path + "/plots/bike-activity-surface-type",
+        results_path=log_path_data_understanding + "/plots/bike-activity-surface-type",
         file_name="surface_type_test",
         title="Surface type distribution (test)",
         description="Distribution of surface types in input data",
@@ -257,7 +261,7 @@ def main(argv):
         learning_rate=learning_rate,
         patience=patience,
         slice_width=slice_width,
-        log_path=log_path,
+        log_path=log_path_modelling,
         quiet=quiet
     )
 
@@ -269,7 +273,8 @@ def main(argv):
         logger=logger,
         dataframes=test_dataframes,
         slice_width=slice_width,
-        log_path=log_path,
+        model_path=log_path_modelling,
+        log_path=log_path_evaluation,
         clean=clean,
         quiet=quiet
     )
