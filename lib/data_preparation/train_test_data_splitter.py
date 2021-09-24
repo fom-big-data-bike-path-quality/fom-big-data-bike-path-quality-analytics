@@ -11,14 +11,12 @@ from tracking_decorator import TrackingDecorator
 class TrainTestDataSplitter:
 
     @TrackingDecorator.track_time
-    def run(self, logger, dataframes, test_size=0.15, validation_size=0.10, random_state=0, quiet=False):
+    def run(self, logger, dataframes, test_size=0.15, random_state=0, quiet=False):
         ids = sorted(list(dataframes.keys()))
 
-        train_and_validation_ids, test_ids = train_test_split(ids, test_size=test_size, random_state=random_state)
-        train_ids, validation_ids = train_test_split(train_and_validation_ids, test_size=validation_size, random_state=random_state)
+        train_ids, test_ids = train_test_split(ids, test_size=test_size, random_state=random_state)
 
         train_dataframes = {id: dataframes[id] for id in train_ids}
-        validation_dataframes = {id: dataframes[id] for id in validation_ids}
         test_dataframes = {id: dataframes[id] for id in test_ids}
 
         if not quiet:
@@ -27,7 +25,6 @@ class TrainTestDataSplitter:
 
             logger.log_line(class_name + "." + function_name + " splitted "
                             + "train: " + str(len(train_dataframes)) + ", "
-                            + "validation:" + str(len(validation_dataframes)) + ", "
                             + "test:" + str(len(test_dataframes)))
 
-        return train_dataframes, validation_dataframes, test_dataframes
+        return train_dataframes, test_dataframes

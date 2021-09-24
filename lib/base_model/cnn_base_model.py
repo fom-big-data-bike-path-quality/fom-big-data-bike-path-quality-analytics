@@ -1,7 +1,7 @@
 import os
 import random
 import warnings
-
+from sklearn.model_selection import KFold
 import numpy as np
 import pandas as pd
 import torch
@@ -241,179 +241,217 @@ def get_linear_channels(slice_width):
 class CnnBaseModel:
 
     @TrackingDecorator.track_time
-    def run(self, logger, train_dataframes, validation_dataframes, epochs, learning_rate, patience, slice_width, log_path, quiet=False):
-        # Create arrays
-        train_array = create_array(train_dataframes)
-        validation_array = create_array(validation_dataframes)
+    def run(self, logger, dataframes, k_folds, epochs, learning_rate, patience, slice_width, log_path, quiet=False):
 
-        # Create data sets
-        train_dataset = create_dataset(train_array)
-        validation_dataset = create_dataset(validation_array)
+        kf = KFold(n_splits=k_folds)
+        fold_index = 0
 
-        # Create data loaders
-        train_data_loader = create_loader(train_dataset, shuffle=False)
-        validation_data_loader = create_loader(validation_dataset, shuffle=False)
+        overall_validation_accuracy_max = 0
+        overall_validation_accuracy_history = []
+        overall_validation_precision_history = []
+        overall_validation_recall_history = []
+        overall_validation_f1_score_history = []
+        overall_validation_cohen_kappa_score_history = []
+        overall_validation_matthew_correlation_coefficient_history = []
 
-        # Determine number of linear channels based on slice width
-        linear_channels = get_linear_channels(slice_width)
+        ids = sorted(list(dataframes.keys()))
 
-        # Define classifier
-        classifier = Classifier(input_channels=1, num_classes=num_classes, linear_channels=linear_channels).to(device)
-        criterion = nn.CrossEntropyLoss(reduction='sum')
-        optimizer = optim.Adam(classifier.parameters(), lr=learning_rate)
+        for train_ids, validation_ids in kf.split(ids):
 
-        validation_accuracy_max = 0
-        trials = 0
+            # Increment fold index
+            fold_index += 1
 
-        train_loss_history = []
-        train_accuracy_history = []
-        train_precision_history = []
-        train_recall_history = []
-        train_f1_score_history = []
-        train_cohen_kappa_score_history = []
-        train_matthew_correlation_coefficient_history = []
+            logger.log_line("\n Fold # " + str(fold_index) + "\n")
 
-        validation_loss_history = []
-        validation_accuracy_history = []
-        validation_precision_history = []
-        validation_recall_history = []
-        validation_f1_score_history = []
-        validation_cohen_kappa_score_history = []
-        validation_matthew_correlation_coefficient_history = []
+            train_dataframes = {id: list(dataframes.values())[id] for id in train_ids}
+            validation_dataframes = {id: list(dataframes.values())[id] for id in validation_ids}
 
-        # Run training loop
-        progress_bar = tqdm(iterable=range(1, epochs + 1), unit='epochs', desc="Train model")
-        for epoch in progress_bar:
+            # Create data loader for train
+            train_array = create_array(train_dataframes)
+            train_dataset = create_dataset(train_array)
+            train_data_loader = create_loader(train_dataset, shuffle=False)
 
-            # Train model
-            classifier.train()
-            train_epoch_loss = 0
-            for i, batch in enumerate(train_data_loader):
-                input, target = [t.to(device) for t in batch]
-                optimizer.zero_grad()
-                output = classifier(input)
-                loss = criterion(output, target)
-                train_epoch_loss += loss.item()
-                loss.backward()
-                optimizer.step()
+            # Create data loader for validation
+            validation_array = create_array(validation_dataframes)
+            validation_dataset = create_dataset(validation_array)
+            validation_data_loader = create_loader(validation_dataset, shuffle=False)
 
-            train_epoch_loss /= train_array.shape[0]
-            train_loss_history.append(train_epoch_loss)
-            classifier.eval()
+            # Determine number of linear channels based on slice width
+            linear_channels = get_linear_channels(slice_width)
 
-            with torch.no_grad():
-                validation_epoch_loss = 0
-                for i, batch in enumerate(validation_data_loader):
+            # Define classifier
+            classifier = Classifier(input_channels=1, num_classes=num_classes, linear_channels=linear_channels).to(device)
+            criterion = nn.CrossEntropyLoss(reduction='sum')
+            optimizer = optim.Adam(classifier.parameters(), lr=learning_rate)
+
+            validation_accuracy_max = 0
+            trials = 0
+
+            train_loss_history = []
+            train_accuracy_history = []
+            train_precision_history = []
+            train_recall_history = []
+            train_f1_score_history = []
+            train_cohen_kappa_score_history = []
+            train_matthew_correlation_coefficient_history = []
+
+            validation_loss_history = []
+            validation_accuracy_history = []
+            validation_precision_history = []
+            validation_recall_history = []
+            validation_f1_score_history = []
+            validation_cohen_kappa_score_history = []
+            validation_matthew_correlation_coefficient_history = []
+
+            # Run training loop
+            progress_bar = tqdm(iterable=range(1, epochs + 1), unit='epochs', desc="Train model")
+            for epoch in progress_bar:
+
+                # Train model
+                classifier.train()
+                train_epoch_loss = 0
+                for i, batch in enumerate(train_data_loader):
                     input, target = [t.to(device) for t in batch]
                     optimizer.zero_grad()
                     output = classifier(input)
                     loss = criterion(output, target)
-                    validation_epoch_loss += loss.item()
+                    train_epoch_loss += loss.item()
+                    loss.backward()
+                    optimizer.step()
 
-                validation_epoch_loss /= validation_array.shape[0]
-                validation_loss_history.append(validation_epoch_loss)
+                train_epoch_loss /= train_array.shape[0]
+                train_loss_history.append(train_epoch_loss)
+                classifier.eval()
 
-            # Validate with train dataloader
-            train_accuracy, \
-            train_precision, \
-            train_recall, \
-            train_f1_score, \
-            train_cohen_kappa_score, \
-            train_matthew_correlation_coefficient = validate(classifier, train_data_loader)
+                with torch.no_grad():
+                    validation_epoch_loss = 0
+                    for i, batch in enumerate(validation_data_loader):
+                        input, target = [t.to(device) for t in batch]
+                        optimizer.zero_grad()
+                        output = classifier(input)
+                        loss = criterion(output, target)
+                        validation_epoch_loss += loss.item()
 
-            train_accuracy_history.append(train_accuracy)
-            train_precision_history.append(train_precision)
-            train_recall_history.append(train_recall)
-            train_f1_score_history.append(train_f1_score)
-            train_cohen_kappa_score_history.append(train_cohen_kappa_score)
-            train_matthew_correlation_coefficient_history.append(train_matthew_correlation_coefficient)
+                    validation_epoch_loss /= validation_array.shape[0]
+                    validation_loss_history.append(validation_epoch_loss)
 
-            # Validate with validation dataloader
-            validation_accuracy, \
-            validation_precision, \
-            validation_recall, \
-            validation_f1_score, \
-            validation_cohen_kappa_score, \
-            validation_matthew_correlation_coefficient = validate(classifier, validation_data_loader)
+                # Validate with train dataloader
+                train_accuracy, \
+                train_precision, \
+                train_recall, \
+                train_f1_score, \
+                train_cohen_kappa_score, \
+                train_matthew_correlation_coefficient = validate(classifier, train_data_loader)
 
-            validation_accuracy_history.append(validation_accuracy)
-            validation_precision_history.append(validation_precision)
-            validation_recall_history.append(validation_recall)
-            validation_f1_score_history.append(validation_f1_score)
-            validation_cohen_kappa_score_history.append(validation_cohen_kappa_score)
-            validation_matthew_correlation_coefficient_history.append(validation_matthew_correlation_coefficient)
+                train_accuracy_history.append(train_accuracy)
+                train_precision_history.append(train_precision)
+                train_recall_history.append(train_recall)
+                train_f1_score_history.append(train_f1_score)
+                train_cohen_kappa_score_history.append(train_cohen_kappa_score)
+                train_matthew_correlation_coefficient_history.append(train_matthew_correlation_coefficient)
 
-            if not quiet:
-                logger.log_line("Epoch " + str(epoch) +
-                                " loss " + str(round(train_epoch_loss, 4)).ljust(4, '0') + ", " +
-                                " accuracy " + str(round(validation_accuracy, 2)) + ", " +
-                                " precision " + str(round(validation_precision, 2)) + ", " +
-                                " recall " + str(round(validation_recall, 2)) + ", " +
-                                " f1 score " + str(round(validation_f1_score, 2)) + ", " +
-                                " cohen kappa score " + str(round(validation_cohen_kappa_score, 2)) + ", " +
-                                " matthew correlation coefficient " + str(round(validation_matthew_correlation_coefficient, 2)),
-                                console=False, file=True)
+                # Validate with validation dataloader
+                validation_accuracy, \
+                validation_precision, \
+                validation_recall, \
+                validation_f1_score, \
+                validation_cohen_kappa_score, \
+                validation_matthew_correlation_coefficient = validate(classifier, validation_data_loader)
 
-            # Check if accuracy increased
-            if validation_accuracy > validation_accuracy_max:
-                trials = 0
-                validation_accuracy_max = validation_accuracy
-                torch.save(classifier.state_dict(), os.path.join(log_path, "model.pickle"))
-            else:
-                trials += 1
-                if trials >= patience and not quiet:
-                    logger.log_line("\nNo further improvement after epoch " + str(epoch))
-                    break
+                validation_accuracy_history.append(validation_accuracy)
+                validation_precision_history.append(validation_precision)
+                validation_recall_history.append(validation_recall)
+                validation_f1_score_history.append(validation_f1_score)
+                validation_cohen_kappa_score_history.append(validation_cohen_kappa_score)
+                validation_matthew_correlation_coefficient_history.append(validation_matthew_correlation_coefficient)
 
-        TrainingResultPlotter().run(
-            logger=logger,
-            data=[train_loss_history, validation_loss_history],
-            labels=["Train", "Validation"],
-            results_path=os.path.join(log_path, "plots", "training"),
-            file_name="loss",
-            title="Loss history",
-            description="Loss history",
-            xlabel="Epoch",
-            ylabel="Loss",
-            clean=True,
-            quiet=quiet)
+                if epoch % 10 == 0 and not quiet:
+                    logger.log_line("Fold " + str(fold_index) +
+                                    " epoch " + str(epoch) +
+                                    " loss " + str(round(train_epoch_loss, 4)).ljust(4, '0') + ", " +
+                                    " accuracy " + str(round(validation_accuracy, 2)) + ", " +
+                                    " precision " + str(round(validation_precision, 2)) + ", " +
+                                    " recall " + str(round(validation_recall, 2)) + ", " +
+                                    " f1 score " + str(round(validation_f1_score, 2)) + ", " +
+                                    " cohen kappa score " + str(round(validation_cohen_kappa_score, 2)) + ", " +
+                                    " matthew correlation coefficient " + str(round(validation_matthew_correlation_coefficient, 2)),
+                                    console=False, file=True)
 
-        TrainingResultPlotter().run(
-            logger=logger,
-            data=[train_accuracy_history, validation_accuracy_history],
-            labels=["Train", "Validation"],
-            results_path=os.path.join(log_path, "plots", "training"),
-            file_name="accuracy",
-            title="Accuracy history",
-            description="Accuracy history",
-            xlabel="Epoch",
-            ylabel="Accuracy",
-            clean=True,
-            quiet=quiet)
+                # Check if accuracy increased
+                if validation_accuracy > validation_accuracy_max:
+                    trials = 0
+                    validation_accuracy_max = validation_accuracy
+                else:
+                    trials += 1
+                    if trials >= patience and not quiet:
+                        logger.log_line("\nNo further improvement after epoch " + str(epoch))
+                        overall_validation_accuracy_history.append(validation_accuracy)
+                        overall_validation_precision_history.append(validation_precision)
+                        overall_validation_recall_history.append(validation_recall)
+                        overall_validation_f1_score_history.append(validation_f1_score)
+                        overall_validation_cohen_kappa_score_history.append(validation_cohen_kappa_score)
+                        overall_validation_matthew_correlation_coefficient_history.append(validation_matthew_correlation_coefficient)
+                        break
 
-        TrainingResultPlotter().run(
-            logger=logger,
-            data=[validation_accuracy_history, validation_precision_history, validation_recall_history, validation_f1_score_history,
-                  validation_cohen_kappa_score_history, validation_matthew_correlation_coefficient_history],
-            labels=["Accuracy", "Precision", "Recall", "F1 Score", "Cohen's Kappa Score", "Matthew's Correlation Coefficient"],
-            results_path=os.path.join(log_path, "plots", "training"),
-            file_name="metrics",
-            title="Metrics history",
-            description="Metrics history",
-            xlabel="Epoch",
-            ylabel="Value",
-            clean=True,
-            quiet=quiet)
+                if validation_accuracy > overall_validation_accuracy_max:
+                    overall_validation_accuracy_max = validation_accuracy
+                    torch.save(classifier.state_dict(), os.path.join(log_path, "model.pickle"))
+
+            TrainingResultPlotter().run(
+                logger=logger,
+                data=[train_loss_history, validation_loss_history],
+                labels=["Train", "Validation"],
+                results_path=os.path.join(log_path, "plots", "training", "fold-" + str(fold_index)),
+                file_name="loss",
+                title="Loss history",
+                description="Loss history",
+                xlabel="Epoch",
+                ylabel="Loss",
+                clean=True,
+                quiet=quiet)
+
+            TrainingResultPlotter().run(
+                logger=logger,
+                data=[train_accuracy_history, validation_accuracy_history],
+                labels=["Train", "Validation"],
+                results_path=os.path.join(log_path, "plots", "training", "fold-" + str(fold_index)),
+                file_name="accuracy",
+                title="Accuracy history",
+                description="Accuracy history",
+                xlabel="Epoch",
+                ylabel="Accuracy",
+                clean=True,
+                quiet=quiet)
+
+            TrainingResultPlotter().run(
+                logger=logger,
+                data=[validation_accuracy_history, validation_precision_history, validation_recall_history, validation_f1_score_history,
+                      validation_cohen_kappa_score_history, validation_matthew_correlation_coefficient_history],
+                labels=["Accuracy", "Precision", "Recall", "F1 Score", "Cohen's Kappa Score", "Matthew's Correlation Coefficient"],
+                results_path=os.path.join(log_path, "plots", "training", "fold-" + str(fold_index)),
+                file_name="metrics",
+                title="Metrics history",
+                description="Metrics history",
+                xlabel="Epoch",
+                ylabel="Value",
+                clean=True,
+                quiet=quiet)
+
+        if not quiet:
+            logger.log_line("Cross-validation metrics" +
+                            " accuracy " + str(round(np.mean(overall_validation_accuracy_history), 2)) + ", " +
+                            " precision " + str(round(np.mean(overall_validation_precision_history), 2)) + ", " +
+                            " recall " + str(round(np.mean(overall_validation_recall_history), 2)) + ", " +
+                            " f1 score " + str(round(np.mean(overall_validation_f1_score_history), 2)) + ", " +
+                            " cohen kappa score " + str(round(np.mean(overall_validation_cohen_kappa_score_history), 2)) + ", " +
+                            " matthew correlation coefficient " + str(round(np.mean(overall_validation_matthew_correlation_coefficient_history), 2)))
 
     @TrackingDecorator.track_time
-    def evaluate(self, logger, test_dataframes, slice_width, log_path, clean=False, quiet=False):
-        # Create arrays
-        test_array = create_array(test_dataframes)
+    def evaluate(self, logger, dataframes, slice_width, log_path, clean=False, quiet=False):
 
-        # Create data sets
+        # Create data loader
+        test_array = create_array(dataframes)
         test_dataset = create_dataset(test_array)
-
-        # Create data loaders
         test_data_loader = create_loader(test_dataset, shuffle=False)
 
         # Determine number of linear channels based on slice width

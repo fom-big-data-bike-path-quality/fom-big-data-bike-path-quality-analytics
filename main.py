@@ -46,6 +46,7 @@ def main(argv):
     quiet = False
     transient = False
     start_time = datetime.now().strftime("%Y-%m-%d-%H:%M:%S")
+    k_folds = 10
     epochs = 50_000
     learning_rate = 0.001
     patience = 500
@@ -55,17 +56,15 @@ def main(argv):
     measurement_speed_limit = 5.0
 
     test_size = 0.15
-    validation_size = 0.10
     random_state = 0
 
     # Read command line arguments
     try:
-        opts, args = getopt.getopt(argv, "hcqtde:l:s:", ["help", "clean", "quiet", "transient", "dry-run", "epochs=", "learningrate=",
-                                                         "patience=", "slicewidth=", "windowstep="])
+        opts, args = getopt.getopt(argv, "hcqtde:l:s:", ["help", "clean", "quiet", "transient", "dry-run", "kfolds=", "epochs=",
+                                                         "learningrate=", "patience=", "slicewidth=", "windowstep="])
     except getopt.GetoptError:
-        print(
-            "main.py --help --clean --quiet --transient --dry-run --epochs <epochs> --learningrate <learningrate> --patience "
-            "<patience> --slicewidth <slicewidth> --windowstep <windowstep>")
+        print("main.py --help --clean --quiet --transient --dry-run --kfolds <kfolds> --epochs <epochs> --learningrate <learningrate> "
+            "--patience <patience> --slicewidth <slicewidth> --windowstep <windowstep>")
         sys.exit(2)
     for opt, arg in opts:
         if opt in ("-h", "--help"):
@@ -75,6 +74,7 @@ def main(argv):
             print("--quiet                          do not log outputs")
             print("--transient                      do not store results")
             print("--dry-run                        only run a limited training to make sure syntax is correct")
+            print("--kfolds <kfolds>                number of k-folds")
             print("--epochs <epochs>                number of epochs")
             print("--learningrate <learningrate>    learning rate")
             print("--patience <patience>            number of epochs to wait for improvements before finishing training")
@@ -93,6 +93,8 @@ def main(argv):
             transient = True
         elif opt in ("-e", "--epochs"):
             epochs = int(arg)
+        elif opt in ("-k", "--kfolds"):
+            k_folds = int(arg)
         elif opt in ("-l", "--learningrate"):
             learning_rate = float(arg)
         elif opt in ("-p", "--patience"):
@@ -124,6 +126,7 @@ def main(argv):
     logger.log_line("❄ start time: " + str(start_time))
     logger.log_line("❄ clean: " + str(clean))
     logger.log_line("❄ quiet: " + str(quiet))
+    logger.log_line("❄ k-folds: " + str(k_folds))
     logger.log_line("❄ epochs: " + str(epochs))
     logger.log_line("❄ learning rate: " + str(learning_rate))
     logger.log_line("❄ patience: " + str(patience))
@@ -190,11 +193,10 @@ def main(argv):
     #     quiet=quiet
     # )
 
-    train_dataframes, validation_dataframes, test_dataframes = TrainTestDataSplitter().run(
+    train_dataframes, test_dataframes = TrainTestDataSplitter().run(
         logger=logger,
         dataframes=filtered_dataframes,
         test_size=test_size,
-        validation_size=validation_size,
         random_state=random_state,
         quiet=True
     )
@@ -206,20 +208,6 @@ def main(argv):
         results_path=log_path + "/plots/bike-activity-surface-type",
         file_name="surface_type_train",
         title="Surface type distribution (train)",
-        description="Distribution of surface types in input data",
-        xlabel="surface type",
-        ylabel="percentage",
-        clean=clean,
-        quiet=quiet
-    )
-
-    BikeActivitySurfaceTypePlotter().run(
-        logger=logger,
-        dataframes=validation_dataframes,
-        slice_width=slice_width,
-        results_path=log_path + "/plots/bike-activity-surface-type",
-        file_name="surface_type_validation",
-        title="Surface type distribution (validation)",
         description="Distribution of surface types in input data",
         xlabel="surface type",
         ylabel="percentage",
@@ -249,11 +237,10 @@ def main(argv):
     dataframes = DataTransformer().run(logger=logger, dataframes=dataframes, quiet=quiet)
     dataframes = DataNormalizer().run(logger=logger, dataframes=dataframes, quiet=quiet)
 
-    train_dataframes, validation_dataframes, test_dataframes = TrainTestDataSplitter().run(
+    train_dataframes, test_dataframes = TrainTestDataSplitter().run(
         logger=logger,
         dataframes=dataframes,
         test_size=test_size,
-        validation_size=validation_size,
         random_state=random_state,
         quiet=quiet
     )
@@ -264,8 +251,8 @@ def main(argv):
 
     CnnBaseModel().run(
         logger=logger,
-        train_dataframes=train_dataframes,
-        validation_dataframes=validation_dataframes,
+        dataframes=train_dataframes,
+        k_folds=k_folds,
         epochs=epochs,
         learning_rate=learning_rate,
         patience=patience,
@@ -280,7 +267,7 @@ def main(argv):
 
     CnnBaseModel().evaluate(
         logger=logger,
-        test_dataframes=test_dataframes,
+        dataframes=test_dataframes,
         slice_width=slice_width,
         log_path=log_path,
         clean=clean,
