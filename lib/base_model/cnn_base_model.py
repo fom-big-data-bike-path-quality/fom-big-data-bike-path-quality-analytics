@@ -249,6 +249,7 @@ class CnnBaseModel:
 
         kf = KFold(n_splits=k_folds)
         fold_index = 0
+        fold_labels = []
 
         overall_validation_accuracy_max = 0
         overall_validation_accuracy_history = []
@@ -264,6 +265,7 @@ class CnnBaseModel:
 
             # Increment fold index
             fold_index += 1
+            fold_labels.append("Fold " + str(fold_index))
 
             logger.log_line("\n Fold # " + str(fold_index) + "\n")
 
@@ -389,13 +391,24 @@ class CnnBaseModel:
                     trials += 1
                     if trials >= patience and not quiet:
                         logger.log_line("\nNo further improvement after epoch " + str(epoch))
-                        overall_validation_accuracy_history.append(validation_accuracy)
-                        overall_validation_precision_history.append(validation_precision)
-                        overall_validation_recall_history.append(validation_recall)
-                        overall_validation_f1_score_history.append(validation_f1_score)
-                        overall_validation_cohen_kappa_score_history.append(validation_cohen_kappa_score)
-                        overall_validation_matthew_correlation_coefficient_history.append(validation_matthew_correlation_coefficient)
+                        overall_validation_accuracy_history.append(validation_accuracy_history)
+                        overall_validation_precision_history.append(validation_precision_history)
+                        overall_validation_recall_history.append(validation_recall_history)
+                        overall_validation_f1_score_history.append(validation_f1_score_history)
+                        overall_validation_cohen_kappa_score_history.append(validation_cohen_kappa_score_history)
+                        overall_validation_matthew_correlation_coefficient_history.append(
+                            validation_matthew_correlation_coefficient_history)
                         break
+
+                if epoch >= epochs:
+                    logger.log_line("\nLast epoch reached")
+                    overall_validation_accuracy_history.append(validation_accuracy_history)
+                    overall_validation_precision_history.append(validation_precision_history)
+                    overall_validation_recall_history.append(validation_recall_history)
+                    overall_validation_f1_score_history.append(validation_f1_score_history)
+                    overall_validation_cohen_kappa_score_history.append(validation_cohen_kappa_score_history)
+                    overall_validation_matthew_correlation_coefficient_history.append(validation_matthew_correlation_coefficient_history)
+                    break
 
                 if validation_accuracy > overall_validation_accuracy_max:
                     overall_validation_accuracy_max = validation_accuracy
@@ -442,6 +455,84 @@ class CnnBaseModel:
                 ylabel="Value",
                 clean=True,
                 quiet=quiet)
+
+        TrainingResultPlotter().run(
+            logger=logger,
+            data=overall_validation_accuracy_history,
+            labels=fold_labels,
+            results_path=os.path.join(log_path, "plots"),
+            file_name="overall-accuracy",
+            title="Accuracy history",
+            description="Accuracy history",
+            xlabel="Epoch",
+            ylabel="Value",
+            clean=True,
+            quiet=quiet)
+
+        TrainingResultPlotter().run(
+            logger=logger,
+            data=overall_validation_precision_history,
+            labels=fold_labels,
+            results_path=os.path.join(log_path, "plots"),
+            file_name="overall-precision",
+            title="Precision history",
+            description="Precision history",
+            xlabel="Epoch",
+            ylabel="Value",
+            clean=True,
+            quiet=quiet)
+
+        TrainingResultPlotter().run(
+            logger=logger,
+            data=overall_validation_recall_history,
+            labels=fold_labels,
+            results_path=os.path.join(log_path, "plots"),
+            file_name="overall-recall",
+            title="Recall history",
+            description="Recall history",
+            xlabel="Epoch",
+            ylabel="Value",
+            clean=True,
+            quiet=quiet)
+
+        TrainingResultPlotter().run(
+            logger=logger,
+            data=overall_validation_f1_score_history,
+            labels=fold_labels,
+            results_path=os.path.join(log_path, "plots"),
+            file_name="overall-f1-score",
+            title="F1 score history",
+            description="F1 score history",
+            xlabel="Epoch",
+            ylabel="Value",
+            clean=True,
+            quiet=quiet)
+
+        TrainingResultPlotter().run(
+            logger=logger,
+            data=overall_validation_cohen_kappa_score_history,
+            labels=fold_labels,
+            results_path=os.path.join(log_path, "plots"),
+            file_name="overall-cohen-kappa-score",
+            title="Cohen's kappa score history",
+            description="Cohen's kappa score history",
+            xlabel="Epoch",
+            ylabel="Value",
+            clean=True,
+            quiet=quiet)
+
+        TrainingResultPlotter().run(
+            logger=logger,
+            data=overall_validation_matthew_correlation_coefficient_history,
+            labels=fold_labels,
+            results_path=os.path.join(log_path, "plots"),
+            file_name="overall-matthew-correlation-coefficient-score",
+            title="Matthews's correlation coefficient score history",
+            description="Matthews's correlation coefficient score history",
+            xlabel="Epoch",
+            ylabel="Value",
+            clean=True,
+            quiet=quiet)
 
         if not quiet:
             logger.log_line("Cross-validation metrics")
