@@ -253,7 +253,7 @@ def main(argv):
     # Modeling
     #
 
-    CnnBaseModel().run(
+    finalize_epochs = CnnBaseModel().validate(
         logger=logger,
         dataframes=train_dataframes,
         k_folds=k_folds,
@@ -262,6 +262,16 @@ def main(argv):
         patience=patience,
         slice_width=slice_width,
         log_path=log_path_modelling,
+        quiet=quiet
+    )
+
+    CnnBaseModel().finalize(
+        logger=logger,
+        dataframes=train_dataframes,
+        epochs=finalize_epochs,
+        learning_rate=learning_rate,
+        slice_width=slice_width,
+        log_path=log_path,
         quiet=quiet
     )
 

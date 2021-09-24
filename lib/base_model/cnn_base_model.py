@@ -242,7 +242,7 @@ def get_linear_channels(slice_width):
 class CnnBaseModel:
 
     @TrackingDecorator.track_time
-    def run(self, logger, dataframes, k_folds, epochs, learning_rate, patience, slice_width, log_path, quiet=False):
+    def validate(self, logger, dataframes, k_folds, epochs, learning_rate, patience, slice_width, log_path, quiet=False):
 
         # Make results path
         os.makedirs(log_path, exist_ok=True)
@@ -258,6 +258,8 @@ class CnnBaseModel:
         overall_validation_f1_score_history = []
         overall_validation_cohen_kappa_score_history = []
         overall_validation_matthew_correlation_coefficient_history = []
+
+        overall_epochs = []
 
         ids = sorted(list(dataframes.keys()))
 
@@ -398,6 +400,7 @@ class CnnBaseModel:
                         overall_validation_cohen_kappa_score_history.append(validation_cohen_kappa_score_history)
                         overall_validation_matthew_correlation_coefficient_history.append(
                             validation_matthew_correlation_coefficient_history)
+                        overall_epochs.append(epoch)
                         break
 
                 if epoch >= epochs:
@@ -408,6 +411,7 @@ class CnnBaseModel:
                     overall_validation_f1_score_history.append(validation_f1_score_history)
                     overall_validation_cohen_kappa_score_history.append(validation_cohen_kappa_score_history)
                     overall_validation_matthew_correlation_coefficient_history.append(validation_matthew_correlation_coefficient_history)
+                    overall_epochs.append(epoch)
                     break
 
                 if validation_accuracy > overall_validation_accuracy_max:
@@ -550,6 +554,49 @@ class CnnBaseModel:
                 " f1 score " + str(round(np.std(overall_validation_f1_score_history), 2)) + ", " +
                 " cohen kappa score " + str(round(np.std(overall_validation_cohen_kappa_score_history), 2)) + ", " +
                 " matthew correlation coefficient " + str(round(np.std(overall_validation_matthew_correlation_coefficient_history), 2)))
+
+        return int(np.mean(overall_epochs))
+
+    @TrackingDecorator.track_time
+    def finalize(self, logger, dataframes, epochs, learning_rate, slice_width, log_path, quiet=False):
+
+        # Make results path
+        os.makedirs(log_path, exist_ok=True)
+
+        # Create data loader for train
+        train_array = create_array(dataframes)
+        train_dataset = create_dataset(train_array)
+        train_data_loader = create_loader(train_dataset, shuffle=False)
+
+        # Determine number of linear channels based on slice width
+        linear_channels = get_linear_channels(slice_width)
+
+        # Define classifier
+        classifier = Classifier(input_channels=1, num_classes=num_classes, linear_channels=linear_channels).to(device)
+        criterion = nn.CrossEntropyLoss(reduction='sum')
+        optimizer = optim.Adam(classifier.parameters(), lr=learning_rate)
+
+        # Run training loop
+        progress_bar = tqdm(iterable=range(1, epochs + 1), unit='epochs', desc="Train model")
+        for _ in progress_bar:
+
+            # Train model
+            classifier.train()
+            train_epoch_loss = 0
+            for i, batch in enumerate(train_data_loader):
+                input, target = [t.to(device) for t in batch]
+                optimizer.zero_grad()
+                output = classifier(input)
+                loss = criterion(output, target)
+                train_epoch_loss += loss.item()
+                loss.backward()
+                optimizer.step()
+
+            classifier.eval()
+
+            progress_bar.close()
+
+        torch.save(classifier.state_dict(), os.path.join(log_path, "model.pickle"))
 
     @TrackingDecorator.track_time
     def evaluate(self, logger, dataframes, slice_width, model_path, log_path, clean=False, quiet=False):
