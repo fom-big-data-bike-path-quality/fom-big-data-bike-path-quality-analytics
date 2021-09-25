@@ -90,7 +90,7 @@ def main(argv):
         elif opt in ("-t", "--transient"):
             transient = True
         elif opt in ("-d", "--dry-run"):
-            epochs = 1
+            epochs = 2
             clean = True
             transient = True
             dry_run = True
