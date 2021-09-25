@@ -21,6 +21,7 @@ for p in library_paths:
 
 # Import library classes
 from logger_facade import LoggerFacade
+from telegram_logger import TelegramLogger
 from input_data_statistics import InputDataStatistics
 from sliding_window_data_splitter import SlidingWindowDataSplitter
 from data_loader import DataLoader
@@ -45,6 +46,7 @@ def main(argv):
     clean = False
     quiet = False
     transient = False
+    dry_run = False
     start_time = datetime.now().strftime("%Y-%m-%d-%H:%M:%S")
     k_folds = 10
     epochs = 50_000
@@ -64,7 +66,7 @@ def main(argv):
                                                          "learningrate=", "patience=", "slicewidth=", "windowstep="])
     except getopt.GetoptError:
         print("main.py --help --clean --quiet --transient --dry-run --kfolds <kfolds> --epochs <epochs> --learningrate <learningrate> "
-            "--patience <patience> --slicewidth <slicewidth> --windowstep <windowstep>")
+              "--patience <patience> --slicewidth <slicewidth> --windowstep <windowstep>")
         sys.exit(2)
     for opt, arg in opts:
         if opt in ("-h", "--help"):
@@ -91,6 +93,7 @@ def main(argv):
             epochs = 1
             clean = True
             transient = True
+            dry_run = True
         elif opt in ("-e", "--epochs"):
             epochs = int(arg)
         elif opt in ("-k", "--kfolds"):
@@ -237,7 +240,8 @@ def main(argv):
     # Data Preparation
     #
 
-    dataframes = DataFilterer().run(logger=logger, dataframes=dataframes, slice_width=slice_width, measurement_speed_limit=measurement_speed_limit, quiet=quiet)
+    dataframes = DataFilterer().run(logger=logger, dataframes=dataframes, slice_width=slice_width,
+                                    measurement_speed_limit=measurement_speed_limit, quiet=quiet)
     dataframes = DataTransformer().run(logger=logger, dataframes=dataframes, quiet=quiet)
     dataframes = DataNormalizer().run(logger=logger, dataframes=dataframes, quiet=quiet)
 
@@ -279,7 +283,12 @@ def main(argv):
     # Evaluation
     #
 
-    CnnBaseModel().evaluate(
+    test_accuracy, \
+    test_precision, \
+    test_recall, \
+    test_f1_score, \
+    test_cohen_kappa_score, \
+    test_matthew_correlation_coefficient = CnnBaseModel().evaluate(
         logger=logger,
         dataframes=test_dataframes,
         slice_width=slice_width,
@@ -293,8 +302,31 @@ def main(argv):
     #
     #
 
-    if log_latest_path is not None:
-        ResultCopier().copyDirectory(log_path, log_latest_path)
+    ResultCopier().copyDirectory(log_path, log_latest_path)
+
+    if not quiet and not dry_run:
+        TelegramLogger().log_results(
+            log_path_modelling=log_path_modelling,
+            log_path_evaluation=log_path_evaluation,
+
+            k_folds=k_folds,
+            epochs=epochs,
+            finalize_epochs=finalize_epochs,
+            learning_rate=learning_rate,
+            patience=patience,
+            slice_width=slice_width,
+            window_step=window_step,
+            measurement_speed_limit=measurement_speed_limit,
+            test_size=test_size,
+            random_state=random_state,
+
+            test_accuracy=test_accuracy,
+            test_precision=test_precision,
+            test_recall=test_recall,
+            test_f1_score=test_f1_score,
+            test_cohen_kappa_score=test_cohen_kappa_score,
+            test_matthew_correlation_coefficient=test_matthew_correlation_coefficient
+        )
 
 
 if __name__ == "__main__":
