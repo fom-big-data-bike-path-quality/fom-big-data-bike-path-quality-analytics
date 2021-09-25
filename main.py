@@ -62,11 +62,11 @@ def main(argv):
 
     # Read command line arguments
     try:
-        opts, args = getopt.getopt(argv, "hcqtde:l:s:", ["help", "clean", "quiet", "transient", "dry-run", "kfolds=", "epochs=",
+        opts, args = getopt.getopt(argv, "hcqtdke:l:p:s:w:", ["help", "clean", "quiet", "transient", "dry-run", "kfolds=", "epochs=",
                                                          "learningrate=", "patience=", "slicewidth=", "windowstep="])
     except getopt.GetoptError:
-        print("main.py --help --clean --quiet --transient --dry-run --kfolds <kfolds> --epochs <epochs> --learningrate <learningrate> "
-              "--patience <patience> --slicewidth <slicewidth> --windowstep <windowstep>")
+        print("main.py --help --clean --quiet --transient --dry-run --kfolds <k-folds> --epochs <epochs> --learning-rate <learning-rate> "
+              "--patience <patience> --slice-width <slice-width> --window-step <windowstep>")
         sys.exit(2)
     for opt, arg in opts:
         if opt in ("-h", "--help"):
@@ -76,12 +76,12 @@ def main(argv):
             print("--quiet                          do not log outputs")
             print("--transient                      do not store results")
             print("--dry-run                        only run a limited training to make sure syntax is correct")
-            print("--kfolds <kfolds>                number of k-folds")
+            print("--k-folds <k-folds>              number of k-folds")
             print("--epochs <epochs>                number of epochs")
-            print("--learningrate <learningrate>    learning rate")
+            print("--learning-rate <learning-rate>  learning rate")
             print("--patience <patience>            number of epochs to wait for improvements before finishing training")
-            print("--slicewidth <slicewidth>        number of measurements per slice")
-            print("--windowstep <windowstep>        step size used for sliding window data splitter")
+            print("--slice-width <slice-width>      number of measurements per slice")
+            print("--window-step <window-step>      step size used for sliding window data splitter")
             sys.exit()
         elif opt in ("-c", "--clean"):
             clean = True

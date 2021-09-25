@@ -53,11 +53,18 @@ Run this command to start the main script.
 ```shell script
 python main.py [OPTION]...
 
-  -h, --help                          show help for this script
-  -c, --clean                         clean all results before generating new ones
-  -d, --dry-run                       perform a dry-run to verify everything is set up correctly
-  -e, --epochs <epochs>               number of epochs in the training loop
-  -l, --learningrate <learningrate>   learning rate used for training
+  -h, --help                           show this help
+  -c, --clean                          clean intermediate results before start
+  -q, --quiet                          do not log outputs
+  -t, --transient                      do not store results
+  -d, --dry-run                        only run a limited training to make sure syntax is correct
+  -k, --k-folds <kfolds>               number of k-folds
+  -e, --epochs <epochs>                number of epochs
+  -l, --learning-rate <learning-rate>  learning rate
+  -p, --patience <patience>            number of epochs to wait for improvements before finishing training
+  -s, --slice-width <slice-width>      number of measurements per slice
+  -w, --window-step <window-step>      step size used for sliding window data splitter
+```
 
 Examples:
   python main.py -c -e 3000 -l 0.001
