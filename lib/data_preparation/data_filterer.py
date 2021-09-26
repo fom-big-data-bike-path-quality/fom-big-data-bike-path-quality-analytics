@@ -46,6 +46,13 @@ class DataFilterer:
                 copied_dataframes.pop(name)
                 continue
 
+            # Exclude dataframes which contain invalid location
+            if (dataframe.bike_activity_measurement_lon.values == 0.0 and dataframe.bike_activity_measurement_lat.values).any():
+                if not quiet:
+                    logger.log_line("✗️ Filtering out " + name + " (containing invalid location)")
+                copied_dataframes.pop(name)
+                continue
+
             if not quiet:
                 logger.log_line("✓️ Keeping " + name)
 
