@@ -64,7 +64,6 @@ python main.py [OPTION]...
   -p, --patience <patience>            number of epochs to wait for improvements before finishing training
   -s, --slice-width <slice-width>      number of measurements per slice
   -w, --window-step <window-step>      step size used for sliding window data splitter
-```
 
 Examples:
   python main.py -c -e 3000 -l 0.001
