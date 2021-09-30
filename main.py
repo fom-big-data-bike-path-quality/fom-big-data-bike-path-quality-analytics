@@ -306,6 +306,7 @@ def main(argv):
 
     if not quiet and not dry_run:
         TelegramLogger().log_results(
+            logger=logger,
             log_path_modelling=log_path_modelling,
             log_path_evaluation=log_path_evaluation,
 

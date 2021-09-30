@@ -1,11 +1,11 @@
 import os
 
 import telegram_send
-
+from pathlib import Path
 
 class TelegramLogger:
 
-    def log_results(self, log_path_modelling, log_path_evaluation, k_folds, epochs, finalize_epochs, learning_rate, patience, slice_width,
+    def log_results(self, logger, log_path_modelling, log_path_evaluation, k_folds, epochs, finalize_epochs, learning_rate, patience, slice_width,
                     window_step, measurement_speed_limit, test_size, random_state, test_accuracy, test_precision, test_recall,
                     test_f1_score, test_cohen_kappa_score, test_matthew_correlation_coefficient):
 
@@ -34,6 +34,11 @@ class TelegramLogger:
         # Set script path
         file_path = os.path.realpath(__file__)
         script_path = os.path.dirname(file_path)
+
+        # Check for config file
+        if not Path(os.path.join(script_path, "telegram.config")).exists():
+            logger.log_line("✗️ Telegram config not found " + os.path.join(script_path, "telegram.config"))
+            return
 
         # Send line to telegram
         with open(f1_score_path, "rb") as f1_score_file, \
