@@ -375,7 +375,7 @@ class CnnBaseModel:
 
                 if not quiet:
                     logger.log_line("Fold " + str(fold_index) + " " +
-                                    "epoch " + str(epoch) +
+                                    "epoch " + str(epoch) + " " +
                                     "loss " + str(round(train_epoch_loss, 4)).ljust(4, '0') + ", " +
                                     "accuracy " + str(round(validation_accuracy, 2)) + ", " +
                                     "precision " + str(round(validation_precision, 2)) + ", " +
