@@ -1,0 +1,41 @@
+name: Google Compute Engine Create
+on:
+  workflow_dispatch:
+env:
+  PROJECT_ID: "bike-path-quality"
+  GCE_INSTANCE: "bike-path-quality-analytics"
+  GCE_INSTANCE_ZONE: "europe-west2-a"
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: [3.7]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2.3.3
+      - name: Set up Cloud SDK
+        uses: google-github-actions/setup-gcloud@master
+        with:
+          project_id: "bike-path-quality"
+          service_account_key: ${{ secrets.GOOGLE_CLOUD_TOKEN }}
+          export_default_credentials: true
+        env:
+          GOOGLE_CLOUD_TOKEN: ${{ secrets.GOOGLE_CLOUD_TOKEN }}
+      - name: Prepare Google Cloud service account token
+        id: prepare-google-cloud-service-account-token
+        run: echo $GOOGLE_CLOUD_TOKEN | base64 --decode > ./bike-path-quality-2bebc8ae5dc6.json
+        env:
+          GOOGLE_CLOUD_TOKEN: ${{ secrets.GOOGLE_CLOUD_TOKEN }}
+      - name: Create compute instance
+        id: create-compute-instance
+        run: |
+          gcloud compute instances create "$GCE_INSTANCE" \
+            --zone="$GCE_INSTANCE_ZONE" \
+            --machine-type=n1-standard-8 \
+            --image-family=pytorch-latest-gpu \
+            --image-project=deeplearning-platform-release \
+            --maintenance-policy=TERMINATE \
+            --accelerator="type=nvidia-tesla-t4,count=1" \
+            --metadata="install-nvidia-driver=True"
+          
