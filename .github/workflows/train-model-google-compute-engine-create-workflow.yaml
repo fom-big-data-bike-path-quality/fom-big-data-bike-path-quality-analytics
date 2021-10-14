@@ -48,10 +48,14 @@ jobs:
                 pip install seaborn
                 pip install telegram-send
                 sudo useradd -m -s /bin/bash bike-path-quality-analytics
-                sudo -u bike-path-quality-analytics bash -c "echo $GOOGLE_CLOUD_TOKEN | base64 --decode > ~/bike-path-quality-2bebc8ae5dc6.json;"
+                sudo -u bike-path-quality-analytics bash -c "echo $TELEGRAM_TOKEN | base64 --decode > ~/fom-big-data-bike-path-quality-analytics/lib/log/telegram.config"
+                sudo -u bike-path-quality-analytics bash -c "echo $GOOGLE_CLOUD_TOKEN | base64 --decode > ~/bike-path-quality-2bebc8ae5dc6.json"
                 sudo -u bike-path-quality-analytics bash -c "mkdir -p ~/.ssh; ssh-keyscan github.com >> ~/.ssh/known_hosts"
                 sudo -u bike-path-quality-analytics bash -c "cd ~/; git clone https://github.com/fom-big-data-bike-path-quality/fom-big-data-bike-path-quality-analytics.git"
                 sudo -u bike-path-quality-analytics bash -c "cd ~/; git clone https://github.com/fom-big-data-bike-path-quality/fom-big-data-bike-path-quality-data.git fom-big-data-bike-path-quality-analytics/data"
+                sudo -u bike-path-quality-analytics bash -c "echo $TELEGRAM_TOKEN | base64 --decode > ~/fom-big-data-bike-path-quality-analytics/lib/telegram.config"
+                sudo -u bike-path-quality-analytics bash -c "echo $GOOGLE_CLOUD_TOKEN | base64 --decode > ~/bike-path-quality-2bebc8ae5dc6.json"
               EOF'
         env:
+          TELEGRAM_TOKEN: ${{ secrets.TELEGRAM_TOKEN }}
           GOOGLE_CLOUD_TOKEN: ${{ secrets.GOOGLE_CLOUD_TOKEN }}
