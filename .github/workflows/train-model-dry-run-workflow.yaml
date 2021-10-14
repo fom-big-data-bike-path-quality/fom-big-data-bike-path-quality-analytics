@@ -1,9 +1,7 @@
-name: Train model
+name: Train model (Dry-Run)
 on:
   push:
   workflow_dispatch:
-  schedule:
-    - cron:  '0 0 * * *'
 jobs:
   build:
     runs-on: ubuntu-latest

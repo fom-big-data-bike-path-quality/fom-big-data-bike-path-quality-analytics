@@ -1,4 +1,4 @@
-[![Train model](https://github.com/fom-big-data-bike-path-quality/fom-big-data-bike-path-quality-analytics/actions/workflows/train-model-workflow.yaml/badge.svg)](https://github.com/fom-big-data-bike-path-quality/fom-big-data-bike-path-quality-analytics/actions/workflows/train-model-workflow.yaml)
+[![Train model (Dry-Run)](https://github.com/fom-big-data-bike-path-quality/fom-big-data-bike-path-quality-analytics/actions/workflows/train-model-dry-run-workflow.yaml/badge.svg)](https://github.com/fom-big-data-bike-path-quality/fom-big-data-bike-path-quality-analytics/actions/workflows/train-model-dry-run-workflow.yaml)
 [![Issues](https://img.shields.io/github/issues/fom-big-data-bike-path-quality/fom-big-data-bike-path-quality-analytics)](https://github.com/fom-big-data-bike-path-quality/fom-big-data-bike-path-quality-analytics/issues)
 
 <br />
@@ -44,6 +44,9 @@ pip install torch
 pip install tqdm
 pip install seaborn
 pip install telegram-send
+pip install google-cloud-storage
+pip install gcloud
+pip install gsutils
 ```
 
 ## Usage
