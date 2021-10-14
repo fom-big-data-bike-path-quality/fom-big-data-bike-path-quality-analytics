@@ -37,5 +37,8 @@ jobs:
             --image-project=deeplearning-platform-release \
             --maintenance-policy=TERMINATE \
             --accelerator="type=nvidia-tesla-t4,count=1" \
-            --metadata="install-nvidia-driver=True"
-          
+            --metadata="install-nvidia-driver=True,startup-script='#! /bin/bash
+                echo "$GOOGLE_CLOUD_TOKEN" | base64 --decode > ./bike-path-quality-2bebc8ae5dc6.json
+              EOF'"
+        env:
+          GOOGLE_CLOUD_TOKEN: ${{ secrets.GOOGLE_CLOUD_TOKEN }}
