@@ -1,0 +1,30 @@
+name: Google Compute Engine Delete
+on:
+  workflow_dispatch:
+env:
+  PROJECT_ID: "bike-path-quality"
+  GCE_INSTANCE: "bike-path-quality-analytics"
+  GCE_INSTANCE_ZONE: "europe-west2-a"
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: [3.7]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2.3.3
+      - name: Set up Cloud SDK
+        uses: google-github-actions/setup-gcloud@master
+        with:
+          project_id: "bike-path-quality"
+          service_account_key: ${{ secrets.GOOGLE_CLOUD_TOKEN }}
+          export_default_credentials: true
+        env:
+          GOOGLE_CLOUD_TOKEN: ${{ secrets.GOOGLE_CLOUD_TOKEN }}
+      - name: Delete compute instance
+        id: delete-compute-instance
+        run: |
+          gcloud compute instances delete "$GCE_INSTANCE" \
+            --zone="$GCE_INSTANCE_ZONE" \
+            --quiet
