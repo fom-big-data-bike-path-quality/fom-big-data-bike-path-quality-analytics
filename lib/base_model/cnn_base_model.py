@@ -418,7 +418,7 @@ class CnnBaseModel:
                     overall_validation_accuracy_max = validation_accuracy
                     torch.save(classifier.state_dict(), os.path.join(log_path, "model.pickle"))
 
-                progress_bar.close()
+            progress_bar.close()
 
             TrainingResultPlotter().run(
                 logger=logger,
@@ -607,7 +607,7 @@ class CnnBaseModel:
 
             classifier.eval()
 
-            progress_bar.close()
+        progress_bar.close()
 
         torch.save(classifier.state_dict(), os.path.join(log_path, "model.pickle"))
 
