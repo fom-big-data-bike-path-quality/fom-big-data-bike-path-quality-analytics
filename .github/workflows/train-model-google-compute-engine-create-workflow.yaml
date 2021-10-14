@@ -39,7 +39,8 @@ jobs:
             --accelerator="type=nvidia-tesla-t4,count=1" \
             --metadata="install-nvidia-driver=True",startup-script='#! /bin/bash
                 sudo useradd -m -s /bin/bash bike-path-quality-analytics
-                sudo -u bike-path-quality-analytics bash -c "cd ~/; echo $GOOGLE_CLOUD_TOKEN | base64 --decode > ./bike-path-quality-2bebc8ae5dc6.json;"
+                sudo -u bike-path-quality-analytics bash -c "echo $GOOGLE_CLOUD_TOKEN | base64 --decode > ~/bike-path-quality-2bebc8ae5dc6.json;"
+                sudo -u bike-path-quality-analytics bash -c "mkdir -p ~/.ssh; ssh-keyscan github.com >> ~/.ssh/known_hosts"
               EOF'
         env:
           GOOGLE_CLOUD_TOKEN: ${{ secrets.GOOGLE_CLOUD_TOKEN }}
