@@ -2,6 +2,7 @@ import getopt
 import os
 import sys
 from datetime import datetime
+import torch
 
 # Make library available in path
 library_paths = [
@@ -113,6 +114,9 @@ def main(argv):
     data_path = os.path.join(script_path, "data/data")
     workspace_path = os.path.join(script_path, "workspace")
 
+    # Set device name
+    device_name = "cuda" if torch.cuda.is_available() else "cpu"
+
     if not transient:
         log_path = os.path.join(script_path, "models", "models", start_time)
         log_latest_path = os.path.join(script_path, "models", "models", "latest")
@@ -130,6 +134,7 @@ def main(argv):
 
     # Print parameters
     logger.log_line("Parameters")
+    logger.log_line("❄ device name: " + device_name)
     logger.log_line("❄ start time: " + str(start_time))
     logger.log_line("❄ clean: " + str(clean))
     logger.log_line("❄ quiet: " + str(quiet))
