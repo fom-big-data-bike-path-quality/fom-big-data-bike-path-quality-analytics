@@ -56,7 +56,7 @@ jobs:
                 sudo -u bike-path-quality-analytics bash -c "source ~/fom-big-data-bike-path-quality-analytics/venv/bin/activate; pip install tqdm"
                 sudo -u bike-path-quality-analytics bash -c "source ~/fom-big-data-bike-path-quality-analytics/venv/bin/activate; pip install seaborn"
                 sudo -u bike-path-quality-analytics bash -c "source ~/fom-big-data-bike-path-quality-analytics/venv/bin/activate; pip install telegram-send"
-                sudo -u bike-path-quality-analytics bash -c "cd ~/fom-big-data-bike-path-quality-analytics; source ./venv/bin/activate; python main.py --clean"
+                sudo -u bike-path-quality-analytics bash -c "cd ~/fom-big-data-bike-path-quality-analytics; source ./venv/bin/activate; python main.py --clean 2>&1 &"
                 sudo -u bike-path-quality-analytics bash -c "TIMESTAMP=$(date '+%Y-%m-%d-%H:%M:%S'); cd ~/fom-big-data-bike-path-quality-analytics/models/models; zip -r ${TIMESTAMP}.zip latest"
                 sudo -u bike-path-quality-analytics bash -c "gsutil cp ~/fom-big-data-bike-path-quality-analytics/models/models/*.zip gs://bike-path-quality-results"
               EOF'
