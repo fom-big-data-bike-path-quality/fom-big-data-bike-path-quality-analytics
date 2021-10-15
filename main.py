@@ -262,6 +262,24 @@ def main(argv):
     # Modeling
     #
 
+    if not quiet and not dry_run:
+        TelegramLogger().log_start(
+            logger=logger,
+
+            k_folds=k_folds,
+            epochs=epochs,
+            learning_rate=learning_rate,
+            patience=patience,
+            slice_width=slice_width,
+            window_step=window_step,
+            measurement_speed_limit=measurement_speed_limit,
+            test_size=test_size,
+            random_state=random_state,
+
+            train_dataframes=train_dataframes,
+            test_dataframes=test_dataframes
+        )
+
     finalize_epochs = CnnBaseModel().validate(
         logger=logger,
         dataframes=train_dataframes,

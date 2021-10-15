@@ -5,6 +5,40 @@ from pathlib import Path
 
 class TelegramLogger:
 
+    def log_start(self, logger, k_folds, epochs, learning_rate, patience, slice_width,
+                    window_step, measurement_speed_limit, test_size, random_state, train_dataframes, test_dataframes):
+
+        telegram_line = "🍱 Training with parameters " + \
+                        "\n* k-folds " + str(k_folds) + \
+                        "\n* epochs " + str(epochs) + \
+                        "\n* learning rate " + str(learning_rate) + \
+                        "\n* patience " + str(patience) + \
+                        "\n* slice width " + str(slice_width) + \
+                        "\n* window step " + str(window_step) + \
+                        "\n* measurement speed limit " + str(measurement_speed_limit) + \
+                        "\n* test size " + str(test_size) + \
+                        "\n* random state " + str(random_state) + \
+                        "\n* test_size " + str(random_state) + \
+                        "\n\nstarted with" + \
+                        "\n* train dataframes " + str(len(train_dataframes)) + \
+                        "\n* test dataframes " + str(len(test_dataframes))
+
+        # Set script path
+        file_path = os.path.realpath(__file__)
+        script_path = os.path.dirname(file_path)
+
+        # Check for config file
+        if not Path(os.path.join(script_path, "telegram.config")).exists():
+            logger.log_line("✗️ Telegram config not found " + os.path.join(script_path, "telegram.config"))
+            return
+
+        # Send line to telegram
+        telegram_send.send(
+            messages=[telegram_line],
+            parse_mode="html",
+            conf=os.path.join(script_path, "telegram.config")
+        )
+
     def log_results(self, logger, log_path_modelling, log_path_evaluation, k_folds, epochs, finalize_epochs, learning_rate, patience, slice_width,
                     window_step, measurement_speed_limit, test_size, random_state, test_accuracy, test_precision, test_recall,
                     test_f1_score, test_cohen_kappa_score, test_matthew_correlation_coefficient):
