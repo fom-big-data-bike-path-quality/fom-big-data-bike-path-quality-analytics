@@ -42,19 +42,19 @@ jobs:
             --scopes="https://www.googleapis.com/auth/cloud-platform" \
             --metadata="install-nvidia-driver=True",startup-script='#! /bin/bash
                 python -m pip install --upgrade pip
-                pip install flake8 pytest
-                pip install pandas
-                pip install matplotlib
-                pip install sklearn
-                pip install torch
-                pip install tqdm
-                pip install seaborn
-                pip install telegram-send
                 sudo useradd -m -s /bin/bash bike-path-quality-analytics
                 sudo -u bike-path-quality-analytics bash -c "mkdir -p ~/.ssh; ssh-keyscan github.com >> ~/.ssh/known_hosts"
                 sudo -u bike-path-quality-analytics bash -c "cd ~/; git clone https://github.com/fom-big-data-bike-path-quality/fom-big-data-bike-path-quality-analytics.git"
                 sudo -u bike-path-quality-analytics bash -c "cd ~/; git clone https://github.com/fom-big-data-bike-path-quality/fom-big-data-bike-path-quality-data.git fom-big-data-bike-path-quality-analytics/data"
                 sudo -u bike-path-quality-analytics bash -c "gsutil cp gs://bike-path-quality-analytics/telegram.config ~/fom-big-data-bike-path-quality-analytics/lib/log/"
+                sudo -u bike-path-quality-analytics bash -c "pip install flake8 pytest"
+                sudo -u bike-path-quality-analytics bash -c "pip install pandas"
+                sudo -u bike-path-quality-analytics bash -c "pip install matplotlib"
+                sudo -u bike-path-quality-analytics bash -c "pip install sklearn"
+                sudo -u bike-path-quality-analytics bash -c "pip install torch"
+                sudo -u bike-path-quality-analytics bash -c "pip install tqdm"
+                sudo -u bike-path-quality-analytics bash -c "pip install seaborn"
+                sudo -u bike-path-quality-analytics bash -c "pip install telegram-send"
                 sudo -u bike-path-quality-analytics bash -c "cd ~/fom-big-data-bike-path-quality-analytics; python main.py --clean"
                 sudo -u bike-path-quality-analytics bash -c "TIMESTAMP=$(date '+%Y-%m-%d-%H:%M:%S'); cd ~/fom-big-data-bike-path-quality-analytics/models/models; zip -r ${TIMESTAMP}.zip latest"
                 sudo -u bike-path-quality-analytics bash -c "gsutil cp ~/fom-big-data-bike-path-quality-analytics/models/models/*.zip gs://bike-path-quality-results"
