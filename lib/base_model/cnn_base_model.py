@@ -470,12 +470,12 @@ class CnnBaseModel:
                     k_fold=fold_index,
                     k_folds=k_folds,
                     epochs=epochs,
-                    accuracy=round(np.mean(validation_accuracy_history), 2),
-                    precision=round(np.mean(validation_precision_history), 2),
-                    recall=round(np.mean(validation_recall_history), 2),
-                    f1_score=round(np.mean(validation_f1_score_history), 2),
-                    cohen_kappa_score=round(np.mean(validation_cohen_kappa_score_history), 2),
-                    matthew_correlation_coefficient=round(np.mean(validation_matthew_correlation_coefficient_history), 2)
+                    accuracy=round(validation_accuracy, 2),
+                    precision=round(validation_precision, 2),
+                    recall=round(validation_recall, 2),
+                    f1_score=round(validation_f1_score, 2),
+                    cohen_kappa_score=round(validation_cohen_kappa_score, 2),
+                    matthew_correlation_coefficient=round(validation_matthew_correlation_coefficient, 2)
                 )
 
         TrainingResultPlotter().run(
