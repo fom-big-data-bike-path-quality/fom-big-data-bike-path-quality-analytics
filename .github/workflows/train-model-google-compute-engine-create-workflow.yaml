@@ -39,7 +39,7 @@ jobs:
             --maintenance-policy=TERMINATE \
             --accelerator="type=nvidia-tesla-t4,count=1" \
             --service-account="$GCE_SERVICE_ACCOUNT" \
-            --scopes https://www.googleapis.com/auth/cloud-platform \
+            --scopes="https://www.googleapis.com/auth/cloud-platform" \
             --metadata="install-nvidia-driver=True",startup-script='#! /bin/bash
                 python -m pip install --upgrade pip
                 pip install flake8 pytest
@@ -55,7 +55,7 @@ jobs:
                 sudo -u bike-path-quality-analytics bash -c "cd ~/; git clone https://github.com/fom-big-data-bike-path-quality/fom-big-data-bike-path-quality-analytics.git"
                 sudo -u bike-path-quality-analytics bash -c "cd ~/; git clone https://github.com/fom-big-data-bike-path-quality/fom-big-data-bike-path-quality-data.git fom-big-data-bike-path-quality-analytics/data"
                 sudo -u bike-path-quality-analytics bash -c "gsutil cp gs://bike-path-quality-analytics/telegram.config ~/fom-big-data-bike-path-quality-analytics/lib/log/"
-                sudo -u bike-path-quality-analytics bash -c "cd ~/fom-big-data-bike-path-quality-analytics; python main.py --epochs=10"
+                sudo -u bike-path-quality-analytics bash -c "cd ~/fom-big-data-bike-path-quality-analytics; python main.py --clean"
                 sudo -u bike-path-quality-analytics bash -c "TIMESTAMP=$(date '+%Y-%m-%d-%H:%M:%S'); cd ~/fom-big-data-bike-path-quality-analytics/models/models; zip -r ${TIMESTAMP}.zip latest"
                 sudo -u bike-path-quality-analytics bash -c "gsutil cp ~/fom-big-data-bike-path-quality-analytics/models/models/*.zip gs://bike-path-quality-results"
               EOF'
