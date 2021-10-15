@@ -1,7 +1,8 @@
 import os
+from pathlib import Path
 
 import telegram_send
-from pathlib import Path
+
 
 class TelegramLogger:
 
@@ -22,6 +23,35 @@ class TelegramLogger:
                         "\n\nstarted with" + \
                         "\n* train dataframes " + str(len(train_dataframes)) + \
                         "\n* test dataframes " + str(len(test_dataframes))
+
+        # Set script path
+        file_path = os.path.realpath(__file__)
+        script_path = os.path.dirname(file_path)
+
+        # Check for config file
+        if not Path(os.path.join(script_path, "telegram.config")).exists():
+            logger.log_line("✗️ Telegram config not found " + os.path.join(script_path, "telegram.config"))
+            return
+
+        # Send line to telegram
+        telegram_send.send(
+            messages=[telegram_line],
+            parse_mode="html",
+            conf=os.path.join(script_path, "telegram.config")
+        )
+
+
+    def log_fold(self, logger, k_fold, k_folds, epochs, accuracy, precision, recall, f1_score, cohen_kappa_score,
+                    matthew_correlation_coefficient):
+
+        telegram_line = "🍱 Finished fold " + str(k_fold) + "/" + str(k_folds) + " after " + str(epochs) +  " epochs" \
+                        "\n\nwith validation metrics" + \
+                        "\n* accuracy " + str(accuracy) + \
+                        "\n* precision " + str(precision) + \
+                        "\n* recall " + str(recall) + \
+                        "\n* f1_score " + str(f1_score) + \
+                        "\n* cohen's kappa score " + str(cohen_kappa_score) + \
+                        "\n* matthew's correlationcoefficient " + str(matthew_correlation_coefficient)
 
         # Set script path
         file_path = os.path.realpath(__file__)

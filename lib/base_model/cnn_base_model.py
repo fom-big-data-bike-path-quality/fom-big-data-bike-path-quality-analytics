@@ -19,6 +19,7 @@ from torch.utils.data import TensorDataset, DataLoader
 from tqdm import tqdm
 from tracking_decorator import TrackingDecorator
 from training_result_plotter import TrainingResultPlotter
+from telegram_logger import TelegramLogger
 
 warnings.filterwarnings("ignore", category=DeprecationWarning)
 warnings.filterwarnings("ignore", category=FutureWarning)
@@ -242,7 +243,7 @@ def get_linear_channels(slice_width):
 class CnnBaseModel:
 
     @TrackingDecorator.track_time
-    def validate(self, logger, dataframes, k_folds, epochs, learning_rate, patience, slice_width, log_path, quiet=False):
+    def validate(self, logger, dataframes, k_folds, epochs, learning_rate, patience, slice_width, log_path, quiet=False, dry_run=False):
 
         # Make results path
         os.makedirs(log_path, exist_ok=True)
@@ -462,6 +463,20 @@ class CnnBaseModel:
                 clean=True,
                 quiet=quiet
             )
+
+            if not quiet and not dry_run:
+                TelegramLogger().log_fold(
+                    logger=logger,
+                    k_fold=fold_index,
+                    k_folds=k_folds,
+                    epochs=epochs,
+                    accuracy=round(np.mean(validation_accuracy_history), 2),
+                    precision=round(np.mean(validation_precision_history), 2),
+                    recall=round(np.mean(validation_recall_history), 2),
+                    f1_score=round(np.mean(validation_f1_score_history), 2),
+                    cohen_kappa_score=round(np.mean(validation_cohen_kappa_score_history), 2),
+                    matthew_correlation_coefficient=round(np.mean(validation_matthew_correlation_coefficient_history), 2)
+                )
 
         TrainingResultPlotter().run(
             logger=logger,

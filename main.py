@@ -289,7 +289,8 @@ def main(argv):
         patience=patience,
         slice_width=slice_width,
         log_path=log_path_modelling,
-        quiet=quiet
+        quiet=quiet,
+        dry_run=dry_run
     )
 
     CnnBaseModel().finalize(
