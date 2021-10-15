@@ -5,10 +5,10 @@
 
 /venv/
 
-/lib/bike-path-quality-firebase-adminsdk-cgjm5-640ce5b722.json
 /lib/__pycache__/*
 /lib/base_model/__pycache__/*
 /lib/base_model/layers/__pycache__/*
+/lib/cloud/*.json
 /lib/data_pre_processing/__pycache__/*
 /lib/data_preparation/__pycache__/*
 /lib/log/__pycache__/*
