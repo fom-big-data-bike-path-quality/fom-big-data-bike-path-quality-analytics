@@ -58,6 +58,7 @@ jobs:
                 sudo -u bike-path-quality-analytics bash -c "cd ~/fom-big-data-bike-path-quality-analytics; python main.py --clean"
                 sudo -u bike-path-quality-analytics bash -c "TIMESTAMP=$(date '+%Y-%m-%d-%H:%M:%S'); cd ~/fom-big-data-bike-path-quality-analytics/models/models; zip -r ${TIMESTAMP}.zip latest"
                 sudo -u bike-path-quality-analytics bash -c "gsutil cp ~/fom-big-data-bike-path-quality-analytics/models/models/*.zip gs://bike-path-quality-results"
+                sudo shutdown
               EOF'
         env:
           TELEGRAM_TOKEN: ${{ secrets.TELEGRAM_TOKEN }}
