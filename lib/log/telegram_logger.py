@@ -4,13 +4,18 @@ from pathlib import Path
 import telegram_send
 
 
+def get_fold_emoji(fold_index):
+    emojis = ["🍙", "🧄", "🧅", "🌽", "🫑", "🥦", "🍆", "🌶️", "🧆", "🥙"]
+    return emojis[fold_index % len(emojis)]
+
+
 class TelegramLogger:
 
     def log_modelling_start(self, logger, k_folds, epochs, learning_rate, patience, slice_width,
                             window_step, measurement_speed_limit, test_size, random_state, train_dataframes,
                             test_dataframes):
 
-        telegram_line = "🍱 Modelling with parameters " + \
+        telegram_line = "Modelling with parameters " + \
                         "\n* k-folds " + str(k_folds) + \
                         "\n* epochs " + str(epochs) + \
                         "\n* learning rate " + str(learning_rate) + \
@@ -44,13 +49,12 @@ class TelegramLogger:
     def log_fold(self, logger, time_elapsed, k_fold, k_folds, epochs, accuracy, precision, recall, f1_score,
                  cohen_kappa_score, matthew_correlation_coefficient):
 
-        telegram_line = "🍱 Finished fold " + str(k_fold) + "/" + str(k_folds) + \
-                        " after " + str(epochs) + " epochs in " + time_elapsed + \
-                        "\n\nwith validation metrics" + \
+        telegram_line = get_fold_emoji(k_fold) + " Finished fold " + str(k_fold) + "/" + str(k_folds) + \
+                        " after " + str(epochs) + " epochs in " + time_elapsed + "\n\nwith validation metrics" + \
                         "\n* accuracy " + str(accuracy) + \
                         "\n* precision " + str(precision) + \
                         "\n* recall " + str(recall) + \
-                        "\n* f1_score " + str(f1_score) + \
+                        "\n* f1 score " + str(f1_score) + \
                         "\n* cohen's kappa score " + str(cohen_kappa_score) + \
                         "\n* matthew's correlationcoefficient " + str(matthew_correlation_coefficient)
 
