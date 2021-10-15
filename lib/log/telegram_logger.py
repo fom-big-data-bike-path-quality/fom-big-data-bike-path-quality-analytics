@@ -6,10 +6,11 @@ import telegram_send
 
 class TelegramLogger:
 
-    def log_start(self, logger, k_folds, epochs, learning_rate, patience, slice_width,
-                    window_step, measurement_speed_limit, test_size, random_state, train_dataframes, test_dataframes):
+    def log_modelling_start(self, logger, k_folds, epochs, learning_rate, patience, slice_width,
+                            window_step, measurement_speed_limit, test_size, random_state, train_dataframes,
+                            test_dataframes):
 
-        telegram_line = "🍱 Training with parameters " + \
+        telegram_line = "🍱 Modelling with parameters " + \
                         "\n* k-folds " + str(k_folds) + \
                         "\n* epochs " + str(epochs) + \
                         "\n* learning rate " + str(learning_rate) + \
@@ -40,11 +41,11 @@ class TelegramLogger:
             conf=os.path.join(script_path, "telegram.config")
         )
 
+    def log_fold(self, logger, time_elapsed, k_fold, k_folds, epochs, accuracy, precision, recall, f1_score,
+                 cohen_kappa_score, matthew_correlation_coefficient):
 
-    def log_fold(self, logger, k_fold, k_folds, epochs, accuracy, precision, recall, f1_score, cohen_kappa_score,
-                    matthew_correlation_coefficient):
-
-        telegram_line = "🍱 Finished fold " + str(k_fold) + "/" + str(k_folds) + " after " + str(epochs) +  " epochs" \
+        telegram_line = "🍱 Finished fold " + str(k_fold) + "/" + str(k_folds) + \
+                        " after " + str(epochs) + " epochs in " + time_elapsed + \
                         "\n\nwith validation metrics" + \
                         "\n* accuracy " + str(accuracy) + \
                         "\n* precision " + str(precision) + \
@@ -69,15 +70,16 @@ class TelegramLogger:
             conf=os.path.join(script_path, "telegram.config")
         )
 
-    def log_results(self, logger, log_path_modelling, log_path_evaluation, k_folds, epochs, finalize_epochs, learning_rate, patience, slice_width,
-                    window_step, measurement_speed_limit, test_size, random_state, test_accuracy, test_precision, test_recall,
-                    test_f1_score, test_cohen_kappa_score, test_matthew_correlation_coefficient):
+    def log_modelling_end(self, logger, time_elapsed, log_path_modelling, log_path_evaluation, k_folds, epochs,
+                          finalize_epochs, learning_rate, patience, slice_width, window_step, measurement_speed_limit,
+                          test_size, random_state, test_accuracy, test_precision, test_recall,
+                          test_f1_score, test_cohen_kappa_score, test_matthew_correlation_coefficient):
 
         # Retrieve image
         f1_score_path = os.path.join(log_path_modelling, "plots", "overall-f1-score.png")
         confusion_matrix_path = os.path.join(log_path_evaluation, "plots", "confusion_matrix.png")
 
-        telegram_line = "🍱 Training with parameters " + \
+        telegram_line = "🍱 Modelling with parameters " + \
                         "\n* k-folds " + str(k_folds) + \
                         "\n* epochs " + str(epochs) + \
                         "\n* learning rate " + str(learning_rate) + \
@@ -87,7 +89,7 @@ class TelegramLogger:
                         "\n* measurement speed limit " + str(measurement_speed_limit) + \
                         "\n* test size " + str(test_size) + \
                         "\n* random state " + str(random_state) + \
-                        "\n\nfinished after " + str(finalize_epochs) + " epochs with" + \
+                        "\n\nfinished after " + str(finalize_epochs) + " epochs in " + time_elapsed + " with" + \
                         "\n* accuracy " + str(round(test_accuracy, 2)) + \
                         "\n* precision " + str(round(test_precision, 2)) + \
                         "\n* recall " + str(round(test_recall, 2)) + \

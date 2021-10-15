@@ -2,6 +2,7 @@ import getopt
 import os
 import sys
 from datetime import datetime
+
 import torch
 
 # Make library available in path
@@ -63,11 +64,13 @@ def main(argv):
 
     # Read command line arguments
     try:
-        opts, args = getopt.getopt(argv, "hcqtdke:l:p:s:w:", ["help", "clean", "quiet", "transient", "dry-run", "kfolds=", "epochs=",
-                                                         "learningrate=", "patience=", "slicewidth=", "windowstep="])
+        opts, args = getopt.getopt(argv, "hcqtdke:l:p:s:w:",
+                                   ["help", "clean", "quiet", "transient", "dry-run", "kfolds=", "epochs=",
+                                    "learningrate=", "patience=", "slicewidth=", "windowstep="])
     except getopt.GetoptError:
-        print("main.py --help --clean --quiet --transient --dry-run --kfolds <k-folds> --epochs <epochs> --learning-rate <learning-rate> "
-              "--patience <patience> --slice-width <slice-width> --window-step <windowstep>")
+        print(
+            "main.py --help --clean --quiet --transient --dry-run --kfolds <k-folds> --epochs <epochs> --learning-rate <learning-rate> "
+            "--patience <patience> --slice-width <slice-width> --window-step <windowstep>")
         sys.exit(2)
     for opt, arg in opts:
         if opt in ("-h", "--help"):
@@ -80,7 +83,8 @@ def main(argv):
             print("--k-folds <k-folds>              number of k-folds")
             print("--epochs <epochs>                number of epochs")
             print("--learning-rate <learning-rate>  learning rate")
-            print("--patience <patience>            number of epochs to wait for improvements before finishing training")
+            print(
+                "--patience <patience>            number of epochs to wait for improvements before finishing training")
             print("--slice-width <slice-width>      number of measurements per slice")
             print("--window-step <window-step>      step size used for sliding window data splitter")
             sys.exit()
@@ -145,6 +149,8 @@ def main(argv):
     logger.log_line("❄ slice width: " + str(slice_width))
     logger.log_line("❄ window step: " + str(window_step))
     logger.log_line("❄ test size: " + str(test_size))
+
+    modelling_start_time = datetime.now()
 
     #
     # Statistics
@@ -263,7 +269,7 @@ def main(argv):
     #
 
     if not quiet and not dry_run:
-        TelegramLogger().log_start(
+        TelegramLogger().log_modelling_start(
             logger=logger,
 
             k_folds=k_folds,
@@ -329,8 +335,11 @@ def main(argv):
     ResultCopier().copyDirectory(log_path, log_latest_path)
 
     if not quiet and not dry_run:
-        TelegramLogger().log_results(
+        modelling_time_elapsed = datetime.now() - modelling_start_time
+
+        TelegramLogger().log_modelling_end(
             logger=logger,
+            time_elapsed="{}".format(modelling_time_elapsed),
             log_path_modelling=log_path_modelling,
             log_path_evaluation=log_path_evaluation,
 

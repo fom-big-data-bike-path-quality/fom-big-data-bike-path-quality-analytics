@@ -1,17 +1,18 @@
 import os
 import random
 import warnings
+from datetime import datetime
 
 import numpy as np
 import pandas as pd
 import torch
-from classifier import Classifier
 from confusion_matrix_plotter import ConfusionMatrixPlotter
 from label_encoder import LabelEncoder
 from sklearn.metrics import cohen_kappa_score
 from sklearn.metrics import confusion_matrix as cm
 from sklearn.metrics import matthews_corrcoef
 from sklearn.model_selection import KFold
+from telegram_logger import TelegramLogger
 from torch import nn
 from torch import optim
 from torch.nn import functional as F
@@ -19,7 +20,8 @@ from torch.utils.data import TensorDataset, DataLoader
 from tqdm import tqdm
 from tracking_decorator import TrackingDecorator
 from training_result_plotter import TrainingResultPlotter
-from telegram_logger import TelegramLogger
+
+from classifier import Classifier
 
 warnings.filterwarnings("ignore", category=DeprecationWarning)
 warnings.filterwarnings("ignore", category=FutureWarning)
@@ -207,7 +209,8 @@ def get_confusion_matrix_dataframe(classifier, data_loader):
     used_columns = (confusion_matrix_dataframe != 0).any(axis=0).where(lambda x: x == True).dropna().keys().tolist()
     used_rows = (confusion_matrix_dataframe != 0).any(axis=1).where(lambda x: x == True).dropna().keys().tolist()
     used_classes = list(dict.fromkeys(used_columns + used_rows))
-    confusion_matrix_dataframe = confusion_matrix_dataframe.filter(items=used_classes, axis=0).filter(items=used_classes, axis=1)
+    confusion_matrix_dataframe = confusion_matrix_dataframe.filter(items=used_classes, axis=0).filter(
+        items=used_classes, axis=1)
 
     return confusion_matrix_dataframe, targets, predictions
 
@@ -243,7 +246,8 @@ def get_linear_channels(slice_width):
 class CnnBaseModel:
 
     @TrackingDecorator.track_time
-    def validate(self, logger, dataframes, k_folds, epochs, learning_rate, patience, slice_width, log_path, quiet=False, dry_run=False):
+    def validate(self, logger, dataframes, k_folds, epochs, learning_rate, patience, slice_width, log_path, quiet=False,
+                 dry_run=False):
 
         # Make results path
         os.makedirs(log_path, exist_ok=True)
@@ -265,6 +269,8 @@ class CnnBaseModel:
         ids = sorted(list(dataframes.keys()))
 
         for train_ids, validation_ids in kf.split(ids):
+
+            fold_start_time = datetime.now()
 
             # Increment fold index
             fold_index += 1
@@ -289,7 +295,8 @@ class CnnBaseModel:
             linear_channels = get_linear_channels(slice_width)
 
             # Define classifier
-            classifier = Classifier(input_channels=1, num_classes=num_classes, linear_channels=linear_channels).to(device)
+            classifier = Classifier(input_channels=1, num_classes=num_classes, linear_channels=linear_channels).to(
+                device)
             criterion = nn.CrossEntropyLoss(reduction='sum')
             optimizer = optim.Adam(classifier.parameters(), lr=learning_rate)
 
@@ -383,7 +390,8 @@ class CnnBaseModel:
                                     "recall " + str(round(validation_recall, 2)) + ", " +
                                     "f1 score " + str(round(validation_f1_score, 2)) + ", " +
                                     "cohen kappa score " + str(round(validation_cohen_kappa_score, 2)) + ", " +
-                                    "matthew correlation coefficient " + str(round(validation_matthew_correlation_coefficient, 2)),
+                                    "matthew correlation coefficient " + str(
+                        round(validation_matthew_correlation_coefficient, 2)),
                                     console=False, file=True)
 
                 # Check if accuracy increased
@@ -411,7 +419,8 @@ class CnnBaseModel:
                     overall_validation_recall_history.append(validation_recall_history)
                     overall_validation_f1_score_history.append(validation_f1_score_history)
                     overall_validation_cohen_kappa_score_history.append(validation_cohen_kappa_score_history)
-                    overall_validation_matthew_correlation_coefficient_history.append(validation_matthew_correlation_coefficient_history)
+                    overall_validation_matthew_correlation_coefficient_history.append(
+                        validation_matthew_correlation_coefficient_history)
                     overall_epochs.append(epoch)
                     break
 
@@ -451,9 +460,11 @@ class CnnBaseModel:
 
             TrainingResultPlotter().run(
                 logger=logger,
-                data=[validation_accuracy_history, validation_precision_history, validation_recall_history, validation_f1_score_history,
+                data=[validation_accuracy_history, validation_precision_history, validation_recall_history,
+                      validation_f1_score_history,
                       validation_cohen_kappa_score_history, validation_matthew_correlation_coefficient_history],
-                labels=["Accuracy", "Precision", "Recall", "F1 Score", "Cohen's Kappa Score", "Matthew's Correlation Coefficient"],
+                labels=["Accuracy", "Precision", "Recall", "F1 Score", "Cohen's Kappa Score",
+                        "Matthew's Correlation Coefficient"],
                 results_path=os.path.join(log_path, "plots", "fold-" + str(fold_index)),
                 file_name="metrics",
                 title="Metrics history",
@@ -465,8 +476,11 @@ class CnnBaseModel:
             )
 
             if not quiet and not dry_run:
+                fold_time_elapsed = datetime.now() - fold_start_time
+
                 TelegramLogger().log_fold(
                     logger=logger,
+                    time_elapsed="{}".format(fold_time_elapsed),
                     k_fold=fold_index,
                     k_folds=k_folds,
                     epochs=epochs,
@@ -570,7 +584,8 @@ class CnnBaseModel:
                     "recall " + str(round(np.mean(overall_validation_recall_history), 2)) + ", " +
                     "f1 score " + str(round(np.mean(overall_validation_f1_score_history), 2)) + ", " +
                     "cohen kappa score " + str(round(np.mean(overall_validation_cohen_kappa_score_history), 2)) + ", " +
-                    "matthew correlation coefficient " + str(round(np.mean(overall_validation_matthew_correlation_coefficient_history), 2))
+                    "matthew correlation coefficient " + str(
+                        round(np.mean(overall_validation_matthew_correlation_coefficient_history), 2))
                 )
                 logger.log_line(
                     "Standard deviation " + str(round(np.std(overall_validation_accuracy_history), 2)) + ", " +
@@ -578,7 +593,8 @@ class CnnBaseModel:
                     "recall " + str(round(np.std(overall_validation_recall_history), 2)) + ", " +
                     "f1 score " + str(round(np.std(overall_validation_f1_score_history), 2)) + ", " +
                     "cohen kappa score " + str(round(np.std(overall_validation_cohen_kappa_score_history), 2)) + ", " +
-                    "matthew correlation coefficient " + str(round(np.std(overall_validation_matthew_correlation_coefficient_history), 2))
+                    "matthew correlation coefficient " + str(
+                        round(np.std(overall_validation_matthew_correlation_coefficient_history), 2))
                 )
             except:
                 pass
@@ -654,8 +670,10 @@ class CnnBaseModel:
         test_matthew_correlation_coefficient = validate(classifier, test_data_loader)
 
         # Plot confusion matrix
-        test_confusion_matrix_dataframe, targets, predictions = get_confusion_matrix_dataframe(classifier, test_data_loader)
-        ConfusionMatrixPlotter().run(logger, os.path.join(log_path, "plots"), test_confusion_matrix_dataframe, clean=clean)
+        test_confusion_matrix_dataframe, targets, predictions = get_confusion_matrix_dataframe(classifier,
+                                                                                               test_data_loader)
+        ConfusionMatrixPlotter().run(logger, os.path.join(log_path, "plots"), test_confusion_matrix_dataframe,
+                                     clean=clean)
 
         if not quiet:
             logger.log_line("Confusion matrix \n" + str(cm(targets, predictions)))
@@ -664,6 +682,7 @@ class CnnBaseModel:
             logger.log_line("Recall " + str(round(test_recall, 2)))
             logger.log_line("F1 Score " + str(round(test_f1_score, 2)))
             logger.log_line("Cohen's Kappa Score " + str(round(test_cohen_kappa_score, 2)))
-            logger.log_line("Matthew's Correlation Coefficient Score " + str(round(test_matthew_correlation_coefficient, 2)))
+            logger.log_line(
+                "Matthew's Correlation Coefficient Score " + str(round(test_matthew_correlation_coefficient, 2)))
 
         return test_accuracy, test_precision, test_recall, test_f1_score, test_cohen_kappa_score, test_matthew_correlation_coefficient
