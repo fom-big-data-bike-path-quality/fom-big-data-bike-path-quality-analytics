@@ -483,7 +483,7 @@ class CnnBaseModel:
                     time_elapsed="{}".format(fold_time_elapsed),
                     k_fold=fold_index,
                     k_folds=k_folds,
-                    epochs=epochs,
+                    epochs=epoch,
                     accuracy=round(validation_accuracy, 2),
                     precision=round(validation_precision, 2),
                     recall=round(validation_recall, 2),
