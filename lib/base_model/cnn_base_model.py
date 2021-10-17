@@ -622,7 +622,7 @@ class CnnBaseModel:
 
         # Run training loop
         progress_bar = tqdm(iterable=range(1, epochs + 1), unit='epochs', desc="Train model")
-        for _ in progress_bar:
+        for epoch in progress_bar:
 
             # Train model
             classifier.train()
@@ -637,6 +637,9 @@ class CnnBaseModel:
                 optimizer.step()
 
             classifier.eval()
+
+            if not quiet:
+                logger.log_line("Epoch " + str(epoch) + " loss " + str(round(train_epoch_loss, 4)).ljust(4, '0'))
 
         progress_bar.close()
 
