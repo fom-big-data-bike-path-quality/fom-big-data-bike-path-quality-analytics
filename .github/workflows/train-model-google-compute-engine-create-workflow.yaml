@@ -1,6 +1,31 @@
 name: Google Compute Engine Create
 on:
   workflow_dispatch:
+    inputs:
+      k-folds:
+        description: 'number of k-folds'
+        required: true
+        default: 10
+      epochs:
+        description: 'number of epochs'
+        required: true
+        default: 5000
+      learning-rate:
+        description: 'learning rate'
+        required: true
+        default: 0.001
+      patience:
+        description: 'number of epochs to wait for improvements before finishing training'
+        required: true
+        default: 500
+      slice-width:
+        description: 'number of measurements per slice'
+        required: true
+        default: 500
+      window-step:
+        description: 'step size used for sliding window data splitter'
+        required: true
+        default: 500
 env:
   PROJECT_ID: "bike-path-quality"
   GCE_INSTANCE: "bike-path-quality-analytics"
@@ -57,7 +82,7 @@ jobs:
                 sudo -u bike-path-quality-analytics bash -c "source ~/fom-big-data-bike-path-quality-analytics/venv/bin/activate; pip3 install tqdm"
                 sudo -u bike-path-quality-analytics bash -c "source ~/fom-big-data-bike-path-quality-analytics/venv/bin/activate; pip3 install seaborn"
                 sudo -u bike-path-quality-analytics bash -c "source ~/fom-big-data-bike-path-quality-analytics/venv/bin/activate; pip3 install telegram-send"
-                sudo -u bike-path-quality-analytics bash -c "cd ~/fom-big-data-bike-path-quality-analytics; source ./venv/bin/activate; nohup python3 main.py --clean 2>&1 | tee log.txt &"
+                sudo -u bike-path-quality-analytics bash -c "cd ~/fom-big-data-bike-path-quality-analytics; source ./venv/bin/activate; nohup python3 main.py --clean --k-folds=${{ github.event.inputs.k-folds }} --epochs=${{ github.event.inputs.epochs }} --learning-rate=${{ github.event.inputs.learning-rate }} --patience=${{ github.event.inputs.patience }} --slice-width=${{ github.event.inputs.slice-width }} --window-step=${{ github.event.inputs.window-step }} 2>&1"
                 sudo -u bike-path-quality-analytics bash -c "TIMESTAMP=$(date '+%Y-%m-%d-%H:%M:%S'); cd ~/fom-big-data-bike-path-quality-analytics/models/models; zip -r ${TIMESTAMP}.zip latest"
                 sudo -u bike-path-quality-analytics bash -c "gsutil cp ~/fom-big-data-bike-path-quality-analytics/models/models/*.zip gs://bike-path-quality-results"
               EOF'
