@@ -24,8 +24,6 @@ for p in library_paths:
 # Import library classes
 from logger_facade import LoggerFacade
 from telegram_logger import TelegramLogger
-from input_data_statistics import InputDataStatistics
-from sliding_window_data_splitter import SlidingWindowDataSplitter
 from data_loader import DataLoader
 from data_filterer import DataFilterer
 from data_transformer import DataTransformer
@@ -169,35 +167,9 @@ def main(argv):
     logger.log_line("❄ test size: " + str(test_size))
     logger.log_line("❄ random state: " + str(random_state))
 
-    #
-    # Statistics
-    #
-
-    InputDataStatistics().run(
-        logger=logger,
-        data_path=data_path + "/measurements/csv",
-        measurement_speed_limit=measurement_speed_limit,
-        clean=clean,
-        quiet=quiet
-    )
-
-    #
-    # Data pre-processing
-    #
-
-    SlidingWindowDataSplitter().run(
-        logger=logger,
-        data_path=data_path + "/measurements/csv",
-        slice_width=slice_width,
-        window_step=window_step,
-        results_path=workspace_path + "/slices/raw",
-        clean=clean,
-        quiet=quiet
-    )
-
     dataframes = DataLoader().run(
         logger=logger,
-        data_path=workspace_path + "/slices/raw",
+        data_path=os.path.join(data_path, "measurements", "slices", "width" + str(slice_width) + "_step" + str(window_step)),
         quiet=quiet
     )
 
