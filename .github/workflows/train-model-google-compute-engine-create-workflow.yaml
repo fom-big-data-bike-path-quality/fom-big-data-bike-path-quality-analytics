@@ -25,7 +25,7 @@ on:
       window-step:
         description: 'step size used for sliding window data splitter'
         required: true
-        default: 500
+        default: 20
 env:
   PROJECT_ID: "bike-path-quality"
   GCE_INSTANCE: "bike-path-quality-analytics"
