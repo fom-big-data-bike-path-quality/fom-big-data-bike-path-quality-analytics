@@ -31,6 +31,7 @@ from data_filterer import DataFilterer
 from data_transformer import DataTransformer
 from data_normalizer import DataNormalizer
 from bike_activity_plotter import BikeActivityPlotter
+from bike_activity_slice_plotter import BikeActivitySlicePlotter
 from bike_activity_surface_type_plotter import BikeActivitySurfaceTypePlotter
 from train_test_data_splitter import TrainTestDataSplitter
 from cnn_base_model import CnnBaseModel
@@ -44,12 +45,16 @@ from tracking_decorator import TrackingDecorator
 
 @TrackingDecorator.track_time
 def main(argv):
+    start_time = datetime.now().strftime("%Y-%m-%d-%H:%M:%S")
+
     # Set default values
     clean = False
     quiet = False
     transient = False
     dry_run = False
-    start_time = datetime.now().strftime("%Y-%m-%d-%H:%M:%S")
+    skip_data_understanding = False
+    skip_validation = False
+
     k_folds = 10
     epochs = 50_000
     learning_rate = 0.001
@@ -65,11 +70,11 @@ def main(argv):
     # Read command line arguments
     try:
         opts, args = getopt.getopt(argv, "hcqtdke:l:p:s:w:",
-                                   ["help", "clean", "quiet", "transient", "dry-run", "kfolds=", "epochs=",
+                                   ["help", "clean", "quiet", "transient", "dry-run", "skip-data-understanding", "skip-validation", "kfolds=", "epochs=",
                                     "learningrate=", "patience=", "slicewidth=", "windowstep="])
     except getopt.GetoptError:
         print(
-            "main.py --help --clean --quiet --transient --dry-run --kfolds <k-folds> --epochs <epochs> --learning-rate <learning-rate> "
+            "main.py --help --clean --quiet --transient --dry-run --skip-data-understanding --skip-validation --kfolds <k-folds> --epochs <epochs> --learning-rate <learning-rate> "
             "--patience <patience> --slice-width <slice-width> --window-step <windowstep>")
         sys.exit(2)
     for opt, arg in opts:
@@ -80,11 +85,12 @@ def main(argv):
             print("--quiet                          do not log outputs")
             print("--transient                      do not store results")
             print("--dry-run                        only run a limited training to make sure syntax is correct")
+            print("--skip-data-understanding        skip data understanding")
+            print("--skip-validation                skip validation")
             print("--k-folds <k-folds>              number of k-folds")
             print("--epochs <epochs>                number of epochs")
             print("--learning-rate <learning-rate>  learning rate")
-            print(
-                "--patience <patience>            number of epochs to wait for improvements before finishing training")
+            print("--patience <patience>            number of epochs to wait for improvements before finishing training")
             print("--slice-width <slice-width>      number of measurements per slice")
             print("--window-step <window-step>      step size used for sliding window data splitter")
             sys.exit()
@@ -99,17 +105,21 @@ def main(argv):
             clean = True
             transient = True
             dry_run = True
-        elif opt in ("-e", "--epochs"):
-            epochs = int(arg)
+        elif opt in ("--skip-data-understanding"):
+            skip_data_understanding = True
+        elif opt in ("--skip-validation"):
+            skip_validation = True
         elif opt in ("-k", "--kfolds"):
             k_folds = int(arg)
-        elif opt in ("-l", "--learningrate"):
+        elif opt in ("-e", "--epochs"):
+            epochs = int(arg)
+        elif opt in ("-l", "--learning-rate"):
             learning_rate = float(arg)
         elif opt in ("-p", "--patience"):
             patience = int(arg)
-        elif opt in ("-s", "--slicewidth"):
+        elif opt in ("-s", "--slice-width"):
             slice_width = int(arg)
-        elif opt in ("-w", "--windowstep"):
+        elif opt in ("-w", "--window-step"):
             window_step = int(arg)
 
     # Set paths
@@ -142,13 +152,22 @@ def main(argv):
     logger.log_line("❄ start time: " + str(start_time))
     logger.log_line("❄ clean: " + str(clean))
     logger.log_line("❄ quiet: " + str(quiet))
+    logger.log_line("❄ transient: " + str(transient))
+    logger.log_line("❄ dry-run: " + str(dry_run))
+    logger.log_line("❄ skip data understanding: " + str(skip_data_understanding))
+    logger.log_line("❄ skip validation: " + str(skip_validation))
+
     logger.log_line("❄ k-folds: " + str(k_folds))
     logger.log_line("❄ epochs: " + str(epochs))
     logger.log_line("❄ learning rate: " + str(learning_rate))
     logger.log_line("❄ patience: " + str(patience))
     logger.log_line("❄ slice width: " + str(slice_width))
     logger.log_line("❄ window step: " + str(window_step))
+
+    logger.log_line("❄ measurement speed limit: " + str(measurement_speed_limit))
+
     logger.log_line("❄ test size: " + str(test_size))
+    logger.log_line("❄ random state: " + str(random_state))
 
     modelling_start_time = datetime.now()
 
@@ -188,71 +207,71 @@ def main(argv):
     # Data Understanding
     #
 
-    filtered_dataframes = DataFilterer().run(logger=logger, dataframes=dataframes, slice_width=slice_width,
-                                             measurement_speed_limit=measurement_speed_limit, quiet=True)
+    if not skip_data_understanding:
 
-    BikeActivityPlotter().run(
-        logger=logger,
-        data_path=data_path + "/measurements/csv",
-        results_path=log_path_data_understanding + "/plots/bike-activity",
-        xlabel="time",
-        ylabel="acceleration [m/sˆ2]/ speed [km/h]",
-        clean=clean,
-        quiet=quiet
-    )
+        filtered_dataframes = DataFilterer().run(logger=logger, dataframes=dataframes, slice_width=slice_width, measurement_speed_limit=measurement_speed_limit, quiet=True)
 
-    # BikeActivitySlicePlotter().run(
-    #     logger=logger,
-    #     data_path=workspace_path + "/slices/raw",
-    #     results_path=log_path_data_understanding + "/plots/bike-activity-sample",
-    #     xlabel="time",
-    #     ylabel="acceleration [m/sˆ2]/ speed [km/h]",
-    #     clean=clean,
-    #     quiet=quiet
-    # )
+        BikeActivityPlotter().run(
+            logger=logger,
+            data_path=data_path + "/measurements/csv",
+            results_path=log_path_data_understanding + "/plots/bike-activity",
+            xlabel="time",
+            ylabel="acceleration [m/sˆ2]/ speed [km/h]",
+            clean=clean,
+            quiet=quiet
+        )
 
-    train_dataframes, test_dataframes = TrainTestDataSplitter().run(
-        logger=logger,
-        dataframes=filtered_dataframes,
-        test_size=test_size,
-        random_state=random_state,
-        quiet=True
-    )
+        BikeActivitySlicePlotter().run(
+            logger=logger,
+            data_path=workspace_path + "/slices/raw",
+            results_path=log_path_data_understanding + "/plots/bike-activity-sample",
+            xlabel="time",
+            ylabel="acceleration [m/sˆ2]/ speed [km/h]",
+            clean=clean,
+            quiet=quiet
+        )
 
-    BikeActivitySurfaceTypePlotter().run(
-        logger=logger,
-        dataframes=train_dataframes,
-        slice_width=slice_width,
-        results_path=log_path_data_understanding + "/plots/bike-activity-surface-type",
-        file_name="surface_type_train",
-        title="Surface type distribution (train)",
-        description="Distribution of surface types in input data",
-        xlabel="surface type",
-        ylabel="percentage",
-        clean=clean,
-        quiet=quiet
-    )
+        train_dataframes, test_dataframes = TrainTestDataSplitter().run(
+            logger=logger,
+            dataframes=filtered_dataframes,
+            test_size=test_size,
+            random_state=random_state,
+            quiet=True
+        )
 
-    BikeActivitySurfaceTypePlotter().run(
-        logger=logger,
-        dataframes=test_dataframes,
-        slice_width=slice_width,
-        results_path=log_path_data_understanding + "/plots/bike-activity-surface-type",
-        file_name="surface_type_test",
-        title="Surface type distribution (test)",
-        description="Distribution of surface types in input data",
-        xlabel="surface type",
-        ylabel="percentage",
-        clean=clean,
-        quiet=quiet
-    )
+        BikeActivitySurfaceTypePlotter().run(
+            logger=logger,
+            dataframes=train_dataframes,
+            slice_width=slice_width,
+            results_path=log_path_data_understanding + "/plots/bike-activity-surface-type",
+            file_name="surface_type_train",
+            title="Surface type distribution (train)",
+            description="Distribution of surface types in input data",
+            xlabel="surface type",
+            ylabel="percentage",
+            clean=clean,
+            quiet=quiet
+        )
+
+        BikeActivitySurfaceTypePlotter().run(
+            logger=logger,
+            dataframes=test_dataframes,
+            slice_width=slice_width,
+            results_path=log_path_data_understanding + "/plots/bike-activity-surface-type",
+            file_name="surface_type_test",
+            title="Surface type distribution (test)",
+            description="Distribution of surface types in input data",
+            xlabel="surface type",
+            ylabel="percentage",
+            clean=clean,
+            quiet=quiet
+        )
 
     #
     # Data Preparation
     #
 
-    dataframes = DataFilterer().run(logger=logger, dataframes=dataframes, slice_width=slice_width,
-                                    measurement_speed_limit=measurement_speed_limit, quiet=quiet)
+    dataframes = DataFilterer().run(logger=logger, dataframes=dataframes, slice_width=slice_width, measurement_speed_limit=measurement_speed_limit, quiet=quiet)
     dataframes = DataTransformer().run(logger=logger, dataframes=dataframes, quiet=quiet)
     dataframes = DataNormalizer().run(logger=logger, dataframes=dataframes, quiet=quiet)
 
@@ -278,7 +297,9 @@ def main(argv):
             patience=patience,
             slice_width=slice_width,
             window_step=window_step,
+
             measurement_speed_limit=measurement_speed_limit,
+
             test_size=test_size,
             random_state=random_state,
 
@@ -286,18 +307,21 @@ def main(argv):
             test_dataframes=test_dataframes
         )
 
-    finalize_epochs = CnnBaseModel().validate(
-        logger=logger,
-        dataframes=train_dataframes,
-        k_folds=k_folds,
-        epochs=epochs,
-        learning_rate=learning_rate,
-        patience=patience,
-        slice_width=slice_width,
-        log_path=log_path_modelling,
-        quiet=quiet,
-        dry_run=dry_run
-    )
+    if not skip_validation:
+        finalize_epochs = CnnBaseModel().validate(
+            logger=logger,
+            dataframes=train_dataframes,
+            k_folds=k_folds,
+            epochs=epochs,
+            learning_rate=learning_rate,
+            patience=patience,
+            slice_width=slice_width,
+            log_path=log_path_modelling,
+            quiet=quiet,
+            dry_run=dry_run
+        )
+    else:
+        finalize_epochs = epochs
 
     CnnBaseModel().finalize(
         logger=logger,
