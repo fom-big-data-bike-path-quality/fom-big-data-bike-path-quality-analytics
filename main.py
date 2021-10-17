@@ -70,11 +70,11 @@ def main(argv):
     # Read command line arguments
     try:
         opts, args = getopt.getopt(argv, "hcqtdke:l:p:s:w:",
-                                   ["help", "clean", "quiet", "transient", "dry-run", "skip-data-understanding", "skip-validation", "kfolds=", "epochs=",
+                                   ["help", "clean", "quiet", "transient", "dry-run", "skip-data-understanding", "skip-validation", "k-folds=", "epochs=",
                                     "learningrate=", "patience=", "slicewidth=", "windowstep="])
     except getopt.GetoptError:
         print(
-            "main.py --help --clean --quiet --transient --dry-run --skip-data-understanding --skip-validation --kfolds <k-folds> --epochs <epochs> --learning-rate <learning-rate> "
+            "main.py --help --clean --quiet --transient --dry-run --skip-data-understanding --skip-validation --k-folds <k-folds> --epochs <epochs> --learning-rate <learning-rate> "
             "--patience <patience> --slice-width <slice-width> --window-step <windowstep>")
         sys.exit(2)
     for opt, arg in opts:
@@ -109,7 +109,7 @@ def main(argv):
             skip_data_understanding = True
         elif opt in ("--skip-validation"):
             skip_validation = True
-        elif opt in ("-k", "--kfolds"):
+        elif opt in ("-k", "--k-folds"):
             k_folds = int(arg)
         elif opt in ("-e", "--epochs"):
             epochs = int(arg)
