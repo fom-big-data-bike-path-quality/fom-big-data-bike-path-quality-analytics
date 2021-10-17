@@ -130,10 +130,10 @@ def main(argv):
     device_name = "cuda" if torch.cuda.is_available() else "cpu"
 
     if not transient:
-        log_path = os.path.join(script_path, "models", "models", start_time)
-        log_latest_path = os.path.join(script_path, "models", "models", "latest")
+        log_path = os.path.join(script_path, "results", "results", start_time)
+        log_latest_path = os.path.join(script_path, "results", "results", "latest")
     else:
-        log_path = os.path.join(script_path, "models", "models", "transient")
+        log_path = os.path.join(script_path, "results", "results", "transient")
         log_latest_path = None
 
     log_path_data_understanding = os.path.join(log_path, "02-data-understanding")

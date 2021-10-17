@@ -1,6 +1,6 @@
 [submodule "data"]
 	path = data
 	url = git@github.com:fom-big-data-bike-path-quality/fom-big-data-bike-path-quality-data.git
-[submodule "models"]
-	path = models
-	url = git@github.com:fom-big-data-bike-path-quality/fom-big-data-bike-path-quality-model.git
+[submodule "results"]
+	path = results
+	url = https://github.com/fom-big-data-bike-path-quality/fom-big-data-bike-path-quality-results.git
