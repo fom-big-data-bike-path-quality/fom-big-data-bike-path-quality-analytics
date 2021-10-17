@@ -1,4 +1,4 @@
-name: Google Compute Engine Create
+name: Google Compute Engine Create (Experiment)
 on:
   workflow_dispatch:
     inputs:
@@ -73,7 +73,7 @@ jobs:
           echo "sudo -u bike-path-quality-analytics bash -c \"source ~/fom-big-data-bike-path-quality-analytics/venv/bin/activate; pip3 install tqdm\"" >> startup.sh
           echo "sudo -u bike-path-quality-analytics bash -c \"source ~/fom-big-data-bike-path-quality-analytics/venv/bin/activate; pip3 install seaborn\"" >> startup.sh
           echo "sudo -u bike-path-quality-analytics bash -c \"source ~/fom-big-data-bike-path-quality-analytics/venv/bin/activate; pip3 install telegram-send\"" >> startup.sh
-          echo "sudo -u bike-path-quality-analytics bash -c \"cd ~/fom-big-data-bike-path-quality-analytics; source ./venv/bin/activate; nohup python3 main.py --clean --k-folds=${{ github.event.inputs.k-folds }} --epochs=${{ github.event.inputs.epochs }} --learning-rate=${{ github.event.inputs.learning-rate }} --patience=${{ github.event.inputs.patience }} --slice-width=${{ github.event.inputs.slice-width }} --window-step=${{ github.event.inputs.window-step }} 2>&1 | tee log.txt\"" >> startup.sh
+          echo "sudo -u bike-path-quality-analytics bash -c \"cd ~/fom-big-data-bike-path-quality-analytics; source ./venv/bin/activate; nohup python3 main.py --clean --skip-data-understanding --skip-validation --k-folds=${{ github.event.inputs.k-folds }} --epochs=${{ github.event.inputs.epochs }} --learning-rate=${{ github.event.inputs.learning-rate }} --patience=${{ github.event.inputs.patience }} --slice-width=${{ github.event.inputs.slice-width }} --window-step=${{ github.event.inputs.window-step }} 2>&1 | tee log.txt\"" >> startup.sh
           echo "sudo -u bike-path-quality-analytics bash -c \"TIMESTAMP=$(date '+%Y-%m-%d-%H:%M:%S'); cd ~/fom-big-data-bike-path-quality-analytics/models/models; zip -r ${TIMESTAMP}.zip latest\"" >> startup.sh
           echo "sudo -u bike-path-quality-analytics bash -c \"gsutil cp ~/fom-big-data-bike-path-quality-analytics/models/models/*.zip gs://bike-path-quality-results\"" >> startup.sh
       - name: Create compute instance
