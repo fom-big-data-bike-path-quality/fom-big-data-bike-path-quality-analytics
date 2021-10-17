@@ -8,13 +8,12 @@ import torch
 # Make library available in path
 library_paths = [
     os.path.join(os.getcwd(), 'lib'),
-    os.path.join(os.getcwd(), 'lib/statistics'),
-    os.path.join(os.getcwd(), 'lib/data_pre_processing'),
-    os.path.join(os.getcwd(), 'lib/data_preparation'),
-    os.path.join(os.getcwd(), 'lib/log'),
-    os.path.join(os.getcwd(), 'lib/plotters'),
-    os.path.join(os.getcwd(), 'lib/base_model'),
-    os.path.join(os.getcwd(), 'lib/base_model/layers'),
+    os.path.join(os.getcwd(), 'lib', 'log'),
+    os.path.join(os.getcwd(), 'lib', 'data_pre_processing'),
+    os.path.join(os.getcwd(), 'lib', 'data_preparation'),
+    os.path.join(os.getcwd(), 'lib', 'plotters'),
+    os.path.join(os.getcwd(), 'lib', 'base_model'),
+    os.path.join(os.getcwd(), 'lib', 'base_model', 'layers'),
 ]
 
 for p in library_paths:
@@ -55,25 +54,27 @@ def main(argv):
 
     k_folds = 10
     epochs = 50_000
-    learning_rate = 0.001
+    learning_rate: float = 0.001
     patience = 500
     slice_width = 500
     window_step = 20
 
     measurement_speed_limit = 5.0
 
-    test_size = 0.15
+    test_size: float = 0.15
     random_state = 0
 
     # Read command line arguments
     try:
         opts, args = getopt.getopt(argv, "hcqtdke:l:p:s:w:",
-                                   ["help", "clean", "quiet", "transient", "dry-run", "skip-data-understanding", "skip-validation", "k-folds=", "epochs=",
-                                    "learning-rate=", "patience=", "slice-width=", "window-step="])
+                                   ["help", "clean", "quiet", "transient", "dry-run", "skip-data-understanding",
+                                    "skip-validation", "k-folds=", "epochs=", "learning-rate=", "patience=",
+                                    "slice-width=", "window-step="])
     except getopt.GetoptError:
         print(
-            "main.py --help --clean --quiet --transient --dry-run --skip-data-understanding --skip-validation --k-folds <k-folds> --epochs <epochs> --learning-rate <learning-rate> "
-            "--patience <patience> --slice-width <slice-width> --window-step <windowstep>")
+            "main.py --help --clean --quiet --transient --dry-run --skip-data-understanding --skip-validation " +
+            "--k-folds <k-folds> --epochs <epochs> --learning-rate <learning-rate> " +
+            "--patience <patience> --slice-width <slice-width> --window-step <window-step>")
         sys.exit(2)
     for opt, arg in opts:
         if opt in ("-h", "--help"):
@@ -88,7 +89,8 @@ def main(argv):
             print("--k-folds <k-folds>              number of k-folds")
             print("--epochs <epochs>                number of epochs")
             print("--learning-rate <learning-rate>  learning rate")
-            print("--patience <patience>            number of epochs to wait for improvements before finishing training")
+            print(
+                "--patience <patience>            number of epochs to wait for improvements before finishing training")
             print("--slice-width <slice-width>      number of measurements per slice")
             print("--window-step <window-step>      step size used for sliding window data splitter")
             sys.exit()
@@ -103,9 +105,9 @@ def main(argv):
             clean = True
             transient = True
             dry_run = True
-        elif opt in ("--skip-data-understanding"):
+        elif opt in "--skip-data-understanding":
             skip_data_understanding = True
-        elif opt in ("--skip-validation"):
+        elif opt in "--skip-validation":
             skip_validation = True
         elif opt in ("-k", "--k-folds"):
             k_folds = int(arg)
@@ -123,8 +125,9 @@ def main(argv):
     # Set paths
     file_path = os.path.realpath(__file__)
     script_path = os.path.dirname(file_path)
-    data_path = os.path.join(script_path, "data/data")
-    workspace_path = os.path.join(script_path, "workspace")
+    data_path = os.path.join(script_path, "data", "data")
+    slices_path = os.path.join(data_path, "measurements", "slices",
+                               "width" + str(slice_width) + "_step" + str(window_step))
 
     # Set device name
     device_name = "cuda" if torch.cuda.is_available() else "cpu"
@@ -169,7 +172,7 @@ def main(argv):
 
     dataframes = DataLoader().run(
         logger=logger,
-        data_path=os.path.join(data_path, "measurements", "slices", "width" + str(slice_width) + "_step" + str(window_step)),
+        data_path=slices_path,
         quiet=quiet
     )
 
@@ -178,13 +181,13 @@ def main(argv):
     #
 
     if not skip_data_understanding:
-
-        filtered_dataframes = DataFilterer().run(logger=logger, dataframes=dataframes, slice_width=slice_width, measurement_speed_limit=measurement_speed_limit, quiet=True)
+        filtered_dataframes = DataFilterer().run(logger=logger, dataframes=dataframes, slice_width=slice_width,
+                                                 measurement_speed_limit=measurement_speed_limit, quiet=True)
 
         BikeActivityPlotter().run(
             logger=logger,
-            data_path=data_path + "/measurements/csv",
-            results_path=log_path_data_understanding + "/plots/bike-activity",
+            data_path=os.path.join(data_path, "measurements", "csv"),
+            results_path=os.path.join(log_path_data_understanding, "plots", "bike-activity"),
             xlabel="time",
             ylabel="acceleration [m/sˆ2]/ speed [km/h]",
             clean=clean,
@@ -193,8 +196,8 @@ def main(argv):
 
         BikeActivitySlicePlotter().run(
             logger=logger,
-            data_path=workspace_path + "/slices/raw",
-            results_path=log_path_data_understanding + "/plots/bike-activity-sample",
+            data_path=slices_path,
+            results_path=os.path.join(log_path_data_understanding, "plots", "bike-activity-sample"),
             xlabel="time",
             ylabel="acceleration [m/sˆ2]/ speed [km/h]",
             clean=clean,
@@ -213,7 +216,7 @@ def main(argv):
             logger=logger,
             dataframes=train_dataframes,
             slice_width=slice_width,
-            results_path=log_path_data_understanding + "/plots/bike-activity-surface-type",
+            results_path=os.path.join(log_path_data_understanding, "plots", "bike-activity-surface-type"),
             file_name="surface_type_train",
             title="Surface type distribution (train)",
             description="Distribution of surface types in input data",
@@ -227,7 +230,7 @@ def main(argv):
             logger=logger,
             dataframes=test_dataframes,
             slice_width=slice_width,
-            results_path=log_path_data_understanding + "/plots/bike-activity-surface-type",
+            results_path=os.path.join(log_path_data_understanding, "plots", "bike-activity-surface-type"),
             file_name="surface_type_test",
             title="Surface type distribution (test)",
             description="Distribution of surface types in input data",
@@ -241,7 +244,8 @@ def main(argv):
     # Data Preparation
     #
 
-    dataframes = DataFilterer().run(logger=logger, dataframes=dataframes, slice_width=slice_width, measurement_speed_limit=measurement_speed_limit, quiet=quiet)
+    dataframes = DataFilterer().run(logger=logger, dataframes=dataframes, slice_width=slice_width,
+                                    measurement_speed_limit=measurement_speed_limit, quiet=quiet)
     dataframes = DataTransformer().run(logger=logger, dataframes=dataframes, quiet=quiet)
     dataframes = DataNormalizer().run(logger=logger, dataframes=dataframes, quiet=quiet)
 
@@ -309,11 +313,7 @@ def main(argv):
     # Evaluation
     #
 
-    test_accuracy, \
-    test_precision, \
-    test_recall, \
-    test_f1_score, \
-    test_cohen_kappa_score, \
+    test_accuracy, test_precision, test_recall, test_f1_score, test_cohen_kappa_score, \
     test_matthew_correlation_coefficient = CnnBaseModel().evaluate(
         logger=logger,
         dataframes=test_dataframes,
