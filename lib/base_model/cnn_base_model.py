@@ -639,7 +639,8 @@ class CnnBaseModel:
             classifier.eval()
 
             if not quiet:
-                logger.log_line("Epoch " + str(epoch) + " loss " + str(round(train_epoch_loss, 4)).ljust(4, '0'))
+                logger.log_line("Epoch " + str(epoch) + " loss " + str(round(train_epoch_loss, 4)).ljust(4, '0'),
+                                console=False, file=True)
 
         progress_bar.close()
 
