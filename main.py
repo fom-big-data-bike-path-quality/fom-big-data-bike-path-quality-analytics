@@ -71,7 +71,7 @@ def main(argv):
     try:
         opts, args = getopt.getopt(argv, "hcqtdke:l:p:s:w:",
                                    ["help", "clean", "quiet", "transient", "dry-run", "skip-data-understanding", "skip-validation", "k-folds=", "epochs=",
-                                    "learningrate=", "patience=", "slicewidth=", "windowstep="])
+                                    "learning-rate=", "patience=", "slice-width=", "window-step="])
     except getopt.GetoptError:
         print(
             "main.py --help --clean --quiet --transient --dry-run --skip-data-understanding --skip-validation --k-folds <k-folds> --epochs <epochs> --learning-rate <learning-rate> "
