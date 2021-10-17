@@ -169,8 +169,6 @@ def main(argv):
     logger.log_line("❄ test size: " + str(test_size))
     logger.log_line("❄ random state: " + str(random_state))
 
-    modelling_start_time = datetime.now()
-
     #
     # Statistics
     #
@@ -286,6 +284,8 @@ def main(argv):
     #
     # Modeling
     #
+
+    modelling_start_time = datetime.now()
 
     if not quiet and not dry_run:
         TelegramLogger().log_modelling_start(
