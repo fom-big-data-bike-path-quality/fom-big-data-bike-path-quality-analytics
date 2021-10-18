@@ -63,9 +63,9 @@ class DataFilterer:
             class_name = self.__class__.__name__
             function_name = inspect.currentframe().f_code.co_name
 
-            logger.log_line(class_name + "." + function_name + " kept " + str(dataframes_filtered_count) + "/" + str(
-                dataframes_count)
-                            + " dataframes (" + str(
-                round(dataframes_filtered_count / dataframes_count, 2) * 100) + "%)")
+            logger.log_line(
+                class_name + "." + function_name + " kept " + str(dataframes_filtered_count) + "/"
+                + str(dataframes_count) + " dataframes ("
+                + str(round(dataframes_filtered_count / dataframes_count, 2) * 100) + "%)")
 
         return copied_dataframes

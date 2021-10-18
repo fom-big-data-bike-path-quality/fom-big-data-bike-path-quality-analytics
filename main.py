@@ -149,26 +149,26 @@ def main(argv):
 
     # Print parameters
     logger.log_line("Parameters")
-    logger.log_line("❄ device name: " + device_name)
-    logger.log_line("❄ start time: " + str(start_time))
-    logger.log_line("❄ clean: " + str(clean))
-    logger.log_line("❄ quiet: " + str(quiet))
-    logger.log_line("❄ transient: " + str(transient))
-    logger.log_line("❄ dry-run: " + str(dry_run))
-    logger.log_line("❄ skip data understanding: " + str(skip_data_understanding))
-    logger.log_line("❄ skip validation: " + str(skip_validation))
+    logger.log_line("* device name: " + device_name)
+    logger.log_line("* start time: " + str(start_time))
+    logger.log_line("* clean: " + str(clean))
+    logger.log_line("* quiet: " + str(quiet))
+    logger.log_line("* transient: " + str(transient))
+    logger.log_line("* dry-run: " + str(dry_run))
+    logger.log_line("* skip data understanding: " + str(skip_data_understanding))
+    logger.log_line("* skip validation: " + str(skip_validation))
 
-    logger.log_line("❄ k-folds: " + str(k_folds))
-    logger.log_line("❄ epochs: " + str(epochs))
-    logger.log_line("❄ learning rate: " + str(learning_rate))
-    logger.log_line("❄ patience: " + str(patience))
-    logger.log_line("❄ slice width: " + str(slice_width))
-    logger.log_line("❄ window step: " + str(window_step))
+    logger.log_line("* k-folds: " + str(k_folds))
+    logger.log_line("* epochs: " + str(epochs))
+    logger.log_line("* learning rate: " + str(learning_rate))
+    logger.log_line("* patience: " + str(patience))
+    logger.log_line("* slice width: " + str(slice_width))
+    logger.log_line("* window step: " + str(window_step))
 
-    logger.log_line("❄ measurement speed limit: " + str(measurement_speed_limit))
+    logger.log_line("* measurement speed limit: " + str(measurement_speed_limit))
 
-    logger.log_line("❄ test size: " + str(test_size))
-    logger.log_line("❄ random state: " + str(random_state))
+    logger.log_line("* test size: " + str(test_size))
+    logger.log_line("* random state: " + str(random_state))
 
     dataframes = DataLoader().run(
         logger=logger,
