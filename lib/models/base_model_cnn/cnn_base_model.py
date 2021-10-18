@@ -6,6 +6,7 @@ from datetime import datetime
 import numpy as np
 import pandas as pd
 import torch
+from bike_activity_surface_type_plotter import BikeActivitySurfaceTypePlotter
 from confusion_matrix_plotter import ConfusionMatrixPlotter
 from label_encoder import LabelEncoder
 from sklearn.metrics import cohen_kappa_score
@@ -182,6 +183,36 @@ def plot_fold_results(logger, log_path, fold_labels, overall_validation_accuracy
         xlabel="Epoch",
         ylabel="Value",
         clean=True,
+        quiet=quiet
+    )
+
+
+def plot_fold_distribution(logger, log_path, train_dataframes, validation_dataframes, fold_index, slice_width, quiet):
+    BikeActivitySurfaceTypePlotter().run(
+        logger=logger,
+        dataframes=train_dataframes,
+        slice_width=slice_width,
+        results_path=os.path.join(log_path, "plots", "fold-" + str(fold_index)),
+        file_name="surface_type_train",
+        title="Surface type distribution (train)",
+        description="Distribution of surface types in input data",
+        xlabel="surface type",
+        ylabel="percentage",
+        run_after_label_encoding=True,
+        quiet=quiet
+    )
+
+    BikeActivitySurfaceTypePlotter().run(
+        logger=logger,
+        dataframes=validation_dataframes,
+        slice_width=slice_width,
+        results_path=os.path.join(log_path, "plots", "fold-" + str(fold_index)),
+        file_name="surface_type_validation",
+        title="Surface type distribution (validation)",
+        description="Distribution of surface types in input data",
+        xlabel="surface type",
+        ylabel="percentage",
+        run_after_label_encoding=True,
         quiet=quiet
     )
 
@@ -476,6 +507,17 @@ class CnnBaseModel:
         validation_array = create_array(validation_dataframes)
         validation_dataset = create_dataset(validation_array)
         validation_data_loader = create_loader(validation_dataset, shuffle=False)
+
+        # Plot target variable distribution
+        plot_fold_distribution(
+            logger=logger,
+            log_path=log_path,
+            train_dataframes=train_dataframes,
+            validation_dataframes=validation_dataframes,
+            fold_index=fold_index,
+            slice_width=slice_width,
+            quiet=quiet
+        )
 
         # Determine number of linear channels based on slice width
         linear_channels = get_linear_channels(slice_width)
