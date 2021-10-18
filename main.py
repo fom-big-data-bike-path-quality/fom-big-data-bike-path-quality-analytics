@@ -286,13 +286,14 @@ def main(argv):
     if not skip_validation:
         finalize_epochs = CnnBaseModel().validate(
             logger=logger,
-            log_path=log_path,
-            dataframes=train_dataframes,
+            log_path=log_path_modelling,
+            train_dataframes=train_dataframes,
             k_folds=k_folds,
             epochs=epochs,
             learning_rate=learning_rate,
             patience=patience,
             slice_width=slice_width,
+            random_state=random_state,
             quiet=quiet,
             dry_run=dry_run
         )
@@ -302,7 +303,7 @@ def main(argv):
     CnnBaseModel().finalize(
         logger=logger,
         log_path=log_path,
-        dataframes=train_dataframes,
+        train_dataframes=train_dataframes,
         epochs=finalize_epochs,
         learning_rate=learning_rate,
         slice_width=slice_width,
@@ -317,7 +318,7 @@ def main(argv):
     test_matthew_correlation_coefficient = CnnBaseModel().evaluate(
         logger=logger,
         log_path=log_path_evaluation,
-        dataframes=test_dataframes,
+        test_dataframes=test_dataframes,
         slice_width=slice_width,
         model_path=log_path_modelling,
         clean=clean,

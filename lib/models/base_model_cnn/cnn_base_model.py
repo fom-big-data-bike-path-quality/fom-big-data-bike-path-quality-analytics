@@ -407,13 +407,16 @@ def evaluate(classifier, data_loader):
 class CnnBaseModel:
 
     @TrackingDecorator.track_time
-    def validate(self, logger, log_path, dataframes, k_folds, epochs, learning_rate, patience, slice_width, quiet=False,
-                 dry_run=False):
+    def validate(self, logger, log_path, train_dataframes, k_folds, epochs, learning_rate, patience, slice_width,
+                 random_state=0, quiet=False, dry_run=False):
+        """
+        Validates the model by folding all train dataframes
+        """
 
         # Make results path
         os.makedirs(log_path, exist_ok=True)
 
-        kf = KFold(n_splits=k_folds)
+        kf = KFold(n_splits=k_folds, shuffle=True, random_state=random_state)
         fold_index = 0
         fold_labels = []
 
@@ -425,7 +428,7 @@ class CnnBaseModel:
         overall_validation_matthew_correlation_coefficient_history = []
         overall_epochs = []
 
-        ids = sorted(list(dataframes.keys()))
+        ids = sorted(list(train_dataframes.keys()))
 
         for train_ids, validation_ids in kf.split(ids):
             # Increment fold index
@@ -440,7 +443,7 @@ class CnnBaseModel:
                 log_path=log_path,
                 fold_index=fold_index,
                 k_folds=k_folds,
-                dataframes=dataframes,
+                dataframes=train_dataframes,
                 epochs=epochs,
                 learning_rate=learning_rate,
                 patience=patience,
@@ -488,6 +491,10 @@ class CnnBaseModel:
     @TrackingDecorator.track_time
     def validate_fold(self, logger, log_path, fold_index, k_folds, train_ids, validation_ids, dataframes, epochs,
                       learning_rate, patience, slice_width, quiet, dry_run):
+        """
+        Validates a single fold
+        """
+
         fold_start_time = datetime.now()
 
         # Make results path
@@ -706,13 +713,16 @@ class CnnBaseModel:
             )
 
     @TrackingDecorator.track_time
-    def finalize(self, logger, log_path, dataframes, epochs, learning_rate, slice_width, quiet=False):
+    def finalize(self, logger, log_path, train_dataframes, epochs, learning_rate, slice_width, quiet=False):
+        """
+        Trains a final model by using all train dataframes
+        """
 
         # Make results path
         os.makedirs(log_path, exist_ok=True)
 
         # Create data loader for train
-        train_array = create_array(dataframes)
+        train_array = create_array(train_dataframes)
         train_dataset = create_dataset(train_array)
         train_data_loader = create_loader(train_dataset, shuffle=False)
 
@@ -751,13 +761,16 @@ class CnnBaseModel:
         torch.save(classifier.state_dict(), os.path.join(log_path, "model.pickle"))
 
     @TrackingDecorator.track_time
-    def evaluate(self, logger, log_path, dataframes, slice_width, model_path, clean=False, quiet=False):
+    def evaluate(self, logger, log_path, test_dataframes, slice_width, model_path, clean=False, quiet=False):
+        """
+        Evaluates finalized model against test dataframes
+        """
 
         # Make results path
         os.makedirs(log_path, exist_ok=True)
 
         # Create data loader
-        test_array = create_array(dataframes)
+        test_array = create_array(test_dataframes)
         test_dataset = create_dataset(test_array)
         test_data_loader = create_loader(test_dataset, shuffle=False)
 
