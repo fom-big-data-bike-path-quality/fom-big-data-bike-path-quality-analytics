@@ -197,7 +197,6 @@ def plot_fold_distribution(logger, log_path, train_dataframes, validation_datafr
         title="Surface type distribution (train)",
         description="Distribution of surface types in input data",
         xlabel="surface type",
-        ylabel="percentage",
         run_after_label_encoding=True,
         quiet=quiet
     )
@@ -211,7 +210,6 @@ def plot_fold_distribution(logger, log_path, train_dataframes, validation_datafr
         title="Surface type distribution (validation)",
         description="Distribution of surface types in input data",
         xlabel="surface type",
-        ylabel="percentage",
         run_after_label_encoding=True,
         quiet=quiet
     )

@@ -221,7 +221,6 @@ def main(argv):
             title="Surface type distribution (train)",
             description="Distribution of surface types in input data",
             xlabel="surface type",
-            ylabel="percentage",
             clean=clean,
             quiet=quiet
         )
@@ -235,7 +234,6 @@ def main(argv):
             title="Surface type distribution (test)",
             description="Distribution of surface types in input data",
             xlabel="surface type",
-            ylabel="percentage",
             clean=clean,
             quiet=quiet
         )

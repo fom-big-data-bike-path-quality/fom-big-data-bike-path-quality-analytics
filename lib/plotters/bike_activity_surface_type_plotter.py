@@ -47,12 +47,6 @@ class BikeActivitySurfaceTypePlotter:
                 for f in files:
                     os.remove(f)
 
-            plt.figure(2)
-            plt.clf()
-            plt.title(title)
-            plt.xlabel(xlabel)
-            plt.ylabel(ylabel)
-
             array = create_array(dataframes, slice_width)
             target_column = list(dataframes.values())[0].columns.get_loc("bike_activity_surface_type")
 
@@ -60,11 +54,17 @@ class BikeActivitySurfaceTypePlotter:
             # axis-0 = TARGET of an epoch
             data = array[:, target_column, 1]
 
-            plt.hist(data, weights=np.ones(len(data)) / len(data))
-            plt.gca().yaxis.set_major_formatter(PercentFormatter(1))
+            if run_after_label_encoding:
+                data = list(map(get_label, data))
 
+            plt.figure(2)
+            plt.clf()
+            plt.title(title)
+            plt.xlabel(xlabel)
+            plt.ylabel("amount")
+            plt.hist(data)
             plt.savefig(
-                fname=os.path.join(results_path, file_name + ".png"),
+                fname=os.path.join(results_path, file_name + "_absolute.png"),
                 format="png",
                 metadata={
                     "Title": title,
@@ -73,7 +73,25 @@ class BikeActivitySurfaceTypePlotter:
                     "Description": description
                 }
             )
+            plt.close()
 
+            plt.figure(2)
+            plt.clf()
+            plt.title(title)
+            plt.xlabel(xlabel)
+            plt.ylabel("percentage")
+            plt.hist(data, weights=np.ones(len(data)) / len(data))
+            plt.gca().yaxis.set_major_formatter(PercentFormatter(1))
+            plt.savefig(
+                fname=os.path.join(results_path, file_name + "_relative.png"),
+                format="png",
+                metadata={
+                    "Title": title,
+                    "Author": "Florian Schwanz",
+                    "Creation Time": formatdate(timeval=None, localtime=False, usegmt=True),
+                    "Description": description
+                }
+            )
             plt.close()
 
             if not quiet:
