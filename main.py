@@ -12,8 +12,8 @@ library_paths = [
     os.path.join(os.getcwd(), 'lib', 'data_pre_processing'),
     os.path.join(os.getcwd(), 'lib', 'data_preparation'),
     os.path.join(os.getcwd(), 'lib', 'plotters'),
-    os.path.join(os.getcwd(), 'lib', 'base_model'),
-    os.path.join(os.getcwd(), 'lib', 'base_model', 'layers'),
+    os.path.join(os.getcwd(), 'lib', 'models', 'base_model_cnn'),
+    os.path.join(os.getcwd(), 'lib', 'models', 'base_model_cnn', 'layers'),
 ]
 
 for p in library_paths:
@@ -286,13 +286,13 @@ def main(argv):
     if not skip_validation:
         finalize_epochs = CnnBaseModel().validate(
             logger=logger,
+            log_path=log_path,
             dataframes=train_dataframes,
             k_folds=k_folds,
             epochs=epochs,
             learning_rate=learning_rate,
             patience=patience,
             slice_width=slice_width,
-            log_path=log_path_modelling,
             quiet=quiet,
             dry_run=dry_run
         )
@@ -301,11 +301,11 @@ def main(argv):
 
     CnnBaseModel().finalize(
         logger=logger,
+        log_path=log_path,
         dataframes=train_dataframes,
         epochs=finalize_epochs,
         learning_rate=learning_rate,
         slice_width=slice_width,
-        log_path=log_path,
         quiet=quiet
     )
 
@@ -316,10 +316,10 @@ def main(argv):
     test_accuracy, test_precision, test_recall, test_f1_score, test_cohen_kappa_score, \
     test_matthew_correlation_coefficient = CnnBaseModel().evaluate(
         logger=logger,
+        log_path=log_path_evaluation,
         dataframes=test_dataframes,
         slice_width=slice_width,
         model_path=log_path_modelling,
-        log_path=log_path_evaluation,
         clean=clean,
         quiet=quiet
     )
