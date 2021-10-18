@@ -56,7 +56,7 @@ class TelegramLogger:
                         "\n* recall " + str(recall) + \
                         "\n* f1 score " + str(f1_score) + \
                         "\n* cohen's kappa score " + str(cohen_kappa_score) + \
-                        "\n* matthew's correlationcoefficient " + str(matthew_correlation_coefficient)
+                        "\n* matthew's correlation coefficient " + str(matthew_correlation_coefficient)
 
         # Set script path
         file_path = os.path.realpath(__file__)
