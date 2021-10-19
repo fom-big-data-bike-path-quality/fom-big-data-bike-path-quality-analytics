@@ -7,7 +7,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 from matplotlib.ticker import PercentFormatter
 from tracking_decorator import TrackingDecorator
-
+from label_encoder import LabelEncoder
 
 def create_array(dataframes, slice_width):
     """
@@ -27,6 +27,9 @@ def create_array(dataframes, slice_width):
     return np.dstack(array).transpose(2, 1, 0)
 
 
+def get_label(index):
+    return LabelEncoder().classes[int(index)]
+
 #
 # Main
 #
@@ -34,7 +37,8 @@ def create_array(dataframes, slice_width):
 class BikeActivitySurfaceTypePlotter:
 
     @TrackingDecorator.track_time
-    def run(self, logger, dataframes, slice_width, results_path, file_name, title, description, xlabel, ylabel, clean=False, quiet=False):
+    def run(self, logger, dataframes, slice_width, results_path, file_name, title, description, xlabel,
+            run_after_label_encoding=False, clean=False, quiet=False):
         if len(dataframes) == 0:
             logger.log_line("✗️ Not plotting " + file_name + " because there are no dataframes to plot")
         else:

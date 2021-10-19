@@ -31,6 +31,7 @@ from bike_activity_plotter import BikeActivityPlotter
 from bike_activity_slice_plotter import BikeActivitySlicePlotter
 from bike_activity_surface_type_plotter import BikeActivitySurfaceTypePlotter
 from train_test_data_splitter import TrainTestDataSplitter
+from data_resampler import DataResampler
 from cnn_base_model import CnnBaseModel
 from result_copier import ResultCopier
 from tracking_decorator import TrackingDecorator
@@ -62,6 +63,7 @@ def main(argv):
     measurement_speed_limit = 5.0
 
     test_size: float = 0.15
+    down_sampling_factor = 3
     random_state = 0
 
     # Read command line arguments
@@ -194,15 +196,15 @@ def main(argv):
             quiet=quiet
         )
 
-        BikeActivitySlicePlotter().run(
-            logger=logger,
-            data_path=slices_path,
-            results_path=os.path.join(log_path_data_understanding, "plots", "bike-activity-sample"),
-            xlabel="time",
-            ylabel="acceleration [m/sˆ2]/ speed [km/h]",
-            clean=clean,
-            quiet=quiet
-        )
+        # BikeActivitySlicePlotter().run(
+        #     logger=logger,
+        #     data_path=slices_path,
+        #     results_path=os.path.join(log_path_data_understanding, "plots", "bike-activity-sample"),
+        #     xlabel="time",
+        #     ylabel="acceleration [m/sˆ2]/ speed [km/h]",
+        #     clean=clean,
+        #     quiet=quiet
+        # )
 
         train_dataframes, test_dataframes = TrainTestDataSplitter().run(
             logger=logger,
@@ -212,11 +214,32 @@ def main(argv):
             quiet=True
         )
 
+        resampled_train_dataframes = DataResampler().run_down_sampling(
+            logger=logger,
+            dataframes=train_dataframes,
+            down_sampling_factor=down_sampling_factor,
+            random_state=random_state,
+            quiet=quiet
+        )
+
         BikeActivitySurfaceTypePlotter().run(
             logger=logger,
             dataframes=train_dataframes,
             slice_width=slice_width,
             results_path=os.path.join(log_path_data_understanding, "plots", "bike-activity-surface-type"),
+            file_name="surface_type_train",
+            title="Surface type distribution (train)",
+            description="Distribution of surface types in input data",
+            xlabel="surface type",
+            clean=clean,
+            quiet=quiet
+        )
+
+        BikeActivitySurfaceTypePlotter().run(
+            logger=logger,
+            dataframes=train_dataframes,
+            slice_width=slice_width,
+            results_path=log_path_data_understanding + "/plots/bike-activity-surface-type",
             file_name="surface_type_train",
             title="Surface type distribution (train)",
             description="Distribution of surface types in input data",
@@ -238,6 +261,19 @@ def main(argv):
             quiet=quiet
         )
 
+        BikeActivitySurfaceTypePlotter().run(
+            logger=logger,
+            dataframes=resampled_train_dataframes,
+            slice_width=slice_width,
+            results_path=log_path_data_understanding + "/plots/bike-activity-surface-type",
+            file_name="surface_type_train_resampled",
+            title="Surface type distribution (train, resampled)",
+            description="Distribution of surface types in input data",
+            xlabel="surface type",
+            clean=clean,
+            quiet=quiet
+        )
+
     #
     # Data Preparation
     #
@@ -252,6 +288,14 @@ def main(argv):
         dataframes=dataframes,
         test_size=test_size,
         random_state=random_state,
+        quiet=quiet
+    )
+
+    train_dataframes = DataResampler().run_down_sampling(
+        logger=logger,
+        dataframes=train_dataframes,
+        down_sampling_factor=down_sampling_factor,
+        run_after_label_encoding=True,
         quiet=quiet
     )
 
@@ -300,7 +344,7 @@ def main(argv):
 
     CnnBaseModel().finalize(
         logger=logger,
-        log_path=log_path,
+        model_path=log_path_modelling,
         train_dataframes=train_dataframes,
         epochs=finalize_epochs,
         learning_rate=learning_rate,
