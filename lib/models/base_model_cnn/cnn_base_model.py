@@ -711,13 +711,13 @@ class CnnBaseModel:
             )
 
     @TrackingDecorator.track_time
-    def finalize(self, logger, log_path, train_dataframes, epochs, learning_rate, slice_width, quiet=False):
+    def finalize(self, logger, model_path, train_dataframes, epochs, learning_rate, slice_width, quiet=False):
         """
         Trains a final model by using all train dataframes
         """
 
         # Make results path
-        os.makedirs(log_path, exist_ok=True)
+        os.makedirs(model_path, exist_ok=True)
 
         # Create data loader for train
         train_array = create_array(train_dataframes)
@@ -756,7 +756,7 @@ class CnnBaseModel:
 
         progress_bar.close()
 
-        torch.save(classifier.state_dict(), os.path.join(log_path, "model.pickle"))
+        torch.save(classifier.state_dict(), os.path.join(model_path, "model.pickle"))
 
     @TrackingDecorator.track_time
     def evaluate(self, logger, log_path, test_dataframes, slice_width, model_path, clean=False, quiet=False):
