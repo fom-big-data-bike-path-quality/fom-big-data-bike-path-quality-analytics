@@ -218,7 +218,6 @@ def main(argv):
             logger=logger,
             dataframes=train_dataframes,
             down_sampling_factor=down_sampling_factor,
-            random_state=random_state,
             quiet=quiet
         )
 
