@@ -636,15 +636,11 @@ class CnnBaseModel:
                 trials += 1
                 if trials >= patience and not quiet:
                     logger.log_line("\nNo further improvement after epoch " + str(epoch))
-                    return validation_accuracy_history, validation_precision_history, validation_recall_history, \
-                           validation_f1_score_history, validation_cohen_kappa_score_history, \
-                           validation_matthew_correlation_coefficient_history, epoch
+                    break
 
             if epoch >= epochs:
                 logger.log_line("\nLast epoch reached")
-                return validation_accuracy_history, validation_precision_history, validation_recall_history, \
-                       validation_f1_score_history, validation_cohen_kappa_score_history, \
-                       validation_matthew_correlation_coefficient_history, epoch
+                break
 
         progress_bar.close()
 
@@ -709,6 +705,10 @@ class CnnBaseModel:
                 cohen_kappa_score=round(validation_cohen_kappa_score, 2),
                 matthew_correlation_coefficient=round(validation_matthew_correlation_coefficient, 2)
             )
+
+        return validation_accuracy_history, validation_precision_history, validation_recall_history, \
+               validation_f1_score_history, validation_cohen_kappa_score_history, \
+               validation_matthew_correlation_coefficient_history, epoch
 
     @TrackingDecorator.track_time
     def finalize(self, logger, model_path, train_dataframes, epochs, learning_rate, slice_width, quiet=False):
