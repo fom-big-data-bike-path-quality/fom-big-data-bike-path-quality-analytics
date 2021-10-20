@@ -29,7 +29,6 @@ from data_filterer import DataFilterer
 from data_transformer import DataTransformer
 from data_normalizer import DataNormalizer
 from bike_activity_plotter import BikeActivityPlotter
-from bike_activity_slice_plotter import BikeActivitySlicePlotter
 from bike_activity_surface_type_plotter import BikeActivitySurfaceTypePlotter
 from train_test_data_splitter import TrainTestDataSplitter
 from data_resampler import DataResampler
@@ -60,11 +59,11 @@ def main(argv):
     patience = 500
     slice_width = 500
     window_step = 20
+    down_sampling_factor = 3.0
 
     measurement_speed_limit = 5.0
 
     test_size: float = 0.15
-    down_sampling_factor = 3
     random_state = 0
 
     # Read command line arguments
@@ -72,12 +71,13 @@ def main(argv):
         opts, args = getopt.getopt(argv, "hcqtdke:l:p:s:w:",
                                    ["help", "clean", "quiet", "transient", "dry-run", "skip-data-understanding",
                                     "skip-validation", "k-folds=", "epochs=", "learning-rate=", "patience=",
-                                    "slice-width=", "window-step="])
+                                    "slice-width=", "window-step=", "down-sampling-factor="])
     except getopt.GetoptError:
         print(
             "main.py --help --clean --quiet --transient --dry-run --skip-data-understanding --skip-validation " +
             "--k-folds <k-folds> --epochs <epochs> --learning-rate <learning-rate> " +
-            "--patience <patience> --slice-width <slice-width> --window-step <window-step>")
+            "--patience <patience> --slice-width <slice-width> --window-step <window-step> "
+            "--down-sampling-factor <down-sampling-factor>")
         sys.exit(2)
     for opt, arg in opts:
         if opt in ("-h", "--help"):
@@ -92,10 +92,10 @@ def main(argv):
             print("--k-folds <k-folds>              number of k-folds")
             print("--epochs <epochs>                number of epochs")
             print("--learning-rate <learning-rate>  learning rate")
-            print(
-                "--patience <patience>            number of epochs to wait for improvements before finishing training")
+            print("--patience <patience>            number of epochs to wait for improvements before finishing training")
             print("--slice-width <slice-width>      number of measurements per slice")
             print("--window-step <window-step>      step size used for sliding window data splitter")
+            print("--down-sampling-factor <down-sampling-factor>      factor by which target classes are capped in comparison to smallest class")
             sys.exit()
         elif opt in ("-c", "--clean"):
             clean = True
@@ -124,6 +124,8 @@ def main(argv):
             slice_width = int(arg)
         elif opt in ("-w", "--window-step"):
             window_step = int(arg)
+        elif opt in ("--down-sampling-factor"):
+            down_sampling_factor = float(arg)
 
     # Set paths
     file_path = os.path.realpath(__file__)
@@ -167,6 +169,7 @@ def main(argv):
     logger.log_line("* patience: " + str(patience))
     logger.log_line("* slice width: " + str(slice_width))
     logger.log_line("* window step: " + str(window_step))
+    logger.log_line("* down-sampling factor: " + str(down_sampling_factor))
 
     logger.log_line("* measurement speed limit: " + str(measurement_speed_limit))
 
@@ -315,6 +318,7 @@ def main(argv):
             patience=patience,
             slice_width=slice_width,
             window_step=window_step,
+            down_sampling_factor=down_sampling_factor,
 
             measurement_speed_limit=measurement_speed_limit,
 

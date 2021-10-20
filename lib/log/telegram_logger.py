@@ -11,8 +11,8 @@ def get_fold_emoji(fold_index):
 
 class TelegramLogger:
 
-    def log_modelling_start(self, logger, k_folds, epochs, learning_rate, patience, slice_width,
-                            window_step, measurement_speed_limit, test_size, random_state, train_dataframes,
+    def log_modelling_start(self, logger, k_folds, epochs, learning_rate, patience, slice_width, window_step,
+                            down_sampling_factor, measurement_speed_limit, test_size, random_state, train_dataframes,
                             test_dataframes):
 
         telegram_line = "Modelling with parameters " + \
@@ -22,6 +22,7 @@ class TelegramLogger:
                         "\n* patience " + str(patience) + \
                         "\n* slice width " + str(slice_width) + \
                         "\n* window step " + str(window_step) + \
+                        "\n* down-sampling factor " + str(down_sampling_factor) + \
                         "\n* measurement speed limit " + str(measurement_speed_limit) + \
                         "\n* test size " + str(test_size) + \
                         "\n* random state " + str(random_state) + \

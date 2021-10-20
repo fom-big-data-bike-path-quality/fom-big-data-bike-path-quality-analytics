@@ -26,6 +26,10 @@ on:
         description: 'step size used for sliding window data splitter'
         required: true
         default: 20
+      down-sampling-factor:
+        description: 'factor by which target classes are capped in comparison to smallest class'
+        required: true
+        default: 3.0
 env:
   PROJECT_ID: "bike-path-quality"
   GCE_INSTANCE: "bike-path-quality-analytics"
@@ -73,7 +77,7 @@ jobs:
           echo "sudo -u bike-path-quality-analytics bash -c \"source ~/fom-big-data-bike-path-quality-analytics/venv/bin/activate; pip3 install tqdm\"" >> startup.sh
           echo "sudo -u bike-path-quality-analytics bash -c \"source ~/fom-big-data-bike-path-quality-analytics/venv/bin/activate; pip3 install seaborn\"" >> startup.sh
           echo "sudo -u bike-path-quality-analytics bash -c \"source ~/fom-big-data-bike-path-quality-analytics/venv/bin/activate; pip3 install telegram-send\"" >> startup.sh
-          echo "sudo -u bike-path-quality-analytics bash -c \"cd ~/fom-big-data-bike-path-quality-analytics; source ./venv/bin/activate; nohup python3 main.py --clean --k-folds=${{ github.event.inputs.k-folds }} --epochs=${{ github.event.inputs.epochs }} --learning-rate=${{ github.event.inputs.learning-rate }} --patience=${{ github.event.inputs.patience }} --slice-width=${{ github.event.inputs.slice-width }} --window-step=${{ github.event.inputs.window-step }} 2>&1 | tee log.txt &\"" >> startup.sh
+          echo "sudo -u bike-path-quality-analytics bash -c \"cd ~/fom-big-data-bike-path-quality-analytics; source ./venv/bin/activate; nohup python3 main.py --clean --k-folds=${{ github.event.inputs.k-folds }} --epochs=${{ github.event.inputs.epochs }} --learning-rate=${{ github.event.inputs.learning-rate }} --patience=${{ github.event.inputs.patience }} --slice-width=${{ github.event.inputs.slice-width }} --window-step=${{ github.event.inputs.window-step }} --down-sampling-factor=${{ github.event.inputs.down-sampling-factor }} 2>&1 | tee log.txt &\"" >> startup.sh
       - name: Create compute instance
         id: create-compute-instance
         run: |
