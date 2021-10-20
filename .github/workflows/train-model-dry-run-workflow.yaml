@@ -34,6 +34,11 @@ jobs:
           pip install tqdm
           pip install seaborn
           pip install telegram-send
+          pip install gcloud
+          pip install google-api-core
+          pip install google-auth
+          pip install google-cloud-core
+          pip install google-cloud-storage
       - name: Run main script
         id: run-main-script
         run: |
