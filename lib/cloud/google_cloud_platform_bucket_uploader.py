@@ -20,7 +20,7 @@ class GoogleCloudPlatformBucketUploader:
         # Set script path
         file_path = os.path.realpath(__file__)
         script_path = os.path.dirname(file_path)
-        config_file_path = os.path.join(script_path, "bike-path-quality-403bbecfb292.json")
+        config_file_path = os.path.join(script_path, "bike-path-quality-2bebc8ae5dc6.json")
 
         # Check for config file
         if not Path(config_file_path).exists():
@@ -57,7 +57,7 @@ class GoogleCloudPlatformBucketUploader:
         # Set script path
         file_path = os.path.realpath(__file__)
         script_path = os.path.dirname(file_path)
-        config_file_path = os.path.join(script_path, "bike-path-quality-403bbecfb292.json")
+        config_file_path = os.path.join(script_path, "bike-path-quality-2bebc8ae5dc6.json")
 
         # Check for config file
         if not Path(config_file_path).exists():
@@ -79,7 +79,7 @@ class GoogleCloudPlatformBucketUploader:
             client.create_bucket(bucket, location="eu")
 
     @TrackingDecorator.track_time
-    def upload_data(self, logger, data_path, project_id, bucket_name, clean=False, quiet=False):
+    def upload_data(self, logger, data_path, project_id, bucket_name, quiet=False):
         """
         See https://cloud.google.com/storage/docs/creating-buckets#storage-create-bucket-python
         """
@@ -87,7 +87,7 @@ class GoogleCloudPlatformBucketUploader:
         # Set script path
         file_path = os.path.realpath(__file__)
         script_path = os.path.dirname(file_path)
-        config_file_path = os.path.join(script_path, "bike-path-quality-403bbecfb292.json")
+        config_file_path = os.path.join(script_path, "bike-path-quality-2bebc8ae5dc6.json")
 
         # Check for config file
         if not Path(config_file_path).exists():
@@ -101,12 +101,6 @@ class GoogleCloudPlatformBucketUploader:
 
         bucket = client.bucket(bucket_name=bucket_name)
         bucket.storage_class = "STANDARD"
-
-        if client.lookup_bucket(bucket) != None and clean:
-            bucket.delete()
-
-        if client.lookup_bucket(bucket) == None:
-            client.create_bucket(bucket, location="eu")
 
         csv_count_total = 0
 
@@ -126,7 +120,7 @@ class GoogleCloudPlatformBucketUploader:
             logger.log_line(class_name + "." + function_name + " uploaded " + str(csv_count_total) + " csv slices")
 
     @TrackingDecorator.track_time
-    def upload_file(self, logger, upload_file_path, project_id, bucket_name, clean=False, quiet=False):
+    def upload_file(self, logger, upload_file_path, project_id, bucket_name, quiet=False):
         """
         See https://cloud.google.com/storage/docs/creating-buckets#storage-create-bucket-python
         """
@@ -134,7 +128,7 @@ class GoogleCloudPlatformBucketUploader:
         # Set script path
         file_path = os.path.realpath(__file__)
         script_path = os.path.dirname(file_path)
-        config_file_path = os.path.join(script_path, "bike-path-quality-403bbecfb292.json")
+        config_file_path = os.path.join(script_path, "bike-path-quality-2bebc8ae5dc6.json")
 
         # Check for config file
         if not Path(config_file_path).exists():
@@ -148,12 +142,6 @@ class GoogleCloudPlatformBucketUploader:
 
         bucket = client.bucket(bucket_name=bucket_name)
         bucket.storage_class = "STANDARD"
-
-        if client.lookup_bucket(bucket) != None and clean:
-            bucket.delete()
-
-        if client.lookup_bucket(bucket) == None:
-            client.create_bucket(bucket, location="eu")
 
         blob = bucket.blob(os.path.basename(upload_file_path))
         blob.upload_from_filename(upload_file_path)

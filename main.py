@@ -14,6 +14,7 @@ library_paths = [
     os.path.join(os.getcwd(), 'lib', 'plotters'),
     os.path.join(os.getcwd(), 'lib', 'models', 'base_model_cnn'),
     os.path.join(os.getcwd(), 'lib', 'models', 'base_model_cnn', 'layers'),
+    os.path.join(os.getcwd(), 'lib', 'cloud'),
 ]
 
 for p in library_paths:
@@ -33,7 +34,7 @@ from bike_activity_surface_type_plotter import BikeActivitySurfaceTypePlotter
 from train_test_data_splitter import TrainTestDataSplitter
 from data_resampler import DataResampler
 from cnn_base_model import CnnBaseModel
-from result_copier import ResultCopier
+from result_handler import ResultHandler
 from tracking_decorator import TrackingDecorator
 
 
@@ -370,7 +371,21 @@ def main(argv):
     #
     #
 
-    ResultCopier().copyDirectory(log_path, log_latest_path)
+    if not transient:
+        ResultHandler().copy_directory(source_dir=log_path, destination_dir=log_latest_path)
+        ResultHandler().zip_directory(
+            source_dir=log_path,
+            destination_dir=os.path.join(script_path, "results", "results"),
+            zip_name=start_time + ".zip",
+            zip_root_dir=start_time
+        )
+        ResultHandler().upload_results(
+            logger=logger,
+            upload_file_path=os.path.join(script_path, "results", "results", start_time + ".zip"),
+            project_id="bike-path-quality",
+            bucket_name="bike-path-quality-results",
+            quiet=quiet
+        )
 
     if not quiet and not dry_run:
         modelling_time_elapsed = datetime.now() - modelling_start_time
