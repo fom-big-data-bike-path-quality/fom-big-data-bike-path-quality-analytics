@@ -1,6 +1,7 @@
 import inspect
 
 from sklearn.preprocessing import MinMaxScaler
+from tqdm import tqdm
 from tracking_decorator import TrackingDecorator
 
 
@@ -12,9 +13,13 @@ class DataNormalizer:
 
     @TrackingDecorator.track_time
     def run(self, logger, dataframes, quiet=False):
+
+        copied_dataframes = dataframes.copy()
+
         min_max_scaler = MinMaxScaler()
 
-        for name, dataframe in list(dataframes.items()):
+        progress_bar = tqdm(iterable=copied_dataframes.items(), unit="dataframes", desc="Normalize data frames")
+        for name, dataframe in progress_bar:
             dataframe["bike_activity_measurement_accelerometer"] = min_max_scaler.fit_transform(
                 dataframe[['bike_activity_measurement_accelerometer']].values.astype(float))
 
@@ -24,4 +29,4 @@ class DataNormalizer:
 
             logger.log_line(class_name + "." + function_name + " normalized " + str(len(dataframes)) + " dataframes")
 
-        return dataframes
+        return copied_dataframes

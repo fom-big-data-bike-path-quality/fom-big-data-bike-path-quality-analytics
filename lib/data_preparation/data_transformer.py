@@ -1,6 +1,6 @@
 import inspect
 import math
-
+from tqdm import tqdm
 import pandas as pd
 from label_encoder import LabelEncoder
 from tracking_decorator import TrackingDecorator
@@ -33,7 +33,12 @@ class DataTransformer:
 
     @TrackingDecorator.track_time
     def run(self, logger, dataframes, quiet=False):
-        for name, dataframe in list(dataframes.items()):
+
+        copied_dataframes = dataframes.copy()
+
+        progress_bar = tqdm(iterable=copied_dataframes.items(), unit="dataframes", desc="Transform dataframes")
+        for name, dataframe in progress_bar:
+
             dataframe["bike_activity_measurement_accelerometer"] = pd.to_numeric(dataframe.apply(lambda row: getAccelerometer(row), axis=1))
             dataframe["bike_activity_surface_type"] = dataframe.apply(lambda row: getLabelEncoding(row), axis=1)
 
@@ -56,6 +61,6 @@ class DataTransformer:
             class_name = self.__class__.__name__
             function_name = inspect.currentframe().f_code.co_name
 
-            logger.log_line(class_name + "." + function_name + " transformed " + str(len(dataframes)) + " dataframes")
+            logger.log_line(class_name + "." + function_name + " transformed " + str(len(copied_dataframes)) + " dataframes")
 
-        return dataframes
+        return copied_dataframes

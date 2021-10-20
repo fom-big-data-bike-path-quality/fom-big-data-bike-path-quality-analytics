@@ -3,6 +3,7 @@ import os
 from pathlib import Path
 
 import pandas as pd
+from tqdm import tqdm
 from tracking_decorator import TrackingDecorator
 
 
@@ -15,13 +16,16 @@ class DataLoader:
     @TrackingDecorator.track_time
     def run(self, logger, data_path, quiet=False):
         dataframes = {}
+        files = list(Path(data_path).rglob("*.csv"))
 
-        for file_path in Path(data_path).rglob("*.csv"):
+        progress_bar = tqdm(iterable=files, unit="files", desc="Load data frames")
+        for file_path in progress_bar:
             file_name = os.path.basename(file_path.name)
             file_base_name = file_name.replace(".csv", "")
 
             dataframe = pd.read_csv(file_path, skiprows=1, names=[
-                "bike_activity_uid", "bike_activity_sample_uid", "bike_activity_measurement", "bike_activity_measurement_timestamp",
+                "bike_activity_uid", "bike_activity_sample_uid", "bike_activity_measurement",
+                "bike_activity_measurement_timestamp",
                 "bike_activity_measurement_lon", "bike_activity_measurement_lat", "bike_activity_measurement_speed",
                 "bike_activity_measurement_accelerometer_x", "bike_activity_measurement_accelerometer_y",
                 "bike_activity_measurement_accelerometer_z", "bike_activity_phone_position", "bike_activity_bike_type",

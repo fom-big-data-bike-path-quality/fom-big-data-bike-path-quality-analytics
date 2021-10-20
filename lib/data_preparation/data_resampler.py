@@ -1,5 +1,6 @@
 import inspect
 
+from tqdm import tqdm
 from tracking_decorator import TrackingDecorator
 
 from label_encoder import LabelEncoder
@@ -44,13 +45,15 @@ class DataResampler:
         # Count how many dataframes there are per target class
         for _, dataframe in list(copied_dataframes.items()):
             surface_type = get_surface_type(dataframe, run_after_label_encoding)
-            clustered_dataframes_pre_counter[surface_type] += 1
+            if surface_type in surface_types:
+                clustered_dataframes_pre_counter[surface_type] += 1
 
         # Determine size of classes
         min_class_size = None
         min_class_name = None
         for surface_type, class_size in list(clustered_dataframes_pre_counter.items()):
-            if class_size > 0 and (min_class_size is None or class_size < min_class_size):
+            if surface_type in surface_types and class_size > 0 and (
+                    min_class_size is None or class_size < min_class_size):
                 min_class_size = class_size
                 min_class_name = surface_type
 
@@ -63,11 +66,13 @@ class DataResampler:
 
         # Re-sample dataframes
         resampled_dataframes = {}
-        for id, dataframe in list(copied_dataframes.items()):
+
+        progress_bar = tqdm(iterable=copied_dataframes.items(), unit="dataframes", desc="Re-sample data frames")
+        for name, dataframe in progress_bar:
             surface_type = get_surface_type(dataframe, run_after_label_encoding)
 
-            if clustered_dataframes_post_counter[surface_type] < target_class_size:
-                resampled_dataframes[id] = dataframe
+            if surface_type in surface_types and clustered_dataframes_post_counter[surface_type] < target_class_size:
+                resampled_dataframes[name] = dataframe
                 clustered_dataframes_post_counter[surface_type] += 1
 
         if not quiet:

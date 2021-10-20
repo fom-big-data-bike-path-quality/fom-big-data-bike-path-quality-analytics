@@ -8,7 +8,7 @@ from pathlib import Path
 
 import matplotlib.pyplot as plt
 from tracking_decorator import TrackingDecorator
-
+from tqdm import tqdm
 
 #
 # Main
@@ -30,7 +30,10 @@ class BikeActivitySlicePlotter:
 
         bike_activity_slices_plotted_count = 0
 
-        for file_path in Path(data_path).rglob("*.csv"):
+        files = list(Path(data_path).rglob("*.csv"))
+
+        progress_bar = tqdm(iterable=files, unit="files", desc="Plot bike activities")
+        for file_path in progress_bar:
             file_name = os.path.basename(file_path.name)
             file_base_name = file_name.replace(".csv", "")
 
@@ -90,7 +93,7 @@ class BikeActivitySlicePlotter:
                 bike_activity_slices_plotted_count += 1
 
                 if not quiet:
-                    logger.log_line("✓️ Plotting " + file_name)
+                    logger.log_line("✓️ Plotting " + file_name, console=False, file=True)
 
         if not quiet:
             class_name = self.__class__.__name__
