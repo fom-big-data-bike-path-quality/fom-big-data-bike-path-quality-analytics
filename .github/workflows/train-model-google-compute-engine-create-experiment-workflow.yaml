@@ -67,6 +67,7 @@ jobs:
           echo "sudo -u training bash -c \"cd ~/; git clone https://github.com/fom-big-data-bike-path-quality/fom-big-data-bike-path-quality-analytics.git\"" >> startup.sh
           echo "sudo -u training bash -c \"cd ~/; git clone https://github.com/fom-big-data-bike-path-quality/fom-big-data-bike-path-quality-data.git fom-big-data-bike-path-quality-analytics/data\"" >> startup.sh
           echo "sudo -u training bash -c \"gsutil cp gs://bike-path-quality-analytics/telegram.config ~/fom-big-data-bike-path-quality-analytics/lib/log/\"" >> startup.sh
+          echo "sudo -u training bash -c \"gsutil cp gs://bike-path-quality-analytics/bike-path-quality-2bebc8ae5dc6.json ~/fom-big-data-bike-path-quality-analytics/lib/cloud/\"" >> startup.sh
           echo "sudo -u training bash -c \"cd ~/fom-big-data-bike-path-quality-analytics; python3 -m venv venv\"" >> startup.sh
           echo "sudo -u training bash -c \"source ~/fom-big-data-bike-path-quality-analytics/venv/bin/activate; python3 -m pip install --upgrade pip\"" >> startup.sh
           echo "sudo -u training bash -c \"source ~/fom-big-data-bike-path-quality-analytics/venv/bin/activate; pip3 install flake8 pytest\"" >> startup.sh
