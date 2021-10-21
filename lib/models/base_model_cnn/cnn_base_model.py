@@ -533,6 +533,11 @@ class CnnBaseModel:
         optimizer = optim.Adam(classifier.parameters(), lr=learning_rate)
 
         validation_accuracy_max = 0
+        validation_precision_max = 0
+        validation_recall_max = 0
+        validation_f1_score_max = 0
+        validation_cohen_kappa_score_max = 0
+        validation_matthew_correlation_coefficient_max = 0
         trials = 0
 
         train_loss_history = []
@@ -627,9 +632,14 @@ class CnnBaseModel:
                                 console=False, file=True)
 
             # Check if accuracy increased
-            if validation_accuracy > validation_accuracy_max:
+            if validation_f1_score > validation_f1_score_max:
                 trials = 0
                 validation_accuracy_max = validation_accuracy
+                validation_precision_max = validation_precision
+                validation_recall_max = validation_recall
+                validation_f1_score_max = validation_f1_score
+                validation_cohen_kappa_score_max = validation_cohen_kappa_score
+                validation_matthew_correlation_coefficient_max = validation_matthew_correlation_coefficient
                 torch.save(classifier.state_dict(),
                            os.path.join(log_path, "models", "fold-" + str(fold_index), "model.pickle"))
             else:
@@ -698,12 +708,12 @@ class CnnBaseModel:
                 k_fold=fold_index,
                 k_folds=k_folds,
                 epochs=epoch,
-                accuracy=round(validation_accuracy, 2),
-                precision=round(validation_precision, 2),
-                recall=round(validation_recall, 2),
-                f1_score=round(validation_f1_score, 2),
-                cohen_kappa_score=round(validation_cohen_kappa_score, 2),
-                matthew_correlation_coefficient=round(validation_matthew_correlation_coefficient, 2)
+                accuracy=round(validation_accuracy_max, 2),
+                precision=round(validation_precision_max, 2),
+                recall=round(validation_recall_max, 2),
+                f1_score=round(validation_f1_score_max, 2),
+                cohen_kappa_score=round(validation_cohen_kappa_score_max, 2),
+                matthew_correlation_coefficient=round(validation_matthew_correlation_coefficient_max, 2)
             )
 
         return validation_accuracy_history, validation_precision_history, validation_recall_history, \
