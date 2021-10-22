@@ -44,9 +44,12 @@ pip install torch
 pip install tqdm
 pip install seaborn
 pip install telegram-send
-pip install google-cloud-storage
 pip install gcloud
-pip install gsutils
+pip install google-api-core
+pip install google-api-tools
+pip install google-auth
+pip install google-cloud-core
+pip install google-cloud-storage
 ```
 
 ## Usage
@@ -81,7 +84,7 @@ See the [open issues](https://github.com/fom-big-data-bike-path-quality/fom-big-
 
 <p>
     Confusion matrix<br/>
-    <img src="https://raw.githubusercontent.com/fom-big-data-bike-path-quality/fom-big-data-bike-path-quality-model/main/models/latest/05-evaluation/plots/confusion_matrix.png" alt="Confusion Matrix">
+    <img src="https://raw.githubusercontent.com/fom-big-data-bike-path-quality/fom-big-data-bike-path-quality-results/main/results/latest/05-evaluation/plots/confusion_matrix.png" alt="Confusion Matrix">
 </p>
 
 ## Contributing
