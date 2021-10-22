@@ -43,7 +43,8 @@ from tracking_decorator import TrackingDecorator
 
 @TrackingDecorator.track_time
 def main(argv):
-    start_time = datetime.now().strftime("%Y-%m-%d-%H:%M:%S")
+    training_start_time = datetime.now()
+    training_start_time_string = training_start_time.strftime("%Y-%m-%d-%H:%M:%S")
 
     # Set default values
     clean = False
@@ -54,7 +55,7 @@ def main(argv):
     skip_validation = False
 
     k_folds = 10
-    epochs = 50_000
+    epochs = 10_000
     learning_rate: float = 0.001
     patience = 500
     slice_width = 500
@@ -92,10 +93,12 @@ def main(argv):
             print("--k-folds <k-folds>              number of k-folds")
             print("--epochs <epochs>                number of epochs")
             print("--learning-rate <learning-rate>  learning rate")
-            print("--patience <patience>            number of epochs to wait for improvements before finishing training")
+            print(
+                "--patience <patience>            number of epochs to wait for improvements before finishing training")
             print("--slice-width <slice-width>      number of measurements per slice")
             print("--window-step <window-step>      step size used for sliding window data splitter")
-            print("--down-sampling-factor <down-sampling-factor>      factor by which target classes are capped in comparison to smallest class")
+            print("--down-sampling-factor <down-sampling-factor>      " +
+                  "factor by which target classes are capped in comparison to smallest class")
             sys.exit()
         elif opt in ("-c", "--clean"):
             clean = True
@@ -124,7 +127,7 @@ def main(argv):
             slice_width = int(arg)
         elif opt in ("-w", "--window-step"):
             window_step = int(arg)
-        elif opt in ("--down-sampling-factor"):
+        elif opt in "--down-sampling-factor":
             down_sampling_factor = float(arg)
 
     # Set paths
@@ -138,7 +141,7 @@ def main(argv):
     device_name = "cuda" if torch.cuda.is_available() else "cpu"
 
     if not transient:
-        log_path = os.path.join(script_path, "results", "results", start_time)
+        log_path = os.path.join(script_path, "results", "results", training_start_time_string)
         log_latest_path = os.path.join(script_path, "results", "results", "latest")
     else:
         log_path = os.path.join(script_path, "results", "results", "transient")
@@ -155,7 +158,7 @@ def main(argv):
     # Print parameters
     logger.log_line("Parameters")
     logger.log_line("* device name: " + device_name)
-    logger.log_line("* start time: " + str(start_time))
+    logger.log_line("* start time: " + training_start_time_string)
     logger.log_line("* clean: " + str(clean))
     logger.log_line("* quiet: " + str(quiet))
     logger.log_line("* transient: " + str(transient))
@@ -175,6 +178,31 @@ def main(argv):
 
     logger.log_line("* test size: " + str(test_size))
     logger.log_line("* random state: " + str(random_state))
+
+    if not quiet and not dry_run:
+        TelegramLogger().log_training_start(
+            logger=logger,
+
+            device_name=device_name,
+            training_start_time_string=training_start_time_string,
+            clean=clean,
+            quiet=quiet,
+            transient=transient,
+            dry_run=dry_run,
+            skip_data_understanding=skip_data_understanding,
+            skip_validation=skip_validation,
+
+            k_folds=k_folds,
+            epochs=epochs,
+            learning_rate=learning_rate,
+            patience=patience,
+            slice_width=slice_width,
+            window_step=window_step,
+            down_sampling_factor=down_sampling_factor,
+            measurement_speed_limit=measurement_speed_limit,
+            test_size=test_size,
+            random_state=random_state
+        )
 
     dataframes = DataLoader().run(
         logger=logger,
@@ -294,7 +322,7 @@ def main(argv):
         quiet=quiet
     )
 
-    train_dataframes = DataResampler().run_down_sampling(
+    resampled_train_dataframes = DataResampler().run_down_sampling(
         logger=logger,
         dataframes=train_dataframes,
         down_sampling_factor=down_sampling_factor,
@@ -306,34 +334,19 @@ def main(argv):
     # Modeling
     #
 
-    modelling_start_time = datetime.now()
-
     if not quiet and not dry_run:
         TelegramLogger().log_modelling_start(
             logger=logger,
-
-            k_folds=k_folds,
-            epochs=epochs,
-            learning_rate=learning_rate,
-            patience=patience,
-            slice_width=slice_width,
-            window_step=window_step,
-            down_sampling_factor=down_sampling_factor,
-
-            measurement_speed_limit=measurement_speed_limit,
-
-            test_size=test_size,
-            random_state=random_state,
-
             train_dataframes=train_dataframes,
+            resampled_train_dataframes=resampled_train_dataframes,
             test_dataframes=test_dataframes
         )
 
     if not skip_validation:
         finalize_epochs = CnnBaseModel().validate(
             logger=logger,
-            log_path=log_path_modelling,
-            train_dataframes=train_dataframes,
+            log_path_modelling=log_path_modelling,
+            train_dataframes=resampled_train_dataframes,
             k_folds=k_folds,
             epochs=epochs,
             learning_rate=learning_rate,
@@ -349,21 +362,22 @@ def main(argv):
     CnnBaseModel().finalize(
         logger=logger,
         model_path=log_path_modelling,
-        train_dataframes=train_dataframes,
+        log_path_modelling=log_path_modelling,
+        train_dataframes=resampled_train_dataframes,
         epochs=finalize_epochs,
         learning_rate=learning_rate,
         slice_width=slice_width,
-        quiet=quiet
+        quiet=quiet,
+        dry_run=dry_run
     )
 
     #
     # Evaluation
     #
 
-    test_accuracy, test_precision, test_recall, test_f1_score, test_cohen_kappa_score, \
-    test_matthew_correlation_coefficient = CnnBaseModel().evaluate(
+    CnnBaseModel().evaluate(
         logger=logger,
-        log_path=log_path_evaluation,
+        log_path_evaluation=log_path_evaluation,
         test_dataframes=test_dataframes,
         slice_width=slice_width,
         model_path=log_path_modelling,
@@ -376,47 +390,30 @@ def main(argv):
     #
 
     if not transient:
-        ResultHandler().copy_directory(source_dir=log_path, destination_dir=log_latest_path)
+        ResultHandler().copy_directory(
+            source_dir=log_path,
+            destination_dir=log_latest_path
+        )
         ResultHandler().zip_directory(
             source_dir=log_path,
             destination_dir=os.path.join(script_path, "results", "results"),
-            zip_name=start_time + ".zip",
-            zip_root_dir=start_time
+            zip_name=training_start_time_string + ".zip",
+            zip_root_dir=training_start_time_string
         )
         ResultHandler().upload_results(
             logger=logger,
-            upload_file_path=os.path.join(script_path, "results", "results", start_time + ".zip"),
+            upload_file_path=os.path.join(script_path, "results", "results", training_start_time_string + ".zip"),
             project_id="bike-path-quality",
             bucket_name="bike-path-quality-results",
             quiet=quiet
         )
 
     if not quiet and not dry_run:
-        modelling_time_elapsed = datetime.now() - modelling_start_time
+        training_time_elapsed = datetime.now() - training_start_time
 
-        TelegramLogger().log_modelling_end(
+        TelegramLogger().log_training_end(
             logger=logger,
-            time_elapsed="{}".format(modelling_time_elapsed),
-            log_path_modelling=log_path_modelling,
-            log_path_evaluation=log_path_evaluation,
-
-            k_folds=k_folds,
-            epochs=epochs,
-            finalize_epochs=finalize_epochs,
-            learning_rate=learning_rate,
-            patience=patience,
-            slice_width=slice_width,
-            window_step=window_step,
-            measurement_speed_limit=measurement_speed_limit,
-            test_size=test_size,
-            random_state=random_state,
-
-            test_accuracy=test_accuracy,
-            test_precision=test_precision,
-            test_recall=test_recall,
-            test_f1_score=test_f1_score,
-            test_cohen_kappa_score=test_cohen_kappa_score,
-            test_matthew_correlation_coefficient=test_matthew_correlation_coefficient
+            time_elapsed="{}".format(training_time_elapsed)
         )
 
 

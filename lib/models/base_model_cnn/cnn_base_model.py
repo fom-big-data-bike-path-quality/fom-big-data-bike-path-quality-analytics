@@ -51,8 +51,8 @@ def create_array(dataframes):
     axis-0 = epoch
     axis-1 = features in a measurement
     axis-2 = measurements in an epoch
-
     """
+
     array = []
 
     for name, dataframe in dataframes.items():
@@ -405,14 +405,16 @@ def evaluate(classifier, data_loader):
 class CnnBaseModel:
 
     @TrackingDecorator.track_time
-    def validate(self, logger, log_path, train_dataframes, k_folds, epochs, learning_rate, patience, slice_width,
-                 random_state=0, quiet=False, dry_run=False):
+    def validate(self, logger, log_path_modelling, train_dataframes, k_folds, epochs, learning_rate, patience,
+                 slice_width, random_state=0, quiet=False, dry_run=False):
         """
         Validates the model by folding all train dataframes
         """
 
+        start_time = datetime.now()
+
         # Make results path
-        os.makedirs(log_path, exist_ok=True)
+        os.makedirs(log_path_modelling, exist_ok=True)
 
         kf = KFold(n_splits=k_folds, shuffle=True, random_state=random_state)
         fold_index = 0
@@ -438,7 +440,7 @@ class CnnBaseModel:
             validation_f1_score_history, validation_cohen_kappa_score_history, \
             validation_matthew_correlation_coefficient_history, epoch = self.validate_fold(
                 logger=logger,
-                log_path=log_path,
+                log_path=log_path_modelling,
                 fold_index=fold_index,
                 k_folds=k_folds,
                 dataframes=train_dataframes,
@@ -464,7 +466,7 @@ class CnnBaseModel:
 
         plot_fold_results(
             logger=logger,
-            log_path=log_path,
+            log_path=log_path_modelling,
             fold_labels=fold_labels,
             overall_validation_accuracy_history=overall_validation_accuracy_history,
             overall_validation_precision_history=overall_validation_precision_history,
@@ -484,6 +486,15 @@ class CnnBaseModel:
             overall_validation_matthew_correlation_coefficient_history=overall_validation_matthew_correlation_coefficient_history,
             quiet=quiet)
 
+        if not quiet and not dry_run:
+            time_elapsed = datetime.now() - start_time
+
+            TelegramLogger().log_validation(
+                logger=logger,
+                time_elapsed="{}".format(time_elapsed),
+                log_path_modelling=log_path_modelling
+            )
+
         return int(np.mean(overall_epochs))
 
     @TrackingDecorator.track_time
@@ -493,7 +504,7 @@ class CnnBaseModel:
         Validates a single fold
         """
 
-        fold_start_time = datetime.now()
+        start_time = datetime.now()
 
         # Make results path
         os.makedirs(os.path.join(log_path, "models", "fold-" + str(fold_index)), exist_ok=True)
@@ -700,11 +711,11 @@ class CnnBaseModel:
         )
 
         if not quiet and not dry_run:
-            fold_time_elapsed = datetime.now() - fold_start_time
+            time_elapsed = datetime.now() - start_time
 
             TelegramLogger().log_fold(
                 logger=logger,
-                time_elapsed="{}".format(fold_time_elapsed),
+                time_elapsed="{}".format(time_elapsed),
                 k_fold=fold_index,
                 k_folds=k_folds,
                 epochs=epoch,
@@ -721,10 +732,13 @@ class CnnBaseModel:
                validation_matthew_correlation_coefficient_history, epoch
 
     @TrackingDecorator.track_time
-    def finalize(self, logger, model_path, train_dataframes, epochs, learning_rate, slice_width, quiet=False):
+    def finalize(self, logger, model_path, log_path_modelling, train_dataframes, epochs, learning_rate, slice_width,
+                 quiet=False, dry_run=False):
         """
         Trains a final model by using all train dataframes
         """
+
+        start_time = datetime.now()
 
         # Make results path
         os.makedirs(model_path, exist_ok=True)
@@ -768,14 +782,25 @@ class CnnBaseModel:
 
         torch.save(classifier.state_dict(), os.path.join(model_path, "model.pickle"))
 
+        if not quiet and not dry_run:
+            time_elapsed = datetime.now() - start_time
+
+            TelegramLogger().log_finalization(
+                logger=logger,
+                time_elapsed="{}".format(time_elapsed),
+                epochs=epochs
+            )
+
     @TrackingDecorator.track_time
-    def evaluate(self, logger, log_path, test_dataframes, slice_width, model_path, clean=False, quiet=False):
+    def evaluate(self, logger, log_path_evaluation, test_dataframes, slice_width, model_path, clean=False, quiet=False):
         """
         Evaluates finalized model against test dataframes
         """
 
+        start_time = datetime.now()
+
         # Make results path
-        os.makedirs(log_path, exist_ok=True)
+        os.makedirs(log_path_evaluation, exist_ok=True)
 
         # Create data loader
         test_array = create_array(test_dataframes)
@@ -801,10 +826,12 @@ class CnnBaseModel:
         # Plot confusion matrix
         test_confusion_matrix_dataframe, targets, predictions = get_confusion_matrix_dataframe(classifier,
                                                                                                test_data_loader)
-        ConfusionMatrixPlotter().run(logger, os.path.join(log_path, "plots"), test_confusion_matrix_dataframe,
-                                     clean=clean)
+        ConfusionMatrixPlotter().run(logger, os.path.join(log_path_evaluation, "plots"),
+                                     test_confusion_matrix_dataframe, clean=clean)
 
         if not quiet:
+            time_elapsed = datetime.now() - start_time
+
             logger.log_line("Confusion matrix \n" + str(cm(targets, predictions)))
             logger.log_line("Accuracy " + str(round(test_accuracy, 2)))
             logger.log_line("Precision " + str(round(test_precision, 2)))
@@ -813,5 +840,17 @@ class CnnBaseModel:
             logger.log_line("Cohen's Kappa Score " + str(round(test_cohen_kappa_score, 2)))
             logger.log_line(
                 "Matthew's Correlation Coefficient Score " + str(round(test_matthew_correlation_coefficient, 2)))
+
+            TelegramLogger().log_evaluation(
+                logger=logger,
+                time_elapsed="{}".format(time_elapsed),
+                log_path_evaluation=log_path_evaluation,
+                test_accuracy=test_accuracy,
+                test_precision=test_precision,
+                test_recall=test_recall,
+                test_f1_score=test_f1_score,
+                test_cohen_kappa_score=test_cohen_kappa_score,
+                test_matthew_correlation_coefficient=test_matthew_correlation_coefficient
+            )
 
         return test_accuracy, test_precision, test_recall, test_f1_score, test_cohen_kappa_score, test_matthew_correlation_coefficient

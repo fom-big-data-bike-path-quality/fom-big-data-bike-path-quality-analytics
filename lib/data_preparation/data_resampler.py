@@ -24,10 +24,10 @@ class DataResampler:
     def run_down_sampling(self, logger, dataframes, down_sampling_factor=3.0, run_after_label_encoding=False,
                           quiet=False):
         """
-            Down-samples dataframes based on target class (bike_activity_surface_type)
+        Down-samples dataframes based on target class (bike_activity_surface_type)
 
-            All classes will be capped to have a maximum size equal to target class size which is determined by
-            multiplying the number of samples of the smallest class by a given class size factor.
+        All classes will be capped to have a maximum size equal to target class size which is determined by
+        multiplying the number of samples of the smallest class by a given class size factor.
         """
 
         copied_dataframes = dataframes.copy()

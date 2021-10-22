@@ -5,9 +5,10 @@ from email.utils import formatdate
 
 import matplotlib.pyplot as plt
 import numpy as np
+from label_encoder import LabelEncoder
 from matplotlib.ticker import PercentFormatter
 from tracking_decorator import TrackingDecorator
-from label_encoder import LabelEncoder
+
 
 def create_array(dataframes, slice_width):
     """
@@ -16,8 +17,8 @@ def create_array(dataframes, slice_width):
     axis-0 = epoch
     axis-1 = features in a measurement
     axis-2 = measurements in an epoch
-
     """
+
     array = []
 
     for name, dataframe in dataframes.items():
@@ -29,6 +30,7 @@ def create_array(dataframes, slice_width):
 
 def get_label(index):
     return LabelEncoder().classes[int(index)]
+
 
 #
 # Main
