@@ -80,7 +80,10 @@ class DataResampler:
             function_name = inspect.currentframe().f_code.co_name
 
             logger.log_line(
-                class_name + "." + function_name + " down-sampled " + str(len(copied_dataframes)) + " dataframes to " +
-                str(len(resampled_dataframes)))
+                class_name + "." + function_name + " kept " + str(len(resampled_dataframes)) + " of " +
+                str(len(copied_dataframes)) + " dataframes after down-sampling (" +
+                str(round(len(resampled_dataframes) / len(copied_dataframes), 2) * 100) +
+                "%)"
+            )
 
         return resampled_dataframes
