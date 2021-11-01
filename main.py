@@ -59,7 +59,7 @@ def main(argv):
     learning_rate: float = 0.001
     patience = 500
     slice_width = 500
-    window_step = 20
+    window_step = 50
     down_sampling_factor = 3.0
 
     measurement_speed_limit = 5.0
