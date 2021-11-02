@@ -22,7 +22,7 @@ from tqdm import tqdm
 from tracking_decorator import TrackingDecorator
 from training_result_plotter import TrainingResultPlotter
 
-from cnn_classifier import CnnClassifier
+from lstm_classifier import LstmClassifier
 
 warnings.filterwarnings("ignore", category=DeprecationWarning)
 warnings.filterwarnings("ignore", category=FutureWarning)
@@ -38,6 +38,9 @@ np.random.seed(0)
 
 # Number of classes
 num_classes = LabelEncoder().num_classes()
+
+hidden_dimension = 64
+layer_dimension = 3
 
 
 #
@@ -402,7 +405,7 @@ def evaluate(classifier, data_loader):
 # Main
 #
 
-class CnnBaseModel:
+class LstmBaseModel:
 
     @TrackingDecorator.track_time
     def validate(self, logger, log_path_modelling, train_dataframes, k_folds, epochs, learning_rate, patience,
@@ -489,11 +492,11 @@ class CnnBaseModel:
         if not quiet and not dry_run:
             time_elapsed = datetime.now() - start_time
 
-            TelegramLogger().log_validation(
-                logger=logger,
-                time_elapsed="{}".format(time_elapsed),
-                log_path_modelling=log_path_modelling
-            )
+            # TelegramLogger().log_validation(
+            #     logger=logger,
+            #     time_elapsed="{}".format(time_elapsed),
+            #     log_path_modelling=log_path_modelling
+            # )
 
         return int(np.mean(overall_epochs))
 
@@ -535,12 +538,9 @@ class CnnBaseModel:
             quiet=quiet
         )
 
-        # Determine number of linear channels based on slice width
-        linear_channels = get_linear_channels(slice_width)
-
         # Define classifier
-        classifier = CnnClassifier(input_channels=1, num_classes=num_classes, linear_channels=linear_channels).to(
-            device)
+        classifier = LstmClassifier(input_size=slice_width, hidden_dimension=hidden_dimension,
+                                    layer_dimension=layer_dimension, num_classes=num_classes).to(device)
         criterion = nn.CrossEntropyLoss(reduction='sum')
         optimizer = optim.Adam(classifier.parameters(), lr=learning_rate)
 
@@ -749,12 +749,9 @@ class CnnBaseModel:
         train_dataset = create_dataset(train_array)
         train_data_loader = create_loader(train_dataset, shuffle=False)
 
-        # Determine number of linear channels based on slice width
-        linear_channels = get_linear_channels(slice_width)
-
         # Define classifier
-        classifier = CnnClassifier(input_channels=1, num_classes=num_classes, linear_channels=linear_channels).to(
-            device)
+        classifier = LstmClassifier(input_size=slice_width, hidden_dimension=hidden_dimension,
+                                    layer_dimension=layer_dimension, num_classes=num_classes).to(device)
         criterion = nn.CrossEntropyLoss(reduction='sum')
         optimizer = optim.Adam(classifier.parameters(), lr=learning_rate)
 
@@ -813,8 +810,8 @@ class CnnBaseModel:
         linear_channels = get_linear_channels(slice_width)
 
         # Define classifier
-        classifier = CnnClassifier(input_channels=1, num_classes=num_classes, linear_channels=linear_channels).to(
-            device)
+        classifier = LstmClassifier(input_size=slice_width, hidden_dimension=hidden_dimension,
+                                    layer_dimension=layer_dimension, num_classes=num_classes).to(device)
         classifier.load_state_dict(torch.load(os.path.join(model_path, "model.pickle")))
         classifier.eval()
 

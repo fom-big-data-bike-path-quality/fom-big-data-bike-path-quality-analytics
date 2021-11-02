@@ -3,7 +3,7 @@ from separator_conv_1d import SeparatorConv1d
 from torch import nn
 
 
-class Classifier(nn.Module):
+class CnnClassifier(nn.Module):
     def __init__(self, input_channels, num_classes, linear_channels, dropout=.5):
         super().__init__()
 
