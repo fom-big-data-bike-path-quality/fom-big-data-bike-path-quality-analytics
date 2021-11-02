@@ -69,7 +69,7 @@ def main(argv):
 
     # Read command line arguments
     try:
-        opts, args = getopt.getopt(argv, "hcqtdke:l:p:s:w:",
+        opts, args = getopt.getopt(argv, "hcqtdk:e:l:p:s:w:",
                                    ["help", "clean", "quiet", "transient", "dry-run", "skip-data-understanding",
                                     "skip-validation", "k-folds=", "epochs=", "learning-rate=", "patience=",
                                     "slice-width=", "window-step=", "down-sampling-factor="])
