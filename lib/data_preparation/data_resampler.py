@@ -79,11 +79,11 @@ class DataResampler:
             class_name = self.__class__.__name__
             function_name = inspect.currentframe().f_code.co_name
 
+            percentage = round(len(resampled_dataframes) / len(copied_dataframes), 2) * 100
+
             logger.log_line(
                 class_name + "." + function_name + " kept " + str(len(resampled_dataframes)) + " of " +
-                str(len(copied_dataframes)) + " dataframes after down-sampling (" +
-                str(round(len(resampled_dataframes) / len(copied_dataframes), 2) * 100) +
-                "%)"
+                str(len(copied_dataframes)) + " dataframes after down-sampling (" + str(percentage) + "%)"
             )
 
         return resampled_dataframes

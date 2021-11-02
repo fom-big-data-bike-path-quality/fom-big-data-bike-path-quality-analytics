@@ -54,6 +54,8 @@ class TelegramLogger:
 
     def log_modelling_start(self, logger, train_dataframes, resampled_train_dataframes, test_dataframes):
 
+        percentage = round(len(resampled_train_dataframes) / len(train_dataframes), 2) * 100
+
         if len(train_dataframes) == len(resampled_train_dataframes):
             telegram_line = "Modelling started with " + \
                             "\n* train dataframes " + str(len(train_dataframes)) + \
@@ -61,7 +63,7 @@ class TelegramLogger:
         else:
             telegram_line = "Modelling started with " + \
                             "\n* train dataframes " + str(len(train_dataframes)) + " down-sampled to " + \
-                            str(len(resampled_train_dataframes)) + \
+                            str(len(resampled_train_dataframes)) + " (" + str(percentage) + "%)" + \
                             "\n* test dataframes " + str(len(test_dataframes))
 
         # Set script path
