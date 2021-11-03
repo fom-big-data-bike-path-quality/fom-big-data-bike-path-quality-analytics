@@ -2,6 +2,14 @@ name: Google Compute Engine Create (Experiment)
 on:
   workflow_dispatch:
     inputs:
+      window-step:
+        description: 'step size used for sliding window data splitter'
+        required: true
+        default: 20
+      down-sampling-factor:
+        description: 'factor by which target classes are capped in comparison to smallest class'
+        required: true
+        default: 3.0
       model:
         description: 'model to use for training'
         required: true
@@ -26,14 +34,18 @@ on:
         description: 'number of measurements per slice'
         required: true
         default: 500
-      window-step:
-        description: 'step size used for sliding window data splitter'
+      dropout:
+        description: 'dropout percentage'
         required: true
-        default: 20
-      down-sampling-factor:
-        description: 'factor by which target classes are capped in comparison to smallest class'
+        default: 0.5
+      lstm-hidden-dimension:
+        description: 'hidden dimensions in LSTM'
         required: true
-        default: 3.0
+        default: 128
+      lstm-layer-dimension:
+        description: 'layer dimensions in LSTM'
+        required: true
+        default: 3
 env:
   PROJECT_ID: "bike-path-quality"
   GCE_INSTANCE: "bike-path-quality-analytics"
@@ -88,7 +100,7 @@ jobs:
           echo "sudo -u training bash -c \"source ~/fom-big-data-bike-path-quality-analytics/venv/bin/activate; pip3 install google-auth\"" >> startup.sh
           echo "sudo -u training bash -c \"source ~/fom-big-data-bike-path-quality-analytics/venv/bin/activate; pip3 install google-cloud-core\"" >> startup.sh
           echo "sudo -u training bash -c \"source ~/fom-big-data-bike-path-quality-analytics/venv/bin/activate; pip3 install google-cloud-storage\"" >> startup.sh
-          echo "sudo -u training bash -c \"cd ~/fom-big-data-bike-path-quality-analytics; source ./venv/bin/activate; nohup python3 main.py --clean --skip-data-understanding --skip-validation --model=${{ github.event.inputs.model }} --k-folds=${{ github.event.inputs.k-folds }} --epochs=${{ github.event.inputs.epochs }} --learning-rate=${{ github.event.inputs.learning-rate }} --patience=${{ github.event.inputs.patience }} --slice-width=${{ github.event.inputs.slice-width }} --window-step=${{ github.event.inputs.window-step }} --down-sampling-factor=${{ github.event.inputs.down-sampling-factor } 2>&1 > log.txt &\"" >> startup.sh
+          echo "sudo -u training bash -c \"cd ~/fom-big-data-bike-path-quality-analytics; source ./venv/bin/activate; nohup python3 main.py --clean --skip-data-understanding --skip-validation --window-step=${{ github.event.inputs.window-step }} --down-sampling-factor=${{ github.event.inputs.down-sampling-factor } --model=${{ github.event.inputs.model }} --k-folds=${{ github.event.inputs.k-folds }} --epochs=${{ github.event.inputs.epochs }} --learning-rate=${{ github.event.inputs.learning-rate }} --patience=${{ github.event.inputs.patience }} --slice-width=${{ github.event.inputs.slice-width }} --dropout=${{ github.event.inputs.dropout }} --lstm-hidden-dimension=${{ github.event.inputs.lstm-hidden-dimension }} --lstm-layer-dimension=${{ github.event.inputs.lstm-layer-dimension }} 2>&1 > log.txt &\"" >> startup.sh
       - name: Create compute instance
         id: create-compute-instance
         run: |

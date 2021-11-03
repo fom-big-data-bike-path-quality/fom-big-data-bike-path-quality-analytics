@@ -4,7 +4,7 @@ from torch import nn
 
 
 class CnnClassifier(nn.Module):
-    def __init__(self, input_channels, num_classes, linear_channels, dropout=.5):
+    def __init__(self, input_channels, num_classes, linear_channels, dropout=0.5):
         super().__init__()
 
         self.layers = nn.Sequential(

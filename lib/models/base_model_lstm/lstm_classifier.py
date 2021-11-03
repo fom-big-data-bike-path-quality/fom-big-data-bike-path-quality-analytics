@@ -3,7 +3,7 @@ from torch import zeros
 
 
 class LstmClassifier(nn.Module):
-    def __init__(self, input_size, hidden_dimension, layer_dimension, num_classes, dropout=.5):
+    def __init__(self, input_size, hidden_dimension, layer_dimension, num_classes, dropout=0.5):
         super().__init__()
 
         self.hidden_dimension = hidden_dimension

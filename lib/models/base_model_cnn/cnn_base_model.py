@@ -406,7 +406,7 @@ class CnnBaseModel:
 
     @TrackingDecorator.track_time
     def validate(self, logger, log_path_modelling, train_dataframes, k_folds, epochs, learning_rate, patience,
-                 slice_width, random_state=0, quiet=False, dry_run=False):
+                 slice_width, dropout=0.5, random_state=0, quiet=False, dry_run=False):
         """
         Validates the model by folding all train dataframes
         """
@@ -448,6 +448,7 @@ class CnnBaseModel:
                 learning_rate=learning_rate,
                 patience=patience,
                 slice_width=slice_width,
+                dropout=dropout,
                 train_ids=train_ids,
                 validation_ids=validation_ids,
                 quiet=quiet,
@@ -499,7 +500,7 @@ class CnnBaseModel:
 
     @TrackingDecorator.track_time
     def validate_fold(self, logger, log_path, fold_index, k_folds, train_ids, validation_ids, dataframes, epochs,
-                      learning_rate, patience, slice_width, quiet, dry_run):
+                      learning_rate, patience, slice_width, dropout, quiet, dry_run):
         """
         Validates a single fold
         """
@@ -539,8 +540,8 @@ class CnnBaseModel:
         linear_channels = get_linear_channels(slice_width)
 
         # Define classifier
-        classifier = CnnClassifier(input_channels=1, num_classes=num_classes, linear_channels=linear_channels).to(
-            device)
+        classifier = CnnClassifier(input_channels=1, num_classes=num_classes, linear_channels=linear_channels,
+                                   dropout=dropout).to(device)
         criterion = nn.CrossEntropyLoss(reduction='sum')
         optimizer = optim.Adam(classifier.parameters(), lr=learning_rate)
 
@@ -734,7 +735,7 @@ class CnnBaseModel:
 
     @TrackingDecorator.track_time
     def finalize(self, logger, model_path, log_path_modelling, train_dataframes, epochs, learning_rate, slice_width,
-                 quiet=False, dry_run=False):
+                 dropout=0.5, quiet=False, dry_run=False):
         """
         Trains a final model by using all train dataframes
         """
@@ -753,8 +754,8 @@ class CnnBaseModel:
         linear_channels = get_linear_channels(slice_width)
 
         # Define classifier
-        classifier = CnnClassifier(input_channels=1, num_classes=num_classes, linear_channels=linear_channels).to(
-            device)
+        classifier = CnnClassifier(input_channels=1, num_classes=num_classes, linear_channels=linear_channels,
+                                   dropout=dropout).to(device)
         criterion = nn.CrossEntropyLoss(reduction='sum')
         optimizer = optim.Adam(classifier.parameters(), lr=learning_rate)
 

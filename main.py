@@ -58,14 +58,18 @@ def main(argv):
     skip_data_understanding = False
     skip_validation = False
 
+    window_step = 50
+    down_sampling_factor = 3.0
+
     model = None
     k_folds = 10
     epochs = 10_000
     learning_rate: float = 0.001
     patience = 500
     slice_width = 500
-    window_step = 50
-    down_sampling_factor = 3.0
+    dropout = 0.5
+    lstm_hidden_dimension = 64
+    lstm_layer_dimension = 3
 
     measurement_speed_limit = 5.0
 
@@ -74,16 +78,18 @@ def main(argv):
 
     # Read command line arguments
     try:
-        opts, args = getopt.getopt(argv, "hcqtdm:k:e:l:p:s:w:",
+        opts, args = getopt.getopt(argv, "hcqtdw:m:k:e:l:p:s:",
                                    ["help", "clean", "quiet", "transient", "dry-run", "skip-data-understanding",
-                                    "skip-validation", "model=", "k-folds=", "epochs=", "learning-rate=", "patience=",
-                                    "slice-width=", "window-step=", "down-sampling-factor="])
+                                    "skip-validation", "window-step=", "down-sampling-factor=", "model=", "k-folds=",
+                                    "epochs=", "learning-rate=", "patience=", "slice-width=", "dropout=",
+                                    "lstm-hidden-dimension=", "--lstm-layer-dimension="])
     except getopt.GetoptError:
         print(
             "main.py --help --clean --quiet --transient --dry-run --skip-data-understanding --skip-validation " +
+            "--window-step <window-step> --down-sampling-factor <down-sampling-factor> --model <model>" +
             "--k-folds <k-folds> --epochs <epochs> --learning-rate <learning-rate> " +
-            "--patience <patience> --slice-width <slice-width> --window-step <window-step> "
-            "--down-sampling-factor <down-sampling-factor>")
+            "--patience <patience> --slice-width <slice-width> --dropout <dropout>" +
+            "--lstm-hidden-dimension <lstm-hidden-dimension> --lstm-layer-dimension <lstm-layer-dimension>")
         sys.exit(2)
     for opt, arg in opts:
         if opt in ("-h", "--help"):
@@ -95,16 +101,18 @@ def main(argv):
             print("--dry-run                        only run a limited training to make sure syntax is correct")
             print("--skip-data-understanding        skip data understanding")
             print("--skip-validation                skip validation")
+            print("--window-step <window-step>      step size used for sliding window data splitter")
+            print("--down-sampling-factor <down-sampling-factor>      " +
+                  "factor by which target classes are capped in comparison to smallest class")
             print("--model <model>                  model to use for training")
             print("--k-folds <k-folds>              number of k-folds")
             print("--epochs <epochs>                number of epochs")
             print("--learning-rate <learning-rate>  learning rate")
-            print(
-                "--patience <patience>            number of epochs to wait for improvements before finishing training")
+            print("--patience <patience>            number of epochs to wait for improvements before finishing training")
             print("--slice-width <slice-width>      number of measurements per slice")
-            print("--window-step <window-step>      step size used for sliding window data splitter")
-            print("--down-sampling-factor <down-sampling-factor>      " +
-                  "factor by which target classes are capped in comparison to smallest class")
+            print("--dropout <dropout>              dropout percentage")
+            print("--lstm-hidden-dimension <lstm-hidden-dimension>    hidden dimensions in LSTM")
+            print("--lstm-layer-dimension <lstm-layer-dimension>      layer dimensions in LSTM")
             sys.exit()
         elif opt in ("-c", "--clean"):
             clean = True
@@ -121,6 +129,10 @@ def main(argv):
             skip_data_understanding = True
         elif opt in "--skip-validation":
             skip_validation = True
+        elif opt in ("-w", "--window-step"):
+            window_step = int(arg)
+        elif opt in "--down-sampling-factor":
+            down_sampling_factor = float(arg)
         elif opt in ("-m", "--model"):
             model = arg
         elif opt in ("-k", "--k-folds"):
@@ -133,10 +145,12 @@ def main(argv):
             patience = int(arg)
         elif opt in ("-s", "--slice-width"):
             slice_width = int(arg)
-        elif opt in ("-w", "--window-step"):
-            window_step = int(arg)
-        elif opt in "--down-sampling-factor":
-            down_sampling_factor = float(arg)
+        elif opt in "--dropout":
+            dropout = float(arg)
+        elif opt in "--lstm-hidden-dimension":
+            lstm_hidden_dimension = int(arg)
+        elif opt in "--lstm-layer-dimension":
+            lstm_layer_dimension = int(arg)
 
     if not model in available_models:
         raise getopt.GetoptError("invalid model. valid options are " + str(available_models))
@@ -366,6 +380,7 @@ def main(argv):
                 learning_rate=learning_rate,
                 patience=patience,
                 slice_width=slice_width,
+                dropout=dropout,
                 random_state=random_state,
                 quiet=quiet,
                 dry_run=dry_run
@@ -381,6 +396,7 @@ def main(argv):
             epochs=finalize_epochs,
             learning_rate=learning_rate,
             slice_width=slice_width,
+            dropout=dropout,
             quiet=quiet,
             dry_run=dry_run
         )
@@ -411,6 +427,9 @@ def main(argv):
                 learning_rate=learning_rate,
                 patience=patience,
                 slice_width=slice_width,
+                dropout=dropout,
+                lstm_hidden_dimension=lstm_hidden_dimension,
+                lstm_layer_dimension=lstm_layer_dimension,
                 random_state=random_state,
                 quiet=quiet,
                 dry_run=dry_run
@@ -426,6 +445,9 @@ def main(argv):
             epochs=finalize_epochs,
             learning_rate=learning_rate,
             slice_width=slice_width,
+            dropout=dropout,
+            lstm_hidden_dimension=lstm_hidden_dimension,
+            lstm_layer_dimension=lstm_layer_dimension,
             quiet=quiet,
             dry_run=dry_run
         )
@@ -440,6 +462,9 @@ def main(argv):
             test_dataframes=test_dataframes,
             slice_width=slice_width,
             model_path=log_path_modelling,
+            dropout=dropout,
+            lstm_hidden_dimension=lstm_hidden_dimension,
+            lstm_layer_dimension=lstm_layer_dimension,
             clean=clean,
             quiet=quiet
         )

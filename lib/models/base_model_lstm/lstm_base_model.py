@@ -39,9 +39,6 @@ np.random.seed(0)
 # Number of classes
 num_classes = LabelEncoder().num_classes()
 
-hidden_dimension = 64
-layer_dimension = 3
-
 
 #
 # Common
@@ -409,7 +406,8 @@ class LstmBaseModel:
 
     @TrackingDecorator.track_time
     def validate(self, logger, log_path_modelling, train_dataframes, k_folds, epochs, learning_rate, patience,
-                 slice_width, random_state=0, quiet=False, dry_run=False):
+                 slice_width, dropout=0.5, lstm_hidden_dimension=128, lstm_layer_dimension=3, random_state=0,
+                 quiet=False, dry_run=False):
         """
         Validates the model by folding all train dataframes
         """
@@ -451,6 +449,9 @@ class LstmBaseModel:
                 learning_rate=learning_rate,
                 patience=patience,
                 slice_width=slice_width,
+                dropout=dropout,
+                lstm_hidden_dimension=lstm_hidden_dimension,
+                lstm_layer_dimension=lstm_layer_dimension,
                 train_ids=train_ids,
                 validation_ids=validation_ids,
                 quiet=quiet,
@@ -502,7 +503,8 @@ class LstmBaseModel:
 
     @TrackingDecorator.track_time
     def validate_fold(self, logger, log_path, fold_index, k_folds, train_ids, validation_ids, dataframes, epochs,
-                      learning_rate, patience, slice_width, quiet, dry_run):
+                      learning_rate, patience, slice_width, dropout, lstm_hidden_dimension, lstm_layer_dimension,
+                      quiet, dry_run):
         """
         Validates a single fold
         """
@@ -539,8 +541,9 @@ class LstmBaseModel:
         )
 
         # Define classifier
-        classifier = LstmClassifier(input_size=slice_width, hidden_dimension=hidden_dimension,
-                                    layer_dimension=layer_dimension, num_classes=num_classes).to(device)
+        classifier = LstmClassifier(input_size=slice_width, hidden_dimension=lstm_hidden_dimension,
+                                    layer_dimension=lstm_layer_dimension, num_classes=num_classes,
+                                    dropout=dropout).to(device)
         criterion = nn.CrossEntropyLoss(reduction='sum')
         optimizer = optim.Adam(classifier.parameters(), lr=learning_rate)
 
@@ -734,7 +737,7 @@ class LstmBaseModel:
 
     @TrackingDecorator.track_time
     def finalize(self, logger, model_path, log_path_modelling, train_dataframes, epochs, learning_rate, slice_width,
-                 quiet=False, dry_run=False):
+                 dropout=0.5, lstm_hidden_dimension=128, lstm_layer_dimension=3, quiet=False, dry_run=False):
         """
         Trains a final model by using all train dataframes
         """
@@ -750,8 +753,9 @@ class LstmBaseModel:
         train_data_loader = create_loader(train_dataset, shuffle=False)
 
         # Define classifier
-        classifier = LstmClassifier(input_size=slice_width, hidden_dimension=hidden_dimension,
-                                    layer_dimension=layer_dimension, num_classes=num_classes).to(device)
+        classifier = LstmClassifier(input_size=slice_width, hidden_dimension=lstm_hidden_dimension,
+                                    layer_dimension=lstm_layer_dimension, num_classes=num_classes,
+                                    dropout=dropout).to(device)
         criterion = nn.CrossEntropyLoss(reduction='sum')
         optimizer = optim.Adam(classifier.parameters(), lr=learning_rate)
 
@@ -791,7 +795,8 @@ class LstmBaseModel:
             )
 
     @TrackingDecorator.track_time
-    def evaluate(self, logger, log_path_evaluation, test_dataframes, slice_width, model_path, clean=False, quiet=False):
+    def evaluate(self, logger, log_path_evaluation, test_dataframes, slice_width, dropout, lstm_hidden_dimension,
+                 lstm_layer_dimension, model_path, clean=False, quiet=False):
         """
         Evaluates finalized model against test dataframes
         """
@@ -810,8 +815,8 @@ class LstmBaseModel:
         linear_channels = get_linear_channels(slice_width)
 
         # Define classifier
-        classifier = LstmClassifier(input_size=slice_width, hidden_dimension=hidden_dimension,
-                                    layer_dimension=layer_dimension, num_classes=num_classes).to(device)
+        classifier = LstmClassifier(input_size=slice_width, hidden_dimension=lstm_hidden_dimension,
+                                    layer_dimension=lstm_layer_dimension, num_classes=num_classes).to(device)
         classifier.load_state_dict(torch.load(os.path.join(model_path, "model.pickle")))
         classifier.eval()
 
