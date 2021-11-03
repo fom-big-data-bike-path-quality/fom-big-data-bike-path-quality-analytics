@@ -10,13 +10,13 @@ from bike_activity_surface_type_plotter import BikeActivitySurfaceTypePlotter
 from confusion_matrix_plotter import ConfusionMatrixPlotter
 from label_encoder import LabelEncoder
 from model_evaluator import ModelEvaluator
+from model_preparator import ModelPreparator
 from sklearn.metrics import confusion_matrix as cm
 from sklearn.model_selection import KFold
 from telegram_logger import TelegramLogger
 from torch import nn
 from torch import optim
 from torch.nn import functional as F
-from torch.utils.data import TensorDataset, DataLoader
 from tqdm import tqdm
 from tracking_decorator import TrackingDecorator
 from training_result_plotter import TrainingResultPlotter
@@ -37,60 +37,6 @@ np.random.seed(0)
 
 # Number of classes
 num_classes = LabelEncoder().num_classes()
-
-
-#
-# Common
-#
-
-def create_array(dataframes):
-    """
-    Converts an array of data frame into a 3D numpy array
-
-    axis-0 = epoch
-    axis-1 = features in a measurement
-    axis-2 = measurements in an epoch
-    """
-
-    array = []
-
-    for name, dataframe in dataframes.items():
-        array.append(dataframe.to_numpy())
-
-    return np.dstack(array).transpose(2, 1, 0)
-
-
-def create_dataset(array):
-    return TensorDataset(
-        # 3D array with
-        # axis-0 = epoch
-        # axis-1 = features in a measurement (INPUT)
-        # axis-2 = measurements in an epoch
-        torch.tensor(data=array[:, -1:].astype("float64")).float(),
-        # 1D array with
-        # axis-0 = TARGET of an epoch
-        torch.tensor(data=array[:, 0, :][:, 0].astype("int64")).long()
-    )
-
-
-def create_loader(dataset, batch_size=128, shuffle=False, num_workers=0):
-    return DataLoader(
-        dataset=dataset,
-        batch_size=batch_size,
-        shuffle=shuffle,
-        num_workers=num_workers
-    )
-
-
-def get_linear_channels(slice_width):
-    if slice_width <= 250:
-        return 256
-    elif slice_width == 300:
-        return 512
-    elif slice_width >= 350:
-        return 768
-    else:
-        return 256
 
 
 #
@@ -296,6 +242,10 @@ def evaluate(classifier, data_loader):
 
 class CnnBaseModel:
 
+    def __init__(self):
+        self.model_preparator = ModelPreparator
+        self.model_evaluator = ModelEvaluator
+
     @TrackingDecorator.track_time
     def validate(self, logger, log_path_modelling, train_dataframes, k_folds, epochs, learning_rate, patience,
                  slice_width, dropout=0.5, random_state=0, quiet=False, dry_run=False):
@@ -408,14 +358,14 @@ class CnnBaseModel:
         validation_dataframes = {id: list(dataframes.values())[id] for id in validation_ids}
 
         # Create data loader for train
-        train_array = create_array(train_dataframes)
-        train_dataset = create_dataset(train_array)
-        train_data_loader = create_loader(train_dataset, shuffle=False)
+        train_array = self.model_preparator.create_array(train_dataframes)
+        train_dataset = self.model_preparator.create_dataset(train_array)
+        train_data_loader = self.model_preparator.create_loader(train_dataset, shuffle=False)
 
         # Create data loader for validation
-        validation_array = create_array(validation_dataframes)
-        validation_dataset = create_dataset(validation_array)
-        validation_data_loader = create_loader(validation_dataset, shuffle=False)
+        validation_array = self.model_preparator.create_array(validation_dataframes)
+        validation_dataset = self.model_preparator.create_dataset(validation_array)
+        validation_data_loader = self.model_preparator.create_loader(validation_dataset, shuffle=False)
 
         # Plot target variable distribution
         plot_fold_distribution(
@@ -429,7 +379,7 @@ class CnnBaseModel:
         )
 
         # Determine number of linear channels based on slice width
-        linear_channels = get_linear_channels(slice_width)
+        linear_channels = self.model_preparator.get_linear_channels(slice_width)
 
         # Define classifier
         classifier = CnnClassifier(input_channels=1, num_classes=num_classes, linear_channels=linear_channels,
@@ -638,12 +588,12 @@ class CnnBaseModel:
         os.makedirs(model_path, exist_ok=True)
 
         # Create data loader for train
-        train_array = create_array(train_dataframes)
-        train_dataset = create_dataset(train_array)
-        train_data_loader = create_loader(train_dataset, shuffle=False)
+        train_array = self.model_preparator.create_array(train_dataframes)
+        train_dataset = self.model_preparator.create_dataset(train_array)
+        train_data_loader = self.model_preparator.create_loader(train_dataset, shuffle=False)
 
         # Determine number of linear channels based on slice width
-        linear_channels = get_linear_channels(slice_width)
+        linear_channels = self.model_preparator.get_linear_channels(slice_width)
 
         # Define classifier
         classifier = CnnClassifier(input_channels=1, num_classes=num_classes, linear_channels=linear_channels,
@@ -698,12 +648,12 @@ class CnnBaseModel:
         os.makedirs(log_path_evaluation, exist_ok=True)
 
         # Create data loader
-        test_array = create_array(test_dataframes)
-        test_dataset = create_dataset(test_array)
-        test_data_loader = create_loader(test_dataset, shuffle=False)
+        test_array = self.model_preparator.create_array(test_dataframes)
+        test_dataset = self.model_preparator.create_dataset(test_array)
+        test_data_loader = self.model_preparator.create_loader(test_dataset, shuffle=False)
 
         # Determine number of linear channels based on slice width
-        linear_channels = get_linear_channels(slice_width)
+        linear_channels = self.model_preparator.get_linear_channels(slice_width)
 
         # Define classifier
         classifier = CnnClassifier(input_channels=1, num_classes=num_classes, linear_channels=linear_channels).to(
