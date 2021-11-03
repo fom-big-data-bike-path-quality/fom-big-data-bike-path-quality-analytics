@@ -6,10 +6,11 @@ from datetime import datetime
 import numpy as np
 import pandas as pd
 import torch
-from bike_activity_surface_type_plotter import BikeActivitySurfaceTypePlotter
 from confusion_matrix_plotter import ConfusionMatrixPlotter
 from label_encoder import LabelEncoder
 from model_evaluator import ModelEvaluator
+from model_logger import ModelLogger
+from model_plotter import ModelPlotter
 from model_preparator import ModelPreparator
 from sklearn.metrics import confusion_matrix as cm
 from sklearn.model_selection import KFold
@@ -19,7 +20,6 @@ from torch import optim
 from torch.nn import functional as F
 from tqdm import tqdm
 from tracking_decorator import TrackingDecorator
-from training_result_plotter import TrainingResultPlotter
 
 from lstm_classifier import LstmClassifier
 
@@ -37,156 +37,6 @@ np.random.seed(0)
 
 # Number of classes
 num_classes = LabelEncoder().num_classes()
-
-
-#
-# Validation
-#
-
-
-def plot_fold_results(logger, log_path, fold_labels, overall_validation_accuracy_history,
-                      overall_validation_precision_history, overall_validation_recall_history,
-                      overall_validation_f1_score_history, overall_validation_cohen_kappa_score_history,
-                      overall_validation_matthew_correlation_coefficient_history, quiet):
-    TrainingResultPlotter().run(
-        logger=logger,
-        data=overall_validation_accuracy_history,
-        labels=fold_labels,
-        results_path=os.path.join(log_path, "plots"),
-        file_name="overall-accuracy",
-        title="Accuracy history",
-        description="Accuracy history",
-        xlabel="Epoch",
-        ylabel="Value",
-        clean=True,
-        quiet=quiet
-    )
-
-    TrainingResultPlotter().run(
-        logger=logger,
-        data=overall_validation_precision_history,
-        labels=fold_labels,
-        results_path=os.path.join(log_path, "plots"),
-        file_name="overall-precision",
-        title="Precision history",
-        description="Precision history",
-        xlabel="Epoch",
-        ylabel="Value",
-        clean=True,
-        quiet=quiet
-    )
-
-    TrainingResultPlotter().run(
-        logger=logger,
-        data=overall_validation_recall_history,
-        labels=fold_labels,
-        results_path=os.path.join(log_path, "plots"),
-        file_name="overall-recall",
-        title="Recall history",
-        description="Recall history",
-        xlabel="Epoch",
-        ylabel="Value",
-        clean=True,
-        quiet=quiet
-    )
-
-    TrainingResultPlotter().run(
-        logger=logger,
-        data=overall_validation_f1_score_history,
-        labels=fold_labels,
-        results_path=os.path.join(log_path, "plots"),
-        file_name="overall-f1-score",
-        title="F1 score history",
-        description="F1 score history",
-        xlabel="Epoch",
-        ylabel="Value",
-        clean=True,
-        quiet=quiet)
-
-    TrainingResultPlotter().run(
-        logger=logger,
-        data=overall_validation_cohen_kappa_score_history,
-        labels=fold_labels,
-        results_path=os.path.join(log_path, "plots"),
-        file_name="overall-cohen-kappa-score",
-        title="Cohen's kappa score history",
-        description="Cohen's kappa score history",
-        xlabel="Epoch",
-        ylabel="Value",
-        clean=True,
-        quiet=quiet
-    )
-
-    TrainingResultPlotter().run(
-        logger=logger,
-        data=overall_validation_matthew_correlation_coefficient_history,
-        labels=fold_labels,
-        results_path=os.path.join(log_path, "plots"),
-        file_name="overall-matthew-correlation-coefficient-score",
-        title="Matthews's correlation coefficient score history",
-        description="Matthews's correlation coefficient score history",
-        xlabel="Epoch",
-        ylabel="Value",
-        clean=True,
-        quiet=quiet
-    )
-
-
-def plot_fold_distribution(logger, log_path, train_dataframes, validation_dataframes, fold_index, slice_width, quiet):
-    BikeActivitySurfaceTypePlotter().run(
-        logger=logger,
-        dataframes=train_dataframes,
-        slice_width=slice_width,
-        results_path=os.path.join(log_path, "plots", "fold-" + str(fold_index)),
-        file_name="surface_type_train",
-        title="Surface type distribution (train)",
-        description="Distribution of surface types in input data",
-        xlabel="surface type",
-        run_after_label_encoding=True,
-        quiet=quiet
-    )
-
-    BikeActivitySurfaceTypePlotter().run(
-        logger=logger,
-        dataframes=validation_dataframes,
-        slice_width=slice_width,
-        results_path=os.path.join(log_path, "plots", "fold-" + str(fold_index)),
-        file_name="surface_type_validation",
-        title="Surface type distribution (validation)",
-        description="Distribution of surface types in input data",
-        xlabel="surface type",
-        run_after_label_encoding=True,
-        quiet=quiet
-    )
-
-
-def log_fold_results(logger, overall_validation_accuracy_history, overall_validation_precision_history,
-                     overall_validation_recall_history, overall_validation_f1_score_history,
-                     overall_validation_cohen_kappa_score_history,
-                     overall_validation_matthew_correlation_coefficient_history, quiet):
-    if not quiet:
-        try:
-            logger.log_line("Cross-validation metrics")
-            logger.log_line(
-                "Mean accuracy " + str(round(np.mean(overall_validation_accuracy_history), 2)) + ", " +
-                "precision " + str(round(np.mean(overall_validation_precision_history), 2)) + ", " +
-                "recall " + str(round(np.mean(overall_validation_recall_history), 2)) + ", " +
-                "f1 score " + str(round(np.mean(overall_validation_f1_score_history), 2)) + ", " +
-                "cohen kappa score " + str(round(np.mean(overall_validation_cohen_kappa_score_history), 2)) + ", " +
-                "matthew correlation coefficient " + str(
-                    round(np.mean(overall_validation_matthew_correlation_coefficient_history), 2))
-            )
-            logger.log_line(
-                "Standard deviation " + str(round(np.std(overall_validation_accuracy_history), 2)) + ", " +
-                "precision " + str(round(np.std(overall_validation_precision_history), 2)) + ", " +
-                "recall " + str(round(np.std(overall_validation_recall_history), 2)) + ", " +
-                "f1 score " + str(round(np.std(overall_validation_f1_score_history), 2)) + ", " +
-                "cohen kappa score " + str(round(np.std(overall_validation_cohen_kappa_score_history), 2)) + ", " +
-                "matthew correlation coefficient " + str(
-                    round(np.std(overall_validation_matthew_correlation_coefficient_history), 2))
-            )
-        except:
-            pass
 
 
 #
@@ -243,6 +93,8 @@ def evaluate(classifier, data_loader):
 class LstmBaseModel:
 
     def __init__(self):
+        self.model_logger = ModelLogger()
+        self.model_plotter = ModelPlotter()
         self.model_preparator = ModelPreparator
         self.model_evaluator = ModelEvaluator
 
@@ -310,7 +162,7 @@ class LstmBaseModel:
                 validation_matthew_correlation_coefficient_history)
             overall_epochs.append(epoch)
 
-        plot_fold_results(
+        self.model_plotter.plot_fold_results(
             logger=logger,
             log_path=log_path_modelling,
             fold_labels=fold_labels,
@@ -323,7 +175,7 @@ class LstmBaseModel:
             quiet=quiet
         )
 
-        log_fold_results(
+        self.model_logger.log_fold_results(
             logger=logger, overall_validation_accuracy_history=overall_validation_accuracy_history,
             overall_validation_precision_history=overall_validation_precision_history,
             overall_validation_recall_history=overall_validation_recall_history,
@@ -335,11 +187,11 @@ class LstmBaseModel:
         if not quiet and not dry_run:
             time_elapsed = datetime.now() - start_time
 
-            # TelegramLogger().log_validation(
-            #     logger=logger,
-            #     time_elapsed="{}".format(time_elapsed),
-            #     log_path_modelling=log_path_modelling
-            # )
+            TelegramLogger().log_validation(
+                logger=logger,
+                time_elapsed="{}".format(time_elapsed),
+                log_path_modelling=log_path_modelling
+            )
 
         return int(np.mean(overall_epochs))
 
@@ -372,7 +224,7 @@ class LstmBaseModel:
         validation_data_loader = self.model_preparator.create_loader(validation_dataset, shuffle=False)
 
         # Plot target variable distribution
-        plot_fold_distribution(
+        self.model_plotter.plot_fold_distribution(
             logger=logger,
             log_path=log_path,
             train_dataframes=train_dataframes,
@@ -511,48 +363,19 @@ class LstmBaseModel:
 
         progress_bar.close()
 
-        TrainingResultPlotter().run(
+        self.model_plotter.plot_training_results(
             logger=logger,
-            data=[train_loss_history, validation_loss_history],
-            labels=["Train", "Validation"],
-            results_path=os.path.join(log_path, "plots", "fold-" + str(fold_index)),
-            file_name="loss",
-            title="Loss history",
-            description="Loss history",
-            xlabel="Epoch",
-            ylabel="Loss",
-            clean=True,
-            quiet=quiet
-        )
-
-        TrainingResultPlotter().run(
-            logger=logger,
-            data=[train_accuracy_history, validation_accuracy_history],
-            labels=["Train", "Validation"],
-            results_path=os.path.join(log_path, "plots", "fold-" + str(fold_index)),
-            file_name="accuracy",
-            title="Accuracy history",
-            description="Accuracy history",
-            xlabel="Epoch",
-            ylabel="Accuracy",
-            clean=True,
-            quiet=quiet
-        )
-
-        TrainingResultPlotter().run(
-            logger=logger,
-            data=[validation_accuracy_history, validation_precision_history, validation_recall_history,
-                  validation_f1_score_history,
-                  validation_cohen_kappa_score_history, validation_matthew_correlation_coefficient_history],
-            labels=["Accuracy", "Precision", "Recall", "F1 Score", "Cohen's Kappa Score",
-                    "Matthew's Correlation Coefficient"],
-            results_path=os.path.join(log_path, "plots", "fold-" + str(fold_index)),
-            file_name="metrics",
-            title="Metrics history",
-            description="Metrics history",
-            xlabel="Epoch",
-            ylabel="Value",
-            clean=True,
+            log_path=log_path,
+            train_loss_history=train_loss_history,
+            validation_loss_history=validation_loss_history,
+            train_accuracy_history=train_accuracy_history,
+            validation_accuracy_history=validation_accuracy_history,
+            validation_precision_history=validation_precision_history,
+            validation_recall_history=validation_recall_history,
+            validation_f1_score_history=validation_f1_score_history,
+            validation_cohen_kappa_score_history=validation_cohen_kappa_score_history,
+            validation_matthew_correlation_coefficient_history=validation_matthew_correlation_coefficient_history,
+            fold_index=fold_index,
             quiet=quiet
         )
 
