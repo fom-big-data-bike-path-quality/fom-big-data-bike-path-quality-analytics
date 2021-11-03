@@ -39,7 +39,11 @@ jobs:
           pip install google-auth
           pip install google-cloud-core
           pip install google-cloud-storage
-      - name: Run main script
-        id: run-main-script
+      - name: Run main script with CNN
+        id: run-main-script-cnn
         run: |
-          python main.py --dry-run
+          python main.py --dry-run --model=cnn
+      - name: Run main script with LSTM
+        id: run-main-script-lstm
+        run: |
+          python main.py --dry-run --model=lstm
