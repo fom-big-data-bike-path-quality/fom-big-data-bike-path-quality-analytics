@@ -14,6 +14,7 @@ library_paths = [
     os.path.join(os.getcwd(), 'lib', 'plotters'),
     os.path.join(os.getcwd(), 'lib', 'models', 'base_model_cnn'),
     os.path.join(os.getcwd(), 'lib', 'models', 'base_model_cnn', 'layers'),
+    os.path.join(os.getcwd(), 'lib', 'models', 'base_model_lstm'),
     os.path.join(os.getcwd(), 'lib', 'cloud'),
 ]
 
@@ -33,6 +34,7 @@ from bike_activity_surface_type_plotter import BikeActivitySurfaceTypePlotter
 from train_test_data_splitter import TrainTestDataSplitter
 from data_resampler import DataResampler
 from cnn_base_model import CnnBaseModel
+from lstm_base_model import LstmBaseModel
 from result_handler import ResultHandler
 from tracking_decorator import TrackingDecorator
 
@@ -46,6 +48,8 @@ def main(argv):
     training_start_time = datetime.now()
     training_start_time_string = training_start_time.strftime("%Y-%m-%d-%H:%M:%S")
 
+    available_models = ["cnn", "lstm"]
+
     # Set default values
     clean = False
     quiet = False
@@ -54,6 +58,7 @@ def main(argv):
     skip_data_understanding = False
     skip_validation = False
 
+    model = None
     k_folds = 10
     epochs = 10_000
     learning_rate: float = 0.001
@@ -69,9 +74,9 @@ def main(argv):
 
     # Read command line arguments
     try:
-        opts, args = getopt.getopt(argv, "hcqtdk:e:l:p:s:w:",
+        opts, args = getopt.getopt(argv, "hcqtdm:k:e:l:p:s:w:",
                                    ["help", "clean", "quiet", "transient", "dry-run", "skip-data-understanding",
-                                    "skip-validation", "k-folds=", "epochs=", "learning-rate=", "patience=",
+                                    "skip-validation", "model=", "k-folds=", "epochs=", "learning-rate=", "patience=",
                                     "slice-width=", "window-step=", "down-sampling-factor="])
     except getopt.GetoptError:
         print(
@@ -90,6 +95,7 @@ def main(argv):
             print("--dry-run                        only run a limited training to make sure syntax is correct")
             print("--skip-data-understanding        skip data understanding")
             print("--skip-validation                skip validation")
+            print("--model <model>                  model to use for training")
             print("--k-folds <k-folds>              number of k-folds")
             print("--epochs <epochs>                number of epochs")
             print("--learning-rate <learning-rate>  learning rate")
@@ -115,6 +121,8 @@ def main(argv):
             skip_data_understanding = True
         elif opt in "--skip-validation":
             skip_validation = True
+        elif opt in ("-m", "--model"):
+            model = arg
         elif opt in ("-k", "--k-folds"):
             k_folds = int(arg)
         elif opt in ("-e", "--epochs"):
@@ -129,6 +137,9 @@ def main(argv):
             window_step = int(arg)
         elif opt in "--down-sampling-factor":
             down_sampling_factor = float(arg)
+
+    if not model in available_models:
+        raise getopt.GetoptError("invalid model. valid options are " + str(available_models))
 
     # Set paths
     file_path = os.path.realpath(__file__)
@@ -337,53 +348,101 @@ def main(argv):
     if not quiet and not dry_run:
         TelegramLogger().log_modelling_start(
             logger=logger,
+            model=model,
             train_dataframes=train_dataframes,
             resampled_train_dataframes=resampled_train_dataframes,
             test_dataframes=test_dataframes
         )
 
-    if not skip_validation:
-        finalize_epochs = CnnBaseModel().validate(
+    if model == "cnn":
+
+        if not skip_validation:
+            finalize_epochs = CnnBaseModel().validate(
+                logger=logger,
+                log_path_modelling=log_path_modelling,
+                train_dataframes=resampled_train_dataframes,
+                k_folds=k_folds,
+                epochs=epochs,
+                learning_rate=learning_rate,
+                patience=patience,
+                slice_width=slice_width,
+                random_state=random_state,
+                quiet=quiet,
+                dry_run=dry_run
+            )
+        else:
+            finalize_epochs = epochs
+
+        CnnBaseModel().finalize(
             logger=logger,
+            model_path=log_path_modelling,
             log_path_modelling=log_path_modelling,
             train_dataframes=resampled_train_dataframes,
-            k_folds=k_folds,
-            epochs=epochs,
+            epochs=finalize_epochs,
             learning_rate=learning_rate,
-            patience=patience,
             slice_width=slice_width,
-            random_state=random_state,
             quiet=quiet,
             dry_run=dry_run
         )
-    else:
-        finalize_epochs = epochs
 
-    CnnBaseModel().finalize(
-        logger=logger,
-        model_path=log_path_modelling,
-        log_path_modelling=log_path_modelling,
-        train_dataframes=resampled_train_dataframes,
-        epochs=finalize_epochs,
-        learning_rate=learning_rate,
-        slice_width=slice_width,
-        quiet=quiet,
-        dry_run=dry_run
-    )
+        #
+        # Evaluation
+        #
 
-    #
-    # Evaluation
-    #
+        CnnBaseModel().evaluate(
+            logger=logger,
+            log_path_evaluation=log_path_evaluation,
+            test_dataframes=test_dataframes,
+            slice_width=slice_width,
+            model_path=log_path_modelling,
+            clean=clean,
+            quiet=quiet
+        )
 
-    CnnBaseModel().evaluate(
-        logger=logger,
-        log_path_evaluation=log_path_evaluation,
-        test_dataframes=test_dataframes,
-        slice_width=slice_width,
-        model_path=log_path_modelling,
-        clean=clean,
-        quiet=quiet
-    )
+    elif model == "lstm":
+
+        if not skip_validation:
+            finalize_epochs = LstmBaseModel().validate(
+                logger=logger,
+                log_path_modelling=log_path_modelling,
+                train_dataframes=resampled_train_dataframes,
+                k_folds=k_folds,
+                epochs=epochs,
+                learning_rate=learning_rate,
+                patience=patience,
+                slice_width=slice_width,
+                random_state=random_state,
+                quiet=quiet,
+                dry_run=dry_run
+            )
+        else:
+            finalize_epochs = epochs
+
+        LstmBaseModel().finalize(
+            logger=logger,
+            model_path=log_path_modelling,
+            log_path_modelling=log_path_modelling,
+            train_dataframes=resampled_train_dataframes,
+            epochs=finalize_epochs,
+            learning_rate=learning_rate,
+            slice_width=slice_width,
+            quiet=quiet,
+            dry_run=dry_run
+        )
+
+        #
+        # Evaluation
+        #
+
+        LstmBaseModel().evaluate(
+            logger=logger,
+            log_path_evaluation=log_path_evaluation,
+            test_dataframes=test_dataframes,
+            slice_width=slice_width,
+            model_path=log_path_modelling,
+            clean=clean,
+            quiet=quiet
+        )
 
     #
     #

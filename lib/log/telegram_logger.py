@@ -52,16 +52,16 @@ class TelegramLogger:
             conf=os.path.join(script_path, "telegram.config")
         )
 
-    def log_modelling_start(self, logger, train_dataframes, resampled_train_dataframes, test_dataframes):
+    def log_modelling_start(self, logger, model, train_dataframes, resampled_train_dataframes, test_dataframes):
 
         percentage = round(len(resampled_train_dataframes) / len(train_dataframes), 2) * 100
 
         if len(train_dataframes) == len(resampled_train_dataframes):
-            telegram_line = "Modelling started with " + \
+            telegram_line = "Modelling started with " + model + \
                             "\n* train dataframes " + str(len(train_dataframes)) + \
                             "\n* test dataframes " + str(len(test_dataframes))
         else:
-            telegram_line = "Modelling started with " + \
+            telegram_line = "Modelling started with " + model + \
                             "\n* train dataframes " + str(len(train_dataframes)) + " down-sampled to " + \
                             str(len(resampled_train_dataframes)) + " (" + str(percentage) + "%)" + \
                             "\n* test dataframes " + str(len(test_dataframes))
