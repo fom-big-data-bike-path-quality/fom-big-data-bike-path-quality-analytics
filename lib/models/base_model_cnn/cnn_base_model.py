@@ -95,8 +95,8 @@ class CnnBaseModel:
     def __init__(self):
         self.model_logger = ModelLogger()
         self.model_plotter = ModelPlotter()
-        self.model_preparator = ModelPreparator
-        self.model_evaluator = ModelEvaluator
+        self.model_preparator = ModelPreparator()
+        self.model_evaluator = ModelEvaluator()
 
     @TrackingDecorator.track_time
     def validate(self, logger, log_path_modelling, train_dataframes, k_folds, epochs, learning_rate, patience,
