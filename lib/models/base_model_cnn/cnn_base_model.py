@@ -12,9 +12,7 @@ from model_evaluator import ModelEvaluator
 from model_logger import ModelLogger
 from model_plotter import ModelPlotter
 from model_preparator import ModelPreparator
-from sklearn.metrics import confusion_matrix as cm
 from sklearn.model_selection import KFold
-from telegram_logger import TelegramLogger
 from torch import nn
 from torch import optim
 from torch.nn import functional as F
@@ -141,7 +139,6 @@ class CnnBaseModel:
             validation_accuracy_history, validation_precision_history, validation_recall_history, \
             validation_f1_score_history, validation_cohen_kappa_score_history, \
             validation_matthew_correlation_coefficient_history, epoch = self.validate_fold(
-                logger=self.logger,
                 log_path=self.log_path_modelling,
                 fold_index=fold_index,
                 k_folds=k_folds,
@@ -190,14 +187,11 @@ class CnnBaseModel:
             overall_validation_matthew_correlation_coefficient_history=overall_validation_matthew_correlation_coefficient_history,
             quiet=quiet)
 
-        if not quiet and not dry_run:
-            time_elapsed = datetime.now() - start_time
-
-            TelegramLogger().log_validation(
-                logger=logger,
-                time_elapsed="{}".format(time_elapsed),
-                log_path_modelling=log_path_modelling
-            )
+        self.logger.log_validation(
+            time_elapsed="{}".format(datetime.now() - start_time),
+            log_path_modelling=self.log_path_modelling,
+            telegram=not quiet and not dry_run
+        )
 
         return int(np.mean(overall_epochs))
 
@@ -386,22 +380,19 @@ class CnnBaseModel:
             quiet=quiet
         )
 
-        if not quiet and not dry_run:
-            time_elapsed = datetime.now() - start_time
-
-            TelegramLogger().log_fold(
-                logger=logger,
-                time_elapsed="{}".format(time_elapsed),
-                k_fold=fold_index,
-                k_folds=k_folds,
-                epochs=epoch,
-                accuracy=round(validation_accuracy_max, 2),
-                precision=round(validation_precision_max, 2),
-                recall=round(validation_recall_max, 2),
-                f1_score=round(validation_f1_score_max, 2),
-                cohen_kappa_score=round(validation_cohen_kappa_score_max, 2),
-                matthew_correlation_coefficient=round(validation_matthew_correlation_coefficient_max, 2)
-            )
+        self.logger.log_fold(
+            time_elapsed="{}".format(datetime.now() - start_time),
+            k_fold=fold_index,
+            k_folds=k_folds,
+            epochs=epoch,
+            accuracy=round(validation_accuracy_max, 2),
+            precision=round(validation_precision_max, 2),
+            recall=round(validation_recall_max, 2),
+            f1_score=round(validation_f1_score_max, 2),
+            cohen_kappa_score=round(validation_cohen_kappa_score_max, 2),
+            matthew_correlation_coefficient=round(validation_matthew_correlation_coefficient_max, 2),
+            telegram=not quiet and not dry_run
+        )
 
         return validation_accuracy_history, validation_precision_history, validation_recall_history, \
                validation_f1_score_history, validation_cohen_kappa_score_history, \
@@ -458,14 +449,11 @@ class CnnBaseModel:
 
         torch.save(classifier.state_dict(), os.path.join(self.log_path_modelling, "model.pickle"))
 
-        if not quiet and not dry_run:
-            time_elapsed = datetime.now() - start_time
-
-            TelegramLogger().log_finalization(
-                logger=logger,
-                time_elapsed="{}".format(time_elapsed),
-                epochs=epochs
-            )
+        self.logger.log_finalization(
+            time_elapsed="{}".format(datetime.now() - start_time),
+            epochs=epochs,
+            telegram=not quiet and not dry_run
+        )
 
     @TrackingDecorator.track_time
     def evaluate(self, slice_width, clean=False, quiet=False):
@@ -506,28 +494,16 @@ class CnnBaseModel:
         ConfusionMatrixPlotter().run(self.logger, os.path.join(self.log_path_evaluation, "plots"),
                                      test_confusion_matrix_dataframe, clean=clean)
 
-        if not quiet:
-            time_elapsed = datetime.now() - start_time
-
-            logger.log_line("Confusion matrix \n" + str(cm(targets, predictions)))
-            logger.log_line("Accuracy " + str(round(test_accuracy, 2)))
-            logger.log_line("Precision " + str(round(test_precision, 2)))
-            logger.log_line("Recall " + str(round(test_recall, 2)))
-            logger.log_line("F1 Score " + str(round(test_f1_score, 2)))
-            logger.log_line("Cohen's Kappa Score " + str(round(test_cohen_kappa_score, 2)))
-            logger.log_line(
-                "Matthew's Correlation Coefficient Score " + str(round(test_matthew_correlation_coefficient, 2)))
-
-            TelegramLogger().log_evaluation(
-                logger=logger,
-                time_elapsed="{}".format(time_elapsed),
-                log_path_evaluation=log_path_evaluation,
-                test_accuracy=test_accuracy,
-                test_precision=test_precision,
-                test_recall=test_recall,
-                test_f1_score=test_f1_score,
-                test_cohen_kappa_score=test_cohen_kappa_score,
-                test_matthew_correlation_coefficient=test_matthew_correlation_coefficient
-            )
+        self.logger.log_evaluation(
+            time_elapsed="{}".format(datetime.now() - start_time),
+            log_path_evaluation=self.log_path_evaluation,
+            test_accuracy=test_accuracy,
+            test_precision=test_precision,
+            test_recall=test_recall,
+            test_f1_score=test_f1_score,
+            test_cohen_kappa_score=test_cohen_kappa_score,
+            test_matthew_correlation_coefficient=test_matthew_correlation_coefficient,
+            telegram=not quiet
+        )
 
         return test_accuracy, test_precision, test_recall, test_f1_score, test_cohen_kappa_score, test_matthew_correlation_coefficient

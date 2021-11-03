@@ -12,9 +12,7 @@ from model_evaluator import ModelEvaluator
 from model_logger import ModelLogger
 from model_plotter import ModelPlotter
 from model_preparator import ModelPreparator
-from sklearn.metrics import confusion_matrix as cm
 from sklearn.model_selection import KFold
-from telegram_logger import TelegramLogger
 from torch import nn
 from torch import optim
 from torch.nn import functional as F
@@ -141,11 +139,9 @@ class LstmBaseModel:
             validation_accuracy_history, validation_precision_history, validation_recall_history, \
             validation_f1_score_history, validation_cohen_kappa_score_history, \
             validation_matthew_correlation_coefficient_history, epoch = self.validate_fold(
-                logger=self.logger,
-                log_path=self.log_path_modelling,
                 fold_index=fold_index,
                 k_folds=k_folds,
-                dataframes=train_dataframes,
+                dataframes=self.train_dataframes,
                 epochs=epochs,
                 learning_rate=learning_rate,
                 patience=patience,
@@ -192,19 +188,16 @@ class LstmBaseModel:
             overall_validation_matthew_correlation_coefficient_history=overall_validation_matthew_correlation_coefficient_history,
             quiet=quiet)
 
-        if not quiet and not dry_run:
-            time_elapsed = datetime.now() - start_time
-
-            TelegramLogger().log_validation(
-                logger=logger,
-                time_elapsed="{}".format(time_elapsed),
-                log_path_modelling=log_path_modelling
-            )
+        self.logger.log_validation(
+            time_elapsed="{}".format(datetime.now() - start_time),
+            log_path_modelling=self.log_path_modelling,
+            telegram=not quiet and not dry_run
+        )
 
         return int(np.mean(overall_epochs))
 
     @TrackingDecorator.track_time
-    def validate_fold(self, logger, log_path, fold_index, k_folds, train_ids, validation_ids, dataframes, epochs,
+    def validate_fold(self, fold_index, k_folds, train_ids, validation_ids, dataframes, epochs,
                       learning_rate, patience, slice_width, dropout, lstm_hidden_dimension, lstm_layer_dimension,
                       quiet, dry_run):
         """
@@ -214,9 +207,9 @@ class LstmBaseModel:
         start_time = datetime.now()
 
         # Make results path
-        os.makedirs(os.path.join(log_path, "models", "fold-" + str(fold_index)), exist_ok=True)
+        os.makedirs(os.path.join(self.log_path, "models", "fold-" + str(fold_index)), exist_ok=True)
 
-        logger.log_line("\n Fold # " + str(fold_index) + "\n")
+        self.logger.log_line("\n Fold # " + str(fold_index) + "\n")
 
         train_dataframes = {id: list(dataframes.values())[id] for id in train_ids}
         validation_dataframes = {id: list(dataframes.values())[id] for id in validation_ids}
@@ -233,8 +226,8 @@ class LstmBaseModel:
 
         # Plot target variable distribution
         self.model_plotter.plot_fold_distribution(
-            logger=logger,
-            log_path=log_path,
+            logger=self.logger,
+            log_path=self.log_path,
             train_dataframes=train_dataframes,
             validation_dataframes=validation_dataframes,
             fold_index=fold_index,
@@ -336,7 +329,7 @@ class LstmBaseModel:
             validation_matthew_correlation_coefficient_history.append(validation_matthew_correlation_coefficient)
 
             if not quiet:
-                logger.log_line("Fold " + str(fold_index) + " " +
+                self.logger.log_line("Fold " + str(fold_index) + " " +
                                 "epoch " + str(epoch) + " " +
                                 "loss " + str(round(train_epoch_loss, 4)).ljust(4, '0') + ", " +
                                 "accuracy " + str(round(validation_accuracy, 2)) + ", " +
@@ -358,22 +351,22 @@ class LstmBaseModel:
                 validation_cohen_kappa_score_max = validation_cohen_kappa_score
                 validation_matthew_correlation_coefficient_max = validation_matthew_correlation_coefficient
                 torch.save(classifier.state_dict(),
-                           os.path.join(log_path, "models", "fold-" + str(fold_index), "model.pickle"))
+                           os.path.join(self.log_path, "models", "fold-" + str(fold_index), "model.pickle"))
             else:
                 trials += 1
                 if trials >= patience and not quiet:
-                    logger.log_line("\nNo further improvement after epoch " + str(epoch))
+                    self.logger.log_line("\nNo further improvement after epoch " + str(epoch))
                     break
 
             if epoch >= epochs:
-                logger.log_line("\nLast epoch reached")
+                self.logger.log_line("\nLast epoch reached")
                 break
 
         progress_bar.close()
 
         self.model_plotter.plot_training_results(
-            logger=logger,
-            log_path=log_path,
+            logger=self.logger,
+            log_path=self.log_path,
             train_loss_history=train_loss_history,
             validation_loss_history=validation_loss_history,
             train_accuracy_history=train_accuracy_history,
@@ -387,22 +380,19 @@ class LstmBaseModel:
             quiet=quiet
         )
 
-        if not quiet and not dry_run:
-            time_elapsed = datetime.now() - start_time
-
-            TelegramLogger().log_fold(
-                logger=logger,
-                time_elapsed="{}".format(time_elapsed),
-                k_fold=fold_index,
-                k_folds=k_folds,
-                epochs=epoch,
-                accuracy=round(validation_accuracy_max, 2),
-                precision=round(validation_precision_max, 2),
-                recall=round(validation_recall_max, 2),
-                f1_score=round(validation_f1_score_max, 2),
-                cohen_kappa_score=round(validation_cohen_kappa_score_max, 2),
-                matthew_correlation_coefficient=round(validation_matthew_correlation_coefficient_max, 2)
-            )
+        self.logger.log_fold(
+            time_elapsed="{}".format(datetime.now() - start_time),
+            k_fold=fold_index,
+            k_folds=k_folds,
+            epochs=epoch,
+            accuracy=round(validation_accuracy_max, 2),
+            precision=round(validation_precision_max, 2),
+            recall=round(validation_recall_max, 2),
+            f1_score=round(validation_f1_score_max, 2),
+            cohen_kappa_score=round(validation_cohen_kappa_score_max, 2),
+            matthew_correlation_coefficient=round(validation_matthew_correlation_coefficient_max, 2),
+            telegram=not quiet and not dry_run
+        )
 
         return validation_accuracy_history, validation_precision_history, validation_recall_history, \
                validation_f1_score_history, validation_cohen_kappa_score_history, \
@@ -458,14 +448,11 @@ class LstmBaseModel:
 
         torch.save(classifier.state_dict(), os.path.join(self.log_path_modelling, "model.pickle"))
 
-        if not quiet and not dry_run:
-            time_elapsed = datetime.now() - start_time
-
-            TelegramLogger().log_finalization(
-                logger=logger,
-                time_elapsed="{}".format(time_elapsed),
-                epochs=epochs
-            )
+        self.logger.log_finalization(
+            time_elapsed="{}".format(datetime.now() - start_time),
+            epochs=epochs,
+            telegram=not quiet and not dry_run
+        )
 
     @TrackingDecorator.track_time
     def evaluate(self, slice_width, lstm_hidden_dimension, lstm_layer_dimension, model_path, clean=False, quiet=False):
@@ -506,28 +493,16 @@ class LstmBaseModel:
         ConfusionMatrixPlotter().run(self.logger, os.path.join(self.log_path_evaluation, "plots"),
                                      test_confusion_matrix_dataframe, clean=clean)
 
-        if not quiet:
-            time_elapsed = datetime.now() - start_time
-
-            logger.log_line("Confusion matrix \n" + str(cm(targets, predictions)))
-            logger.log_line("Accuracy " + str(round(test_accuracy, 2)))
-            logger.log_line("Precision " + str(round(test_precision, 2)))
-            logger.log_line("Recall " + str(round(test_recall, 2)))
-            logger.log_line("F1 Score " + str(round(test_f1_score, 2)))
-            logger.log_line("Cohen's Kappa Score " + str(round(test_cohen_kappa_score, 2)))
-            logger.log_line(
-                "Matthew's Correlation Coefficient Score " + str(round(test_matthew_correlation_coefficient, 2)))
-
-            TelegramLogger().log_evaluation(
-                logger=logger,
-                time_elapsed="{}".format(time_elapsed),
-                log_path_evaluation=log_path_evaluation,
-                test_accuracy=test_accuracy,
-                test_precision=test_precision,
-                test_recall=test_recall,
-                test_f1_score=test_f1_score,
-                test_cohen_kappa_score=test_cohen_kappa_score,
-                test_matthew_correlation_coefficient=test_matthew_correlation_coefficient
-            )
+        self.logger.log_evaluation(
+            time_elapsed="{}".format(datetime.now() - start_time),
+            log_path_evaluation=self.log_path_evaluation,
+            test_accuracy=test_accuracy,
+            test_precision=test_precision,
+            test_recall=test_recall,
+            test_f1_score=test_f1_score,
+            test_cohen_kappa_score=test_cohen_kappa_score,
+            test_matthew_correlation_coefficient=test_matthew_correlation_coefficient,
+            telegram=not quiet
+        )
 
         return test_accuracy, test_precision, test_recall, test_f1_score, test_cohen_kappa_score, test_matthew_correlation_coefficient

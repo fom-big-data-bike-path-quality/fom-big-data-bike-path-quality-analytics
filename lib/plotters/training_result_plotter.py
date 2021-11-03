@@ -54,7 +54,7 @@ class TrainingResultPlotter:
         plt.close()
 
         if not quiet:
-            logger.log_line("✓️ Plotting " + file_name)
+            logger.log_line("✓️ Plotting " + file_name, console=False, file=True)
 
             class_name = self.__class__.__name__
             function_name = inspect.currentframe().f_code.co_name

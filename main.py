@@ -181,8 +181,6 @@ def main(argv):
     logger = LoggerFacade(log_path, console=True, file=True)
 
     logger.log_training_start(
-        logger=logger,
-
         device_name=device_name,
         training_start_time_string=training_start_time_string,
         clean=clean,

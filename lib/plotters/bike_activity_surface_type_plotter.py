@@ -42,7 +42,7 @@ class BikeActivitySurfaceTypePlotter:
     def run(self, logger, dataframes, slice_width, results_path, file_name, title, description, xlabel,
             run_after_label_encoding=False, clean=False, quiet=False):
         if len(dataframes) == 0:
-            logger.log_line("✗️ Not plotting " + file_name + " because there are no dataframes to plot")
+            logger.log_line("✗️ Not plotting " + file_name + " because there are no dataframes to plot", console=False, file=True)
         else:
             # Make results path
             os.makedirs(results_path, exist_ok=True)
@@ -101,7 +101,7 @@ class BikeActivitySurfaceTypePlotter:
             plt.close()
 
             if not quiet:
-                logger.log_line("✓️ Plotting " + file_name)
+                logger.log_line("✓️ Plotting " + file_name, console=False, file=True)
 
             class_name = self.__class__.__name__
             function_name = inspect.currentframe().f_code.co_name
