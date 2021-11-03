@@ -69,7 +69,7 @@ def main(argv):
     patience = 500
     slice_width = 500
     dropout = 0.5
-    lstm_hidden_dimension = 64
+    lstm_hidden_dimension = 128
     lstm_layer_dimension = 3
 
     measurement_speed_limit = 5.0
