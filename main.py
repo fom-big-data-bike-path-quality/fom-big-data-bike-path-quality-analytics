@@ -12,6 +12,7 @@ library_paths = [
     os.path.join(os.getcwd(), 'lib', 'data_pre_processing'),
     os.path.join(os.getcwd(), 'lib', 'data_preparation'),
     os.path.join(os.getcwd(), 'lib', 'plotters'),
+    os.path.join(os.getcwd(), 'lib', 'models'),
     os.path.join(os.getcwd(), 'lib', 'models', 'base_model_cnn'),
     os.path.join(os.getcwd(), 'lib', 'models', 'base_model_cnn', 'layers'),
     os.path.join(os.getcwd(), 'lib', 'models', 'base_model_lstm'),

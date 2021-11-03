@@ -9,9 +9,7 @@ import torch
 from bike_activity_surface_type_plotter import BikeActivitySurfaceTypePlotter
 from confusion_matrix_plotter import ConfusionMatrixPlotter
 from label_encoder import LabelEncoder
-from sklearn.metrics import cohen_kappa_score
 from sklearn.metrics import confusion_matrix as cm
-from sklearn.metrics import matthews_corrcoef
 from sklearn.model_selection import KFold
 from telegram_logger import TelegramLogger
 from torch import nn
@@ -21,6 +19,7 @@ from torch.utils.data import TensorDataset, DataLoader
 from tqdm import tqdm
 from tracking_decorator import TrackingDecorator
 from training_result_plotter import TrainingResultPlotter
+from model_evaluator import ModelEvaluator
 
 from lstm_classifier import LstmClassifier
 
@@ -248,115 +247,6 @@ def log_fold_results(logger, overall_validation_accuracy_history, overall_valida
 # Evaluation
 #
 
-def get_accuracy(confusion_matrix_dataframe):
-    tp = 0
-
-    for i in confusion_matrix_dataframe.index:
-        tp += get_true_positives(confusion_matrix_dataframe, i)
-
-    total = get_total_predictions(confusion_matrix_dataframe)
-
-    return tp / total
-
-
-def get_precision(confusion_matrix_dataframe):
-    precisions = []
-
-    for i in confusion_matrix_dataframe.index:
-        tp = get_true_positives(confusion_matrix_dataframe, i)
-        fp = get_false_positives(confusion_matrix_dataframe, i)
-        precision = 0
-
-        if (tp + fp) > 0:
-            precision = tp / (tp + fp)
-
-        precisions.append(precision)
-
-    return np.mean(precisions)
-
-
-def get_recall(confusion_matrix_dataframe):
-    recalls = []
-
-    for i in confusion_matrix_dataframe.index:
-        tp = get_true_positives(confusion_matrix_dataframe, i)
-        fn = get_false_negatives(confusion_matrix_dataframe, i)
-        recall = 0
-
-        if (tp + fn) > 0:
-            recall = tp / (tp + fn)
-
-        recalls.append(recall)
-
-    return np.mean(recalls)
-
-
-def get_f1_score(confusion_matrix_dataframe):
-    f1_scores = []
-
-    for i in confusion_matrix_dataframe.index:
-        tp = get_true_positives(confusion_matrix_dataframe, i)
-        fp = get_false_positives(confusion_matrix_dataframe, i)
-        fn = get_false_negatives(confusion_matrix_dataframe, i)
-        precision = 0
-        recall = 0
-        f1_score = 0
-
-        if (tp + fp) > 0:
-            precision = tp / (tp + fp)
-
-        if (tp + fn) > 0:
-            recall = tp / (tp + fn)
-
-        if (precision + recall) > 0:
-            f1_score = (2 * precision * recall) / (precision + recall)
-
-        f1_scores.append(f1_score)
-
-    return np.mean(f1_scores)
-
-
-def get_cohen_kappa_score(target, prediction):
-    return cohen_kappa_score(target, prediction)
-
-
-def get_matthews_corrcoef_score(target, prediction):
-    return matthews_corrcoef(target, prediction)
-
-
-def get_true_positives(confusion_matrix_dataframe, index):
-    return confusion_matrix_dataframe.loc[index, index]
-
-
-def get_false_positives(confusion_matrix_dataframe, index):
-    fp = 0
-
-    for i in confusion_matrix_dataframe.index:
-        if i != index:
-            fp += confusion_matrix_dataframe.loc[i, index]
-
-    return fp
-
-
-def get_false_negatives(confusion_matrix_dataframe, index):
-    fn = 0
-
-    for i in confusion_matrix_dataframe.index:
-        if i != index:
-            fn += confusion_matrix_dataframe.loc[index, i]
-
-    return fn
-
-
-def get_total_predictions(confusion_matrix_dataframe):
-    total = 0
-    for i in confusion_matrix_dataframe.index:
-        for j in confusion_matrix_dataframe.index:
-            total += confusion_matrix_dataframe.loc[i, j]
-
-    return total
-
-
 def get_confusion_matrix_dataframe(classifier, data_loader):
     targets = []
     predictions = []
@@ -387,6 +277,8 @@ def get_confusion_matrix_dataframe(classifier, data_loader):
 
 def evaluate(classifier, data_loader):
     confusion_matrix_dataframe, targets, predictions = get_confusion_matrix_dataframe(classifier, data_loader)
+
+    model_evaluator = ModelEvaluator()
 
     accuracy = get_accuracy(confusion_matrix_dataframe)
     precision = get_precision(confusion_matrix_dataframe)
