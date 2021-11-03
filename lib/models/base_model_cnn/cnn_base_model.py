@@ -92,15 +92,23 @@ def evaluate(classifier, data_loader):
 
 class CnnBaseModel:
 
-    def __init__(self):
+    def __init__(self, logger, log_path, log_path_modelling, log_path_evaluation, train_dataframes, test_dataframes):
+        self.logger = logger
+        self.log_path = log_path
+        self.log_path_modelling = log_path_modelling
+        self.log_path_evaluation = log_path_evaluation
+
+        self.train_dataframes = train_dataframes
+        self.test_dataframes = test_dataframes
+
         self.model_logger = ModelLogger()
         self.model_plotter = ModelPlotter()
         self.model_preparator = ModelPreparator()
         self.model_evaluator = ModelEvaluator()
 
     @TrackingDecorator.track_time
-    def validate(self, logger, log_path_modelling, train_dataframes, k_folds, epochs, learning_rate, patience,
-                 slice_width, dropout=0.5, random_state=0, quiet=False, dry_run=False):
+    def validate(self, k_folds, epochs, learning_rate, patience, slice_width, dropout=0.5, random_state=0, quiet=False,
+                 dry_run=False):
         """
         Validates the model by folding all train dataframes
         """
@@ -108,7 +116,7 @@ class CnnBaseModel:
         start_time = datetime.now()
 
         # Make results path
-        os.makedirs(log_path_modelling, exist_ok=True)
+        os.makedirs(self.log_path_modelling, exist_ok=True)
 
         kf = KFold(n_splits=k_folds, shuffle=True, random_state=random_state)
         fold_index = 0
@@ -122,7 +130,7 @@ class CnnBaseModel:
         overall_validation_matthew_correlation_coefficient_history = []
         overall_epochs = []
 
-        ids = sorted(list(train_dataframes.keys()))
+        ids = sorted(list(self.train_dataframes.keys()))
 
         for train_ids, validation_ids in kf.split(ids):
             # Increment fold index
@@ -133,11 +141,11 @@ class CnnBaseModel:
             validation_accuracy_history, validation_precision_history, validation_recall_history, \
             validation_f1_score_history, validation_cohen_kappa_score_history, \
             validation_matthew_correlation_coefficient_history, epoch = self.validate_fold(
-                logger=logger,
-                log_path=log_path_modelling,
+                logger=self.logger,
+                log_path=self.log_path_modelling,
                 fold_index=fold_index,
                 k_folds=k_folds,
-                dataframes=train_dataframes,
+                dataframes=self.train_dataframes,
                 epochs=epochs,
                 learning_rate=learning_rate,
                 patience=patience,
@@ -160,8 +168,8 @@ class CnnBaseModel:
             overall_epochs.append(epoch)
 
         self.model_plotter.plot_fold_results(
-            logger=logger,
-            log_path=log_path_modelling,
+            logger=self.logger,
+            log_path=self.log_path_modelling,
             fold_labels=fold_labels,
             overall_validation_accuracy_history=overall_validation_accuracy_history,
             overall_validation_precision_history=overall_validation_precision_history,
@@ -173,7 +181,8 @@ class CnnBaseModel:
         )
 
         self.model_logger.log_fold_results(
-            logger=logger, overall_validation_accuracy_history=overall_validation_accuracy_history,
+            logger=self.logger,
+            overall_validation_accuracy_history=overall_validation_accuracy_history,
             overall_validation_precision_history=overall_validation_precision_history,
             overall_validation_recall_history=overall_validation_recall_history,
             overall_validation_f1_score_history=overall_validation_f1_score_history,
@@ -193,8 +202,8 @@ class CnnBaseModel:
         return int(np.mean(overall_epochs))
 
     @TrackingDecorator.track_time
-    def validate_fold(self, logger, log_path, fold_index, k_folds, train_ids, validation_ids, dataframes, epochs,
-                      learning_rate, patience, slice_width, dropout, quiet, dry_run):
+    def validate_fold(self, fold_index, k_folds, train_ids, validation_ids, dataframes, epochs,
+                      learning_rate, patience, slice_width, dropout=0.5, quiet=False, dry_run=False):
         """
         Validates a single fold
         """
@@ -202,9 +211,9 @@ class CnnBaseModel:
         start_time = datetime.now()
 
         # Make results path
-        os.makedirs(os.path.join(log_path, "models", "fold-" + str(fold_index)), exist_ok=True)
+        os.makedirs(os.path.join(self.log_path, "models", "fold-" + str(fold_index)), exist_ok=True)
 
-        logger.log_line("\n Fold # " + str(fold_index) + "\n")
+        self.logger.log_line("\n Fold # " + str(fold_index) + "\n")
 
         train_dataframes = {id: list(dataframes.values())[id] for id in train_ids}
         validation_dataframes = {id: list(dataframes.values())[id] for id in validation_ids}
@@ -221,8 +230,8 @@ class CnnBaseModel:
 
         # Plot target variable distribution
         self.model_plotter.plot_fold_distribution(
-            logger=logger,
-            log_path=log_path,
+            logger=self.logger,
+            log_path=self.log_path,
             train_dataframes=train_dataframes,
             validation_dataframes=validation_dataframes,
             fold_index=fold_index,
@@ -326,17 +335,17 @@ class CnnBaseModel:
             validation_matthew_correlation_coefficient_history.append(validation_matthew_correlation_coefficient)
 
             if not quiet:
-                logger.log_line("Fold " + str(fold_index) + " " +
-                                "epoch " + str(epoch) + " " +
-                                "loss " + str(round(train_epoch_loss, 4)).ljust(4, '0') + ", " +
-                                "accuracy " + str(round(validation_accuracy, 2)) + ", " +
-                                "precision " + str(round(validation_precision, 2)) + ", " +
-                                "recall " + str(round(validation_recall, 2)) + ", " +
-                                "f1 score " + str(round(validation_f1_score, 2)) + ", " +
-                                "cohen kappa score " + str(round(validation_cohen_kappa_score, 2)) + ", " +
-                                "matthew correlation coefficient " + str(
+                self.logger.log_line("Fold " + str(fold_index) + " " +
+                                     "epoch " + str(epoch) + " " +
+                                     "loss " + str(round(train_epoch_loss, 4)).ljust(4, '0') + ", " +
+                                     "accuracy " + str(round(validation_accuracy, 2)) + ", " +
+                                     "precision " + str(round(validation_precision, 2)) + ", " +
+                                     "recall " + str(round(validation_recall, 2)) + ", " +
+                                     "f1 score " + str(round(validation_f1_score, 2)) + ", " +
+                                     "cohen kappa score " + str(round(validation_cohen_kappa_score, 2)) + ", " +
+                                     "matthew correlation coefficient " + str(
                     round(validation_matthew_correlation_coefficient, 2)),
-                                console=False, file=True)
+                                     console=False, file=True)
 
             # Check if accuracy increased
             if validation_f1_score > validation_f1_score_max:
@@ -348,22 +357,22 @@ class CnnBaseModel:
                 validation_cohen_kappa_score_max = validation_cohen_kappa_score
                 validation_matthew_correlation_coefficient_max = validation_matthew_correlation_coefficient
                 torch.save(classifier.state_dict(),
-                           os.path.join(log_path, "models", "fold-" + str(fold_index), "model.pickle"))
+                           os.path.join(self.log_path, "models", "fold-" + str(fold_index), "model.pickle"))
             else:
                 trials += 1
                 if trials >= patience and not quiet:
-                    logger.log_line("\nNo further improvement after epoch " + str(epoch))
+                    self.logger.log_line("\nNo further improvement after epoch " + str(epoch))
                     break
 
             if epoch >= epochs:
-                logger.log_line("\nLast epoch reached")
+                self.logger.log_line("\nLast epoch reached")
                 break
 
         progress_bar.close()
 
         self.model_plotter.plot_training_results(
-            logger=logger,
-            log_path=log_path,
+            logger=self.logger,
+            log_path=self.log_path,
             train_loss_history=train_loss_history,
             validation_loss_history=validation_loss_history,
             train_accuracy_history=train_accuracy_history,
@@ -399,8 +408,7 @@ class CnnBaseModel:
                validation_matthew_correlation_coefficient_history, epoch
 
     @TrackingDecorator.track_time
-    def finalize(self, logger, model_path, log_path_modelling, train_dataframes, epochs, learning_rate, slice_width,
-                 dropout=0.5, quiet=False, dry_run=False):
+    def finalize(self, epochs, learning_rate, slice_width, dropout=0.5, quiet=False, dry_run=False):
         """
         Trains a final model by using all train dataframes
         """
@@ -408,10 +416,10 @@ class CnnBaseModel:
         start_time = datetime.now()
 
         # Make results path
-        os.makedirs(model_path, exist_ok=True)
+        os.makedirs(self.log_path_modelling, exist_ok=True)
 
         # Create data loader for train
-        train_array = self.model_preparator.create_array(train_dataframes)
+        train_array = self.model_preparator.create_array(self.train_dataframes)
         train_dataset = self.model_preparator.create_dataset(train_array)
         train_data_loader = self.model_preparator.create_loader(train_dataset, shuffle=False)
 
@@ -443,12 +451,12 @@ class CnnBaseModel:
             classifier.eval()
 
             if not quiet:
-                logger.log_line("Epoch " + str(epoch) + " loss " + str(round(train_epoch_loss, 4)).ljust(4, '0'),
-                                console=False, file=True)
+                self.logger.log_line("Epoch " + str(epoch) + " loss " + str(round(train_epoch_loss, 4)).ljust(4, '0'),
+                                     console=False, file=True)
 
         progress_bar.close()
 
-        torch.save(classifier.state_dict(), os.path.join(model_path, "model.pickle"))
+        torch.save(classifier.state_dict(), os.path.join(self.log_path_modelling, "model.pickle"))
 
         if not quiet and not dry_run:
             time_elapsed = datetime.now() - start_time
@@ -460,7 +468,7 @@ class CnnBaseModel:
             )
 
     @TrackingDecorator.track_time
-    def evaluate(self, logger, log_path_evaluation, test_dataframes, slice_width, model_path, clean=False, quiet=False):
+    def evaluate(self, slice_width, clean=False, quiet=False):
         """
         Evaluates finalized model against test dataframes
         """
@@ -468,10 +476,10 @@ class CnnBaseModel:
         start_time = datetime.now()
 
         # Make results path
-        os.makedirs(log_path_evaluation, exist_ok=True)
+        os.makedirs(self.log_path_evaluation, exist_ok=True)
 
         # Create data loader
-        test_array = self.model_preparator.create_array(test_dataframes)
+        test_array = self.model_preparator.create_array(self.test_dataframes)
         test_dataset = self.model_preparator.create_dataset(test_array)
         test_data_loader = self.model_preparator.create_loader(test_dataset, shuffle=False)
 
@@ -481,7 +489,7 @@ class CnnBaseModel:
         # Define classifier
         classifier = CnnClassifier(input_channels=1, num_classes=num_classes, linear_channels=linear_channels).to(
             device)
-        classifier.load_state_dict(torch.load(os.path.join(model_path, "model.pickle")))
+        classifier.load_state_dict(torch.load(os.path.join(self.log_path_modelling, "model.pickle")))
         classifier.eval()
 
         # Evaluate with test dataloader
@@ -495,7 +503,7 @@ class CnnBaseModel:
         # Plot confusion matrix
         test_confusion_matrix_dataframe, targets, predictions = get_confusion_matrix_dataframe(classifier,
                                                                                                test_data_loader)
-        ConfusionMatrixPlotter().run(logger, os.path.join(log_path_evaluation, "plots"),
+        ConfusionMatrixPlotter().run(self.logger, os.path.join(self.log_path_evaluation, "plots"),
                                      test_confusion_matrix_dataframe, clean=clean)
 
         if not quiet:

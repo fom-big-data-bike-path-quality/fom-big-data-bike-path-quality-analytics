@@ -25,7 +25,6 @@ for p in library_paths:
 
 # Import library classes
 from logger_facade import LoggerFacade
-from telegram_logger import TelegramLogger
 from data_loader import DataLoader
 from data_filterer import DataFilterer
 from data_transformer import DataTransformer
@@ -180,67 +179,38 @@ def main(argv):
 
     # Initialize logger
     logger = LoggerFacade(log_path, console=True, file=True)
-    logger.log_line("Start Training")
 
-    # Print parameters
-    logger.log_line("Parameters")
-    logger.log_line("* device name: " + device_name)
-    logger.log_line("* start time: " + training_start_time_string)
-    logger.log_line("* clean: " + str(clean))
-    logger.log_line("* quiet: " + str(quiet))
-    logger.log_line("* transient: " + str(transient))
-    logger.log_line("* dry-run: " + str(dry_run))
-    logger.log_line("* skip data understanding: " + str(skip_data_understanding))
-    logger.log_line("* skip validation: " + str(skip_validation))
+    logger.log_training_start(
+        logger=logger,
 
-    logger.log_line("* window step: " + str(window_step))
-    logger.log_line("* down-sampling factor: " + str(down_sampling_factor))
+        device_name=device_name,
+        training_start_time_string=training_start_time_string,
+        clean=clean,
+        quiet=quiet,
+        transient=transient,
+        dry_run=dry_run,
+        skip_data_understanding=skip_data_understanding,
+        skip_validation=skip_validation,
 
-    logger.log_line("* model: " + model)
-    logger.log_line("* k-folds: " + str(k_folds))
-    logger.log_line("* epochs: " + str(epochs))
-    logger.log_line("* learning rate: " + str(learning_rate))
-    logger.log_line("* patience: " + str(patience))
-    logger.log_line("* slice width: " + str(slice_width))
-    logger.log_line("* dropout: " + str(dropout))
-    logger.log_line("* lstm-hidden-dimension: " + str(lstm_hidden_dimension))
-    logger.log_line("* lstm-layer-dimension: " + str(lstm_layer_dimension))
+        window_step=window_step,
+        down_sampling_factor=down_sampling_factor,
 
-    logger.log_line("* measurement speed limit: " + str(measurement_speed_limit))
+        model=model,
+        k_folds=k_folds,
+        epochs=epochs,
+        learning_rate=learning_rate,
+        patience=patience,
+        slice_width=slice_width,
+        dropout=dropout,
+        lstm_hidden_dimension=lstm_hidden_dimension,
+        lstm_layer_dimension=lstm_layer_dimension,
 
-    logger.log_line("* test size: " + str(test_size))
-    logger.log_line("* random state: " + str(random_state))
+        measurement_speed_limit=measurement_speed_limit,
+        test_size=test_size,
+        random_state=random_state,
 
-    if not quiet and not dry_run:
-        TelegramLogger().log_training_start(
-            logger=logger,
-
-            device_name=device_name,
-            training_start_time_string=training_start_time_string,
-            clean=clean,
-            quiet=quiet,
-            transient=transient,
-            dry_run=dry_run,
-            skip_data_understanding=skip_data_understanding,
-            skip_validation=skip_validation,
-
-            window_step=window_step,
-            down_sampling_factor=down_sampling_factor,
-
-            model=model,
-            k_folds=k_folds,
-            epochs=epochs,
-            learning_rate=learning_rate,
-            patience=patience,
-            slice_width=slice_width,
-            dropout=dropout,
-            lstm_hidden_dimension=lstm_hidden_dimension,
-            lstm_layer_dimension=lstm_layer_dimension,
-
-            measurement_speed_limit=measurement_speed_limit,
-            test_size=test_size,
-            random_state=random_state
-        )
+        telegram=not quiet and not dry_run
+    )
 
     dataframes = DataLoader().run(
         logger=logger,
@@ -372,22 +342,31 @@ def main(argv):
     # Modeling
     #
 
-    if not quiet and not dry_run:
-        TelegramLogger().log_modelling_start(
-            logger=logger,
-            model=model,
-            train_dataframes=train_dataframes,
-            resampled_train_dataframes=resampled_train_dataframes,
-            test_dataframes=test_dataframes
-        )
+    logger.log_modelling_start(
+        model=model,
+        train_dataframes=train_dataframes,
+        resampled_train_dataframes=resampled_train_dataframes,
+        test_dataframes=test_dataframes,
+        telegram=not quiet and not dry_run
+    )
 
     if model == "cnn":
 
+        cnn_base_model = CnnBaseModel(
+            logger=logger,
+            log_path=log_path,
+            log_path_modelling=log_path_modelling,
+            log_path_evaluation=log_path_evaluation,
+            train_dataframes=train_dataframes,
+            test_dataframes=test_dataframes
+        )
+
+        #
+        # Validation
+        #
+
         if not skip_validation:
-            finalize_epochs = CnnBaseModel().validate(
-                logger=logger,
-                log_path_modelling=log_path_modelling,
-                train_dataframes=resampled_train_dataframes,
+            finalize_epochs = cnn_base_model.validate(
                 k_folds=k_folds,
                 epochs=epochs,
                 learning_rate=learning_rate,
@@ -401,11 +380,7 @@ def main(argv):
         else:
             finalize_epochs = epochs
 
-        CnnBaseModel().finalize(
-            logger=logger,
-            model_path=log_path_modelling,
-            log_path_modelling=log_path_modelling,
-            train_dataframes=resampled_train_dataframes,
+        cnn_base_model.finalize(
             epochs=finalize_epochs,
             learning_rate=learning_rate,
             slice_width=slice_width,
@@ -418,20 +393,29 @@ def main(argv):
         # Evaluation
         #
 
-        CnnBaseModel().evaluate(
-            logger=logger,
-            log_path_evaluation=log_path_evaluation,
-            test_dataframes=test_dataframes,
+        cnn_base_model.evaluate(
             slice_width=slice_width,
-            model_path=log_path_modelling,
             clean=clean,
             quiet=quiet
         )
 
     elif model == "lstm":
 
+        lstm_base_model = LstmBaseModel(
+            logger=logger,
+            log_path=log_path,
+            log_path_modelling=log_path_modelling,
+            log_path_evaluation=log_path_evaluation,
+            train_dataframes=train_dataframes,
+            test_dataframes=test_dataframes
+        )
+
+        #
+        # Validation
+        #
+
         if not skip_validation:
-            finalize_epochs = LstmBaseModel().validate(
+            finalize_epochs = lstm_base_model.validate(
                 logger=logger,
                 log_path_modelling=log_path_modelling,
                 train_dataframes=resampled_train_dataframes,
@@ -450,7 +434,7 @@ def main(argv):
         else:
             finalize_epochs = epochs
 
-        LstmBaseModel().finalize(
+        lstm_base_model.finalize(
             logger=logger,
             model_path=log_path_modelling,
             log_path_modelling=log_path_modelling,
@@ -469,7 +453,7 @@ def main(argv):
         # Evaluation
         #
 
-        LstmBaseModel().evaluate(
+        lstm_base_model.evaluate(
             logger=logger,
             log_path_evaluation=log_path_evaluation,
             test_dataframes=test_dataframes,
@@ -505,13 +489,11 @@ def main(argv):
             quiet=quiet
         )
 
-    if not quiet and not dry_run:
-        training_time_elapsed = datetime.now() - training_start_time
-
-        TelegramLogger().log_training_end(
-            logger=logger,
-            time_elapsed="{}".format(training_time_elapsed)
-        )
+    logger.log_training_end(
+        logger=logger,
+        time_elapsed="{}".format(datetime.now() - training_start_time),
+        telegram=not quiet and not dry_run
+    )
 
 
 if __name__ == "__main__":

@@ -92,16 +92,23 @@ def evaluate(classifier, data_loader):
 
 class LstmBaseModel:
 
-    def __init__(self):
+    def __init__(self, logger, log_path, log_path_modelling, log_path_evaluation, train_dataframes, test_dataframes):
+        self.logger = logger
+        self.log_path = log_path
+        self.log_path_modelling = log_path_modelling
+        self.log_path_evaluation = log_path_evaluation
+
+        self.train_dataframes = train_dataframes
+        self.test_dataframes = test_dataframes
+
         self.model_logger = ModelLogger()
         self.model_plotter = ModelPlotter()
         self.model_preparator = ModelPreparator()
         self.model_evaluator = ModelEvaluator()
 
     @TrackingDecorator.track_time
-    def validate(self, logger, log_path_modelling, train_dataframes, k_folds, epochs, learning_rate, patience,
-                 slice_width, dropout=0.5, lstm_hidden_dimension=128, lstm_layer_dimension=3, random_state=0,
-                 quiet=False, dry_run=False):
+    def validate(self, k_folds, epochs, learning_rate, patience, slice_width, dropout=0.5, lstm_hidden_dimension=128,
+                 lstm_layer_dimension=3, random_state=0, quiet=False, dry_run=False):
         """
         Validates the model by folding all train dataframes
         """
@@ -109,7 +116,7 @@ class LstmBaseModel:
         start_time = datetime.now()
 
         # Make results path
-        os.makedirs(log_path_modelling, exist_ok=True)
+        os.makedirs(self.log_path_modelling, exist_ok=True)
 
         kf = KFold(n_splits=k_folds, shuffle=True, random_state=random_state)
         fold_index = 0
@@ -123,7 +130,7 @@ class LstmBaseModel:
         overall_validation_matthew_correlation_coefficient_history = []
         overall_epochs = []
 
-        ids = sorted(list(train_dataframes.keys()))
+        ids = sorted(list(self.train_dataframes.keys()))
 
         for train_ids, validation_ids in kf.split(ids):
             # Increment fold index
@@ -134,8 +141,8 @@ class LstmBaseModel:
             validation_accuracy_history, validation_precision_history, validation_recall_history, \
             validation_f1_score_history, validation_cohen_kappa_score_history, \
             validation_matthew_correlation_coefficient_history, epoch = self.validate_fold(
-                logger=logger,
-                log_path=log_path_modelling,
+                logger=self.logger,
+                log_path=self.log_path_modelling,
                 fold_index=fold_index,
                 k_folds=k_folds,
                 dataframes=train_dataframes,
@@ -163,8 +170,8 @@ class LstmBaseModel:
             overall_epochs.append(epoch)
 
         self.model_plotter.plot_fold_results(
-            logger=logger,
-            log_path=log_path_modelling,
+            logger=self.logger,
+            log_path=self.log_path_modelling,
             fold_labels=fold_labels,
             overall_validation_accuracy_history=overall_validation_accuracy_history,
             overall_validation_precision_history=overall_validation_precision_history,
@@ -176,7 +183,8 @@ class LstmBaseModel:
         )
 
         self.model_logger.log_fold_results(
-            logger=logger, overall_validation_accuracy_history=overall_validation_accuracy_history,
+            logger=self.logger,
+            overall_validation_accuracy_history=overall_validation_accuracy_history,
             overall_validation_precision_history=overall_validation_precision_history,
             overall_validation_recall_history=overall_validation_recall_history,
             overall_validation_f1_score_history=overall_validation_f1_score_history,
@@ -401,8 +409,8 @@ class LstmBaseModel:
                validation_matthew_correlation_coefficient_history, epoch
 
     @TrackingDecorator.track_time
-    def finalize(self, logger, model_path, log_path_modelling, train_dataframes, epochs, learning_rate, slice_width,
-                 dropout=0.5, lstm_hidden_dimension=128, lstm_layer_dimension=3, quiet=False, dry_run=False):
+    def finalize(self, logger, epochs, learning_rate, slice_width, dropout=0.5, lstm_hidden_dimension=128,
+                 lstm_layer_dimension=3, quiet=False, dry_run=False):
         """
         Trains a final model by using all train dataframes
         """
@@ -410,10 +418,10 @@ class LstmBaseModel:
         start_time = datetime.now()
 
         # Make results path
-        os.makedirs(model_path, exist_ok=True)
+        os.makedirs(self.log_path_modelling, exist_ok=True)
 
         # Create data loader for train
-        train_array = self.model_preparator.create_array(train_dataframes)
+        train_array = self.model_preparator.create_array(self.train_dataframes)
         train_dataset = self.model_preparator.create_dataset(train_array)
         train_data_loader = self.model_preparator.create_loader(train_dataset, shuffle=False)
 
@@ -448,7 +456,7 @@ class LstmBaseModel:
 
         progress_bar.close()
 
-        torch.save(classifier.state_dict(), os.path.join(model_path, "model.pickle"))
+        torch.save(classifier.state_dict(), os.path.join(self.log_path_modelling, "model.pickle"))
 
         if not quiet and not dry_run:
             time_elapsed = datetime.now() - start_time
@@ -460,8 +468,7 @@ class LstmBaseModel:
             )
 
     @TrackingDecorator.track_time
-    def evaluate(self, logger, log_path_evaluation, test_dataframes, slice_width, dropout, lstm_hidden_dimension,
-                 lstm_layer_dimension, model_path, clean=False, quiet=False):
+    def evaluate(self, slice_width, lstm_hidden_dimension, lstm_layer_dimension, model_path, clean=False, quiet=False):
         """
         Evaluates finalized model against test dataframes
         """
@@ -469,10 +476,10 @@ class LstmBaseModel:
         start_time = datetime.now()
 
         # Make results path
-        os.makedirs(log_path_evaluation, exist_ok=True)
+        os.makedirs(self.log_path_evaluation, exist_ok=True)
 
         # Create data loader
-        test_array = self.model_preparator.create_array(test_dataframes)
+        test_array = self.model_preparator.create_array(self.test_dataframes)
         test_dataset = self.model_preparator.create_dataset(test_array)
         test_data_loader = self.model_preparator.create_loader(test_dataset, shuffle=False)
 
@@ -496,7 +503,7 @@ class LstmBaseModel:
         # Plot confusion matrix
         test_confusion_matrix_dataframe, targets, predictions = get_confusion_matrix_dataframe(classifier,
                                                                                                test_data_loader)
-        ConfusionMatrixPlotter().run(logger, os.path.join(log_path_evaluation, "plots"),
+        ConfusionMatrixPlotter().run(self.logger, os.path.join(self.log_path_evaluation, "plots"),
                                      test_confusion_matrix_dataframe, clean=clean)
 
         if not quiet:
