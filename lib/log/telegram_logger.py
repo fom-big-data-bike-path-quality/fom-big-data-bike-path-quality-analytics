@@ -12,9 +12,9 @@ def get_fold_emoji(fold_index):
 class TelegramLogger:
 
     def log_training_start(self, logger, device_name, training_start_time_string, clean, quiet, transient, dry_run,
-                           skip_data_understanding, skip_validation, k_folds, epochs, learning_rate, patience,
-                           slice_width, window_step, down_sampling_factor, measurement_speed_limit, test_size,
-                           random_state):
+                           skip_data_understanding, skip_validation, window_step, down_sampling_factor, model, k_folds,
+                           epochs, learning_rate, patience, slice_width, dropout, lstm_hidden_dimension,
+                           lstm_layer_dimension, measurement_speed_limit, test_size, random_state):
 
         telegram_line = "Training started with parameters " + \
                         "\n* device name " + str(device_name) + \
@@ -25,13 +25,17 @@ class TelegramLogger:
                         "\n* dry-run " + str(dry_run) + \
                         "\n* skip data understanding " + str(skip_data_understanding) + \
                         "\n* skip validation " + str(skip_validation) + \
+                        "\n* window step " + str(window_step) + \
+                        "\n* down-sampling factor " + str(down_sampling_factor) + \
+                        "\n* model " + model + \
                         "\n* k-folds " + str(k_folds) + \
                         "\n* epochs " + str(epochs) + \
                         "\n* learning rate " + str(learning_rate) + \
                         "\n* patience " + str(patience) + \
                         "\n* slice width " + str(slice_width) + \
-                        "\n* window step " + str(window_step) + \
-                        "\n* down-sampling factor " + str(down_sampling_factor) + \
+                        "\n* dropout " + str(dropout) + \
+                        "\n* lstm-hidden-dimension " + str(lstm_hidden_dimension) + \
+                        "\n* lstm-layer-dimension " + str(lstm_layer_dimension) + \
                         "\n* measurement speed limit " + str(measurement_speed_limit) + \
                         "\n* test size " + str(test_size) + \
                         "\n* random state " + str(random_state)

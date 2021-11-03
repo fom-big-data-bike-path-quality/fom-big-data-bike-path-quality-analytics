@@ -109,7 +109,8 @@ def main(argv):
             print("--k-folds <k-folds>              number of k-folds")
             print("--epochs <epochs>                number of epochs")
             print("--learning-rate <learning-rate>  learning rate")
-            print("--patience <patience>            number of epochs to wait for improvements before finishing training")
+            print(
+                "--patience <patience>            number of epochs to wait for improvements before finishing training")
             print("--slice-width <slice-width>      number of measurements per slice")
             print("--dropout <dropout>              dropout percentage")
             print("--lstm-hidden-dimension <lstm-hidden-dimension>    hidden dimensions in LSTM")
@@ -192,13 +193,18 @@ def main(argv):
     logger.log_line("* skip data understanding: " + str(skip_data_understanding))
     logger.log_line("* skip validation: " + str(skip_validation))
 
+    logger.log_line("* window step: " + str(window_step))
+    logger.log_line("* down-sampling factor: " + str(down_sampling_factor))
+
+    logger.log_line("* model: " + model)
     logger.log_line("* k-folds: " + str(k_folds))
     logger.log_line("* epochs: " + str(epochs))
     logger.log_line("* learning rate: " + str(learning_rate))
     logger.log_line("* patience: " + str(patience))
     logger.log_line("* slice width: " + str(slice_width))
-    logger.log_line("* window step: " + str(window_step))
-    logger.log_line("* down-sampling factor: " + str(down_sampling_factor))
+    logger.log_line("* dropout: " + str(dropout))
+    logger.log_line("* lstm-hidden-dimension: " + str(lstm_hidden_dimension))
+    logger.log_line("* lstm-layer-dimension: " + str(lstm_layer_dimension))
 
     logger.log_line("* measurement speed limit: " + str(measurement_speed_limit))
 
@@ -218,13 +224,19 @@ def main(argv):
             skip_data_understanding=skip_data_understanding,
             skip_validation=skip_validation,
 
+            window_step=window_step,
+            down_sampling_factor=down_sampling_factor,
+
+            model=model,
             k_folds=k_folds,
             epochs=epochs,
             learning_rate=learning_rate,
             patience=patience,
             slice_width=slice_width,
-            window_step=window_step,
-            down_sampling_factor=down_sampling_factor,
+            dropout=dropout,
+            lstm_hidden_dimension=lstm_hidden_dimension,
+            lstm_layer_dimension=lstm_layer_dimension,
+
             measurement_speed_limit=measurement_speed_limit,
             test_size=test_size,
             random_state=random_state
