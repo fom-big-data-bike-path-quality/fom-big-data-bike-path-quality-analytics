@@ -139,7 +139,6 @@ class CnnBaseModel:
             validation_accuracy_history, validation_precision_history, validation_recall_history, \
             validation_f1_score_history, validation_cohen_kappa_score_history, \
             validation_matthew_correlation_coefficient_history, epoch = self.validate_fold(
-                log_path=self.log_path_modelling,
                 fold_index=fold_index,
                 k_folds=k_folds,
                 dataframes=self.train_dataframes,
@@ -456,7 +455,7 @@ class CnnBaseModel:
         )
 
     @TrackingDecorator.track_time
-    def evaluate(self, slice_width, clean=False, quiet=False):
+    def evaluate(self, slice_width, clean=False, quiet=False, dry_run=False):
         """
         Evaluates finalized model against test dataframes
         """
@@ -503,7 +502,7 @@ class CnnBaseModel:
             test_f1_score=test_f1_score,
             test_cohen_kappa_score=test_cohen_kappa_score,
             test_matthew_correlation_coefficient=test_matthew_correlation_coefficient,
-            telegram=not quiet
+            telegram=not quiet and not dry_run
         )
 
         return test_accuracy, test_precision, test_recall, test_f1_score, test_cohen_kappa_score, test_matthew_correlation_coefficient

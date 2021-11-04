@@ -394,7 +394,8 @@ def main(argv):
         cnn_base_model.evaluate(
             slice_width=slice_width,
             clean=clean,
-            quiet=quiet
+            quiet=quiet,
+            dry_run=dry_run
         )
 
     elif model == "lstm":
@@ -414,9 +415,6 @@ def main(argv):
 
         if not skip_validation:
             finalize_epochs = lstm_base_model.validate(
-                logger=logger,
-                log_path_modelling=log_path_modelling,
-                train_dataframes=resampled_train_dataframes,
                 k_folds=k_folds,
                 epochs=epochs,
                 learning_rate=learning_rate,
@@ -433,10 +431,6 @@ def main(argv):
             finalize_epochs = epochs
 
         lstm_base_model.finalize(
-            logger=logger,
-            model_path=log_path_modelling,
-            log_path_modelling=log_path_modelling,
-            train_dataframes=resampled_train_dataframes,
             epochs=finalize_epochs,
             learning_rate=learning_rate,
             slice_width=slice_width,
@@ -452,16 +446,12 @@ def main(argv):
         #
 
         lstm_base_model.evaluate(
-            logger=logger,
-            log_path_evaluation=log_path_evaluation,
-            test_dataframes=test_dataframes,
             slice_width=slice_width,
-            model_path=log_path_modelling,
-            dropout=dropout,
             lstm_hidden_dimension=lstm_hidden_dimension,
             lstm_layer_dimension=lstm_layer_dimension,
             clean=clean,
-            quiet=quiet
+            quiet=quiet,
+            dry_run=dry_run
         )
 
     #
@@ -488,7 +478,6 @@ def main(argv):
         )
 
     logger.log_training_end(
-        logger=logger,
         time_elapsed="{}".format(datetime.now() - training_start_time),
         telegram=not quiet and not dry_run
     )

@@ -330,16 +330,16 @@ class LstmBaseModel:
 
             if not quiet:
                 self.logger.log_line("Fold " + str(fold_index) + " " +
-                                "epoch " + str(epoch) + " " +
-                                "loss " + str(round(train_epoch_loss, 4)).ljust(4, '0') + ", " +
-                                "accuracy " + str(round(validation_accuracy, 2)) + ", " +
-                                "precision " + str(round(validation_precision, 2)) + ", " +
-                                "recall " + str(round(validation_recall, 2)) + ", " +
-                                "f1 score " + str(round(validation_f1_score, 2)) + ", " +
-                                "cohen kappa score " + str(round(validation_cohen_kappa_score, 2)) + ", " +
-                                "matthew correlation coefficient " + str(
+                                     "epoch " + str(epoch) + " " +
+                                     "loss " + str(round(train_epoch_loss, 4)).ljust(4, '0') + ", " +
+                                     "accuracy " + str(round(validation_accuracy, 2)) + ", " +
+                                     "precision " + str(round(validation_precision, 2)) + ", " +
+                                     "recall " + str(round(validation_recall, 2)) + ", " +
+                                     "f1 score " + str(round(validation_f1_score, 2)) + ", " +
+                                     "cohen kappa score " + str(round(validation_cohen_kappa_score, 2)) + ", " +
+                                     "matthew correlation coefficient " + str(
                     round(validation_matthew_correlation_coefficient, 2)),
-                                console=False, file=True)
+                                     console=False, file=True)
 
             # Check if accuracy increased
             if validation_f1_score > validation_f1_score_max:
@@ -399,7 +399,7 @@ class LstmBaseModel:
                validation_matthew_correlation_coefficient_history, epoch
 
     @TrackingDecorator.track_time
-    def finalize(self, logger, epochs, learning_rate, slice_width, dropout=0.5, lstm_hidden_dimension=128,
+    def finalize(self, epochs, learning_rate, slice_width, dropout=0.5, lstm_hidden_dimension=128,
                  lstm_layer_dimension=3, quiet=False, dry_run=False):
         """
         Trains a final model by using all train dataframes
@@ -441,7 +441,7 @@ class LstmBaseModel:
             classifier.eval()
 
             if not quiet:
-                logger.log_line("Epoch " + str(epoch) + " loss " + str(round(train_epoch_loss, 4)).ljust(4, '0'),
+                self.logger.log_line("Epoch " + str(epoch) + " loss " + str(round(train_epoch_loss, 4)).ljust(4, '0'),
                                 console=False, file=True)
 
         progress_bar.close()
@@ -455,7 +455,8 @@ class LstmBaseModel:
         )
 
     @TrackingDecorator.track_time
-    def evaluate(self, slice_width, lstm_hidden_dimension, lstm_layer_dimension, model_path, clean=False, quiet=False):
+    def evaluate(self, slice_width, lstm_hidden_dimension, lstm_layer_dimension, clean=False, quiet=False,
+                 dry_run=False):
         """
         Evaluates finalized model against test dataframes
         """
@@ -476,7 +477,7 @@ class LstmBaseModel:
         # Define classifier
         classifier = LstmClassifier(input_size=slice_width, hidden_dimension=lstm_hidden_dimension,
                                     layer_dimension=lstm_layer_dimension, num_classes=num_classes).to(device)
-        classifier.load_state_dict(torch.load(os.path.join(model_path, "model.pickle")))
+        classifier.load_state_dict(torch.load(os.path.join(self.log_path_modelling, "model.pickle")))
         classifier.eval()
 
         # Evaluate with test dataloader
@@ -502,7 +503,7 @@ class LstmBaseModel:
             test_f1_score=test_f1_score,
             test_cohen_kappa_score=test_cohen_kappa_score,
             test_matthew_correlation_coefficient=test_matthew_correlation_coefficient,
-            telegram=not quiet
+            telegram=not quiet and not dry_run
         )
 
         return test_accuracy, test_precision, test_recall, test_f1_score, test_cohen_kappa_score, test_matthew_correlation_coefficient
