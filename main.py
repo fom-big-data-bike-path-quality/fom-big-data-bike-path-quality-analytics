@@ -83,7 +83,9 @@ def main(argv):
                                     "skip-validation", "window-step=", "down-sampling-factor=", "model=", "k-folds=",
                                     "epochs=", "learning-rate=", "patience=", "slice-width=", "dropout=",
                                     "lstm-hidden-dimension=", "--lstm-layer-dimension="])
-    except getopt.GetoptError:
+    except getopt.GetoptError as error:
+        print(argv)
+        print(error)
         print(
             "main.py --help --clean --quiet --transient --dry-run --skip-data-understanding --skip-validation " +
             "--window-step <window-step> --down-sampling-factor <down-sampling-factor> --model <model>" +
