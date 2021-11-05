@@ -109,5 +109,5 @@ jobs:
             --accelerator="type=nvidia-tesla-t4,count=1" \
             --service-account="$GCE_SERVICE_ACCOUNT" \
             --scopes="https://www.googleapis.com/auth/cloud-platform" \
-            --metadata="install-nvidia-driver=True" \
-            --metadata-from-file=startup-script="startup.sh"
+            --metadata-from-file="startup-script=startup.sh"
+            --metadata="install-nvidia-driver=True"
