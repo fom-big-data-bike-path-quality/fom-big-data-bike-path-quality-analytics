@@ -82,7 +82,7 @@ def main(argv):
                                    ["help", "clean", "quiet", "transient", "dry-run", "skip-data-understanding",
                                     "skip-validation", "window-step=", "down-sampling-factor=", "model=", "k-folds=",
                                     "epochs=", "learning-rate=", "patience=", "slice-width=", "dropout=",
-                                    "lstm-hidden-dimension=", "--lstm-layer-dimension="])
+                                    "lstm-hidden-dimension=", "lstm-layer-dimension="])
     except getopt.GetoptError as error:
         print(argv)
         print(error)
