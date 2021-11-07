@@ -14,9 +14,12 @@ from tracking_decorator import TrackingDecorator
 class DataLoader:
 
     @TrackingDecorator.track_time
-    def run(self, logger, data_path, quiet=False):
+    def run(self, logger, data_path, limit=100, quiet=False):
         dataframes = {}
         files = list(Path(data_path).rglob("*.csv"))
+
+        if limit is not None:
+            files = files[:limit]
 
         progress_bar = tqdm(iterable=files, unit="files", desc="Load data frames")
         for file_path in progress_bar:

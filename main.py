@@ -58,6 +58,8 @@ def main(argv):
     skip_data_understanding = False
     skip_validation = False
 
+    limit = None
+
     window_step = 50
     down_sampling_factor = 3.0
 
@@ -128,6 +130,7 @@ def main(argv):
             clean = True
             transient = True
             dry_run = True
+            limit = 1_000
         elif opt in "--skip-data-understanding":
             skip_data_understanding = True
         elif opt in "--skip-validation":
@@ -215,6 +218,7 @@ def main(argv):
     dataframes = DataLoader().run(
         logger=logger,
         data_path=slices_path,
+        limit=limit,
         quiet=quiet
     )
 
