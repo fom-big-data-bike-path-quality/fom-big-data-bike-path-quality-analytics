@@ -359,7 +359,6 @@ def main(argv):
 
         cnn_base_model = CnnBaseModel(
             logger=logger,
-            log_path=log_path,
             log_path_modelling=log_path_modelling,
             log_path_evaluation=log_path_evaluation,
             train_dataframes=train_dataframes,
@@ -409,7 +408,6 @@ def main(argv):
 
         lstm_base_model = LstmBaseModel(
             logger=logger,
-            log_path=log_path,
             log_path_modelling=log_path_modelling,
             log_path_evaluation=log_path_evaluation,
             train_dataframes=train_dataframes,

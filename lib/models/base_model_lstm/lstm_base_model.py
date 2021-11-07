@@ -90,9 +90,8 @@ def evaluate(classifier, data_loader):
 
 class LstmBaseModel:
 
-    def __init__(self, logger, log_path, log_path_modelling, log_path_evaluation, train_dataframes, test_dataframes):
+    def __init__(self, logger, log_path_modelling, log_path_evaluation, train_dataframes, test_dataframes):
         self.logger = logger
-        self.log_path = log_path
         self.log_path_modelling = log_path_modelling
         self.log_path_evaluation = log_path_evaluation
 
@@ -227,7 +226,7 @@ class LstmBaseModel:
         # Plot target variable distribution
         self.model_plotter.plot_fold_distribution(
             logger=self.logger,
-            log_path=self.log_path,
+            log_path=self.log_path_modelling,
             train_dataframes=train_dataframes,
             validation_dataframes=validation_dataframes,
             fold_index=fold_index,
@@ -341,7 +340,7 @@ class LstmBaseModel:
                     round(validation_matthew_correlation_coefficient, 2)),
                                      console=False, file=True)
 
-            # Check if accuracy increased
+            # Check if f1 score increased
             if validation_f1_score > validation_f1_score_max:
                 trials = 0
                 validation_accuracy_max = validation_accuracy
@@ -351,7 +350,7 @@ class LstmBaseModel:
                 validation_cohen_kappa_score_max = validation_cohen_kappa_score
                 validation_matthew_correlation_coefficient_max = validation_matthew_correlation_coefficient
                 torch.save(classifier.state_dict(),
-                           os.path.join(self.log_path, "models", "fold-" + str(fold_index), "model.pickle"))
+                           os.path.join(self.log_path_modelling, "models", "fold-" + str(fold_index), "model.pickle"))
             else:
                 trials += 1
                 if trials >= patience and not quiet:
@@ -366,7 +365,7 @@ class LstmBaseModel:
 
         self.model_plotter.plot_training_results(
             logger=self.logger,
-            log_path=self.log_path,
+            log_path=self.log_path_modelling,
             train_loss_history=train_loss_history,
             validation_loss_history=validation_loss_history,
             train_accuracy_history=train_accuracy_history,
