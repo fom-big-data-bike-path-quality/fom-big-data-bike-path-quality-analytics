@@ -3,8 +3,10 @@ from torch import zeros
 
 
 class LstmClassifier(nn.Module):
-    def __init__(self, input_size, hidden_dimension, layer_dimension, num_classes, dropout=0.5):
+    def __init__(self, device, input_size, hidden_dimension, layer_dimension, num_classes, dropout=0.5):
         super().__init__()
+
+        self.device = device
 
         self.hidden_dimension = hidden_dimension
         self.layer_dimension = layer_dimension
@@ -21,8 +23,8 @@ class LstmClassifier(nn.Module):
         self.linear = nn.Linear(hidden_dimension, num_classes)
 
     def forward(self, input):
-        h0 = zeros(self.layer_dimension, input.size(0), self.hidden_dimension).requires_grad_()
-        c0 = zeros(self.layer_dimension, input.size(0), self.hidden_dimension).requires_grad_()
+        h0 = zeros(self.layer_dimension, input.size(0), self.hidden_dimension).requires_grad_().to(self.device)
+        c0 = zeros(self.layer_dimension, input.size(0), self.hidden_dimension).requires_grad_().to(self.device)
 
         out, (hn, cn) = self.lstm(input, (h0.detach(), c0.detach()))
         out = out[:, -1, :]

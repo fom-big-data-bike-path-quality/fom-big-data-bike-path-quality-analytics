@@ -236,7 +236,7 @@ class LstmBaseModel:
         )
 
         # Define classifier
-        classifier = LstmClassifier(input_size=slice_width, hidden_dimension=lstm_hidden_dimension,
+        classifier = LstmClassifier(device=device, input_size=slice_width, hidden_dimension=lstm_hidden_dimension,
                                     layer_dimension=lstm_layer_dimension, num_classes=num_classes,
                                     dropout=dropout).to(device)
         criterion = nn.CrossEntropyLoss(reduction='sum')
@@ -416,7 +416,7 @@ class LstmBaseModel:
         train_data_loader = self.model_preparator.create_loader(train_dataset, shuffle=False)
 
         # Define classifier
-        classifier = LstmClassifier(input_size=slice_width, hidden_dimension=lstm_hidden_dimension,
+        classifier = LstmClassifier(device=device, input_size=slice_width, hidden_dimension=lstm_hidden_dimension,
                                     layer_dimension=lstm_layer_dimension, num_classes=num_classes,
                                     dropout=dropout).to(device)
         criterion = nn.CrossEntropyLoss(reduction='sum')
@@ -475,7 +475,7 @@ class LstmBaseModel:
         linear_channels = self.model_preparator.get_linear_channels(slice_width)
 
         # Define classifier
-        classifier = LstmClassifier(input_size=slice_width, hidden_dimension=lstm_hidden_dimension,
+        classifier = LstmClassifier(device=device, input_size=slice_width, hidden_dimension=lstm_hidden_dimension,
                                     layer_dimension=lstm_layer_dimension, num_classes=num_classes).to(device)
         classifier.load_state_dict(torch.load(os.path.join(self.log_path_modelling, "model.pickle")))
         classifier.eval()
