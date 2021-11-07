@@ -131,6 +131,7 @@ def main(argv):
             transient = True
             dry_run = True
             limit = 1_000
+            k_folds = 5
         elif opt in "--skip-data-understanding":
             skip_data_understanding = True
         elif opt in "--skip-validation":
