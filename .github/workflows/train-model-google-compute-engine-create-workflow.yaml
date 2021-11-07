@@ -77,8 +77,8 @@ jobs:
           echo "sudo apt-get install python3-venv -y >> log.txt" >> startup.sh
           echo "sudo useradd -m -s /bin/bash training >> log.txt" >> startup.sh
           echo "sudo -u training bash -c \"mkdir -p ~/.ssh; ssh-keyscan github.com >> ~/.ssh/known_hosts\"" >> startup.sh
-          echo "sudo -u training bash -c \"git clone https://github.com/fom-big-data-bike-path-quality/fom-big-data-bike-path-quality-analytics.git\"" >> startup.sh
-          echo "sudo -u training bash -c \"git clone https://github.com/fom-big-data-bike-path-quality/fom-big-data-bike-path-quality-data.git fom-big-data-bike-path-quality-analytics/data\"" >> startup.sh
+          echo "sudo -u training bash -c \"cd ~; git clone https://github.com/fom-big-data-bike-path-quality/fom-big-data-bike-path-quality-analytics.git\"" >> startup.sh
+          echo "sudo -u training bash -c \"cd ~; git clone https://github.com/fom-big-data-bike-path-quality/fom-big-data-bike-path-quality-data.git fom-big-data-bike-path-quality-analytics/data\"" >> startup.sh
           echo "sudo -u training bash -c \"gsutil cp gs://bike-path-quality-analytics/telegram.config ~/fom-big-data-bike-path-quality-analytics/lib/log/\"" >> startup.sh
           echo "sudo -u training bash -c \"gsutil cp gs://bike-path-quality-analytics/bike-path-quality-2bebc8ae5dc6.json ~/fom-big-data-bike-path-quality-analytics/lib/cloud/\"" >> startup.sh
           echo "sudo -u training bash -c \"cd ~/fom-big-data-bike-path-quality-analytics; rm -rf data/data/measurements/csv\"" >> startup.sh
