@@ -206,7 +206,7 @@ class LstmBaseModel:
         start_time = datetime.now()
 
         # Make results path
-        os.makedirs(os.path.join(self.log_path, "models", "fold-" + str(fold_index)), exist_ok=True)
+        os.makedirs(os.path.join(self.log_path_modelling, "models", "fold-" + str(fold_index)), exist_ok=True)
 
         self.logger.log_line("\n Fold # " + str(fold_index) + "\n")
 
