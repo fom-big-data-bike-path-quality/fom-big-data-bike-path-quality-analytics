@@ -69,7 +69,7 @@ def get_confusion_matrix_dataframe(classifier, data_loader):
     return confusion_matrix_dataframe, targets, predictions
 
 
-def evaluate(classifier, data_loader):
+def get_metrics(classifier, data_loader):
     confusion_matrix_dataframe, targets, predictions = get_confusion_matrix_dataframe(classifier, data_loader)
 
     model_evaluator = ModelEvaluator()
@@ -90,7 +90,8 @@ def evaluate(classifier, data_loader):
 
 class CnnBaseModel:
 
-    def __init__(self, logger, log_path_modelling, log_path_evaluation, train_dataframes, test_dataframes):
+    def __init__(self, logger, log_path_modelling, log_path_evaluation, train_dataframes, test_dataframes,
+                 epochs, learning_rate, patience, dropout, slice_width):
         self.logger = logger
         self.log_path_modelling = log_path_modelling
         self.log_path_evaluation = log_path_evaluation
@@ -98,14 +99,19 @@ class CnnBaseModel:
         self.train_dataframes = train_dataframes
         self.test_dataframes = test_dataframes
 
+        self.epochs = epochs
+        self.learning_rate = learning_rate
+        self.patience = patience
+        self.dropout = dropout
+        self.slice_width = slice_width
+
         self.model_logger = ModelLogger()
         self.model_plotter = ModelPlotter()
         self.model_preparator = ModelPreparator()
         self.model_evaluator = ModelEvaluator()
 
     @TrackingDecorator.track_time
-    def validate(self, k_folds, epochs, learning_rate, patience, slice_width, dropout=0.5, random_state=0, quiet=False,
-                 dry_run=False):
+    def validate(self, k_folds, random_state=0, quiet=False, dry_run=False):
         """
         Validates the model by folding all train dataframes
         """
@@ -141,11 +147,11 @@ class CnnBaseModel:
                 fold_index=fold_index,
                 k_folds=k_folds,
                 dataframes=self.train_dataframes,
-                epochs=epochs,
-                learning_rate=learning_rate,
-                patience=patience,
-                slice_width=slice_width,
-                dropout=dropout,
+                epochs=self.epochs,
+                learning_rate=self.learning_rate,
+                patience=self.patience,
+                slice_width=self.slice_width,
+                dropout=self.dropout,
                 train_ids=train_ids,
                 validation_ids=validation_ids,
                 quiet=quiet,
@@ -296,13 +302,13 @@ class CnnBaseModel:
                 validation_epoch_loss /= validation_array.shape[0]
                 validation_loss_history.append(validation_epoch_loss)
 
-            # Validate with train dataloader
+            # Get metrics for train data
             train_accuracy, \
             train_precision, \
             train_recall, \
             train_f1_score, \
             train_cohen_kappa_score, \
-            train_matthew_correlation_coefficient = evaluate(classifier, train_data_loader)
+            train_matthew_correlation_coefficient = get_metrics(classifier, train_data_loader)
 
             train_accuracy_history.append(train_accuracy)
             train_precision_history.append(train_precision)
@@ -311,13 +317,13 @@ class CnnBaseModel:
             train_cohen_kappa_score_history.append(train_cohen_kappa_score)
             train_matthew_correlation_coefficient_history.append(train_matthew_correlation_coefficient)
 
-            # Validate with validation dataloader
+            # Get metrics for validation data
             validation_accuracy, \
             validation_precision, \
             validation_recall, \
             validation_f1_score, \
             validation_cohen_kappa_score, \
-            validation_matthew_correlation_coefficient = evaluate(classifier, validation_data_loader)
+            validation_matthew_correlation_coefficient = get_metrics(classifier, validation_data_loader)
 
             validation_accuracy_history.append(validation_accuracy)
             validation_precision_history.append(validation_precision)
@@ -397,7 +403,7 @@ class CnnBaseModel:
                validation_matthew_correlation_coefficient_history, epoch
 
     @TrackingDecorator.track_time
-    def finalize(self, epochs, learning_rate, slice_width, dropout=0.5, quiet=False, dry_run=False):
+    def finalize(self, epochs, quiet=False, dry_run=False):
         """
         Trains a final model by using all train dataframes
         """
@@ -413,13 +419,13 @@ class CnnBaseModel:
         train_data_loader = self.model_preparator.create_loader(train_dataset, shuffle=False)
 
         # Determine number of linear channels based on slice width
-        linear_channels = self.model_preparator.get_linear_channels(slice_width)
+        linear_channels = self.model_preparator.get_linear_channels(self.slice_width)
 
         # Define classifier
         classifier = CnnClassifier(input_channels=1, num_classes=num_classes, linear_channels=linear_channels,
-                                   dropout=dropout).to(device)
+                                   dropout=self.dropout).to(device)
         criterion = nn.CrossEntropyLoss(reduction='sum')
-        optimizer = optim.Adam(classifier.parameters(), lr=learning_rate)
+        optimizer = optim.Adam(classifier.parameters(), lr=self.learning_rate)
 
         # Run training loop
         progress_bar = tqdm(iterable=range(1, epochs + 1), unit="epoch", desc="Train model")
@@ -454,7 +460,7 @@ class CnnBaseModel:
         )
 
     @TrackingDecorator.track_time
-    def evaluate(self, slice_width, clean=False, quiet=False, dry_run=False):
+    def evaluate(self, clean=False, quiet=False, dry_run=False):
         """
         Evaluates finalized model against test dataframes
         """
@@ -470,7 +476,7 @@ class CnnBaseModel:
         test_data_loader = self.model_preparator.create_loader(test_dataset, shuffle=False)
 
         # Determine number of linear channels based on slice width
-        linear_channels = self.model_preparator.get_linear_channels(slice_width)
+        linear_channels = self.model_preparator.get_linear_channels(self.slice_width)
 
         # Define classifier
         classifier = CnnClassifier(input_channels=1, num_classes=num_classes, linear_channels=linear_channels).to(
@@ -484,7 +490,7 @@ class CnnBaseModel:
         test_recall, \
         test_f1_score, \
         test_cohen_kappa_score, \
-        test_matthew_correlation_coefficient = evaluate(classifier, test_data_loader)
+        test_matthew_correlation_coefficient = get_metrics(classifier, test_data_loader)
 
         # Plot confusion matrix
         test_confusion_matrix_dataframe, targets, predictions = get_confusion_matrix_dataframe(classifier,

@@ -13,6 +13,7 @@ library_paths = [
     os.path.join(os.getcwd(), 'lib', 'data_preparation'),
     os.path.join(os.getcwd(), 'lib', 'plotters'),
     os.path.join(os.getcwd(), 'lib', 'models'),
+    os.path.join(os.getcwd(), 'lib', 'models', 'base_model_knn_dtw'),
     os.path.join(os.getcwd(), 'lib', 'models', 'base_model_cnn'),
     os.path.join(os.getcwd(), 'lib', 'models', 'base_model_cnn', 'layers'),
     os.path.join(os.getcwd(), 'lib', 'models', 'base_model_lstm'),
@@ -34,6 +35,7 @@ from bike_activity_surface_type_plotter import BikeActivitySurfaceTypePlotter
 from train_test_data_splitter import TrainTestDataSplitter
 from data_resampler import DataResampler
 from cnn_base_model import CnnBaseModel
+from knn_dtw_base_model import KnnDtwBaseModel
 from lstm_base_model import LstmBaseModel
 from result_handler import ResultHandler
 from tracking_decorator import TrackingDecorator
@@ -48,7 +50,7 @@ def main(argv):
     training_start_time = datetime.now()
     training_start_time_string = training_start_time.strftime("%Y-%m-%d-%H:%M:%S")
 
-    available_models = ["cnn", "lstm"]
+    available_model_names = ["cnn", "lstm", "knn-dtw"]
 
     # Set default values
     clean = False
@@ -63,7 +65,7 @@ def main(argv):
     window_step = 50
     down_sampling_factor = 3.0
 
-    model = None
+    model_name = None
     k_folds = 10
     epochs = 10_000
     learning_rate: float = 0.001
@@ -108,7 +110,7 @@ def main(argv):
             print("--window-step <window-step>      step size used for sliding window data splitter")
             print("--down-sampling-factor <down-sampling-factor>      " +
                   "factor by which target classes are capped in comparison to smallest class")
-            print("--model <model>                  model to use for training")
+            print("--model <model>                  name of the model to use for training")
             print("--k-folds <k-folds>              number of k-folds")
             print("--epochs <epochs>                number of epochs")
             print("--learning-rate <learning-rate>  learning rate")
@@ -130,7 +132,7 @@ def main(argv):
             clean = True
             transient = True
             dry_run = True
-            limit = 1_000
+            limit = 100
             k_folds = 5
         elif opt in "--skip-data-understanding":
             skip_data_understanding = True
@@ -141,7 +143,7 @@ def main(argv):
         elif opt in "--down-sampling-factor":
             down_sampling_factor = float(arg)
         elif opt in ("-m", "--model"):
-            model = arg
+            model_name = arg
         elif opt in ("-k", "--k-folds"):
             k_folds = int(arg)
         elif opt in ("-e", "--epochs"):
@@ -159,8 +161,8 @@ def main(argv):
         elif opt in "--lstm-layer-dimension":
             lstm_layer_dimension = int(arg)
 
-    if not model in available_models:
-        raise getopt.GetoptError("invalid model. valid options are " + str(available_models))
+    if not model_name in available_model_names:
+        raise getopt.GetoptError("invalid model name. valid options are " + str(available_model_names))
 
     # Set paths
     file_path = os.path.realpath(__file__)
@@ -173,10 +175,10 @@ def main(argv):
     device_name = "cuda" if torch.cuda.is_available() else "cpu"
 
     if not transient:
-        log_path = os.path.join(script_path, "results", "results", model, training_start_time_string)
-        log_latest_path = os.path.join(script_path, "results", "results", model, "latest")
+        log_path = os.path.join(script_path, "results", "results", model_name, training_start_time_string)
+        log_latest_path = os.path.join(script_path, "results", "results", model_name, "latest")
     else:
-        log_path = os.path.join(script_path, "results", "results", model, "transient")
+        log_path = os.path.join(script_path, "results", "results", model_name, "transient")
         log_latest_path = None
 
     log_path_data_understanding = os.path.join(log_path, "02-data-understanding")
@@ -199,7 +201,7 @@ def main(argv):
         window_step=window_step,
         down_sampling_factor=down_sampling_factor,
 
-        model=model,
+        model_name=model_name,
         k_folds=k_folds,
         epochs=epochs,
         learning_rate=learning_rate,
@@ -348,116 +350,93 @@ def main(argv):
     #
 
     logger.log_modelling_start(
-        model=model,
+        model_name=model_name,
         train_dataframes=train_dataframes,
         resampled_train_dataframes=resampled_train_dataframes,
         test_dataframes=test_dataframes,
         telegram=not quiet and not dry_run
     )
 
-    if model == "cnn":
+    #
+    # Model Initialization
+    #
 
-        cnn_base_model = CnnBaseModel(
+    if model_name == "knn-dtw":
+
+        model = KnnDtwBaseModel(
             logger=logger,
             log_path_modelling=log_path_modelling,
             log_path_evaluation=log_path_evaluation,
             train_dataframes=train_dataframes,
-            test_dataframes=test_dataframes
+            test_dataframes=test_dataframes,
+            slice_width=slice_width
         )
 
-        #
-        # Validation
-        #
+    elif model_name == "cnn":
 
-        if not skip_validation:
-            finalize_epochs = cnn_base_model.validate(
-                k_folds=k_folds,
-                epochs=epochs,
-                learning_rate=learning_rate,
-                patience=patience,
-                slice_width=slice_width,
-                dropout=dropout,
-                random_state=random_state,
-                quiet=quiet,
-                dry_run=dry_run
-            )
-        else:
-            finalize_epochs = epochs
-
-        cnn_base_model.finalize(
-            epochs=finalize_epochs,
-            learning_rate=learning_rate,
-            slice_width=slice_width,
-            dropout=dropout,
-            quiet=quiet,
-            dry_run=dry_run
-        )
-
-        #
-        # Evaluation
-        #
-
-        cnn_base_model.evaluate(
-            slice_width=slice_width,
-            clean=clean,
-            quiet=quiet,
-            dry_run=dry_run
-        )
-
-    elif model == "lstm":
-
-        lstm_base_model = LstmBaseModel(
+        model = CnnBaseModel(
             logger=logger,
             log_path_modelling=log_path_modelling,
             log_path_evaluation=log_path_evaluation,
             train_dataframes=train_dataframes,
-            test_dataframes=test_dataframes
-        )
+            test_dataframes=test_dataframes,
 
-        #
-        # Validation
-        #
-
-        if not skip_validation:
-            finalize_epochs = lstm_base_model.validate(
-                k_folds=k_folds,
-                epochs=epochs,
-                learning_rate=learning_rate,
-                patience=patience,
-                slice_width=slice_width,
-                dropout=dropout,
-                lstm_hidden_dimension=lstm_hidden_dimension,
-                lstm_layer_dimension=lstm_layer_dimension,
-                random_state=random_state,
-                quiet=quiet,
-                dry_run=dry_run
-            )
-        else:
-            finalize_epochs = epochs
-
-        lstm_base_model.finalize(
-            epochs=finalize_epochs,
+            epochs=epochs,
             learning_rate=learning_rate,
-            slice_width=slice_width,
+            patience=patience,
             dropout=dropout,
-            lstm_hidden_dimension=lstm_hidden_dimension,
-            lstm_layer_dimension=lstm_layer_dimension,
-            quiet=quiet,
-            dry_run=dry_run
-        )
-
-        #
-        # Evaluation
-        #
-
-        lstm_base_model.evaluate(
             slice_width=slice_width,
+        )
+
+    elif model_name == "lstm":
+
+        model = LstmBaseModel(
+            logger=logger,
+            log_path_modelling=log_path_modelling,
+            log_path_evaluation=log_path_evaluation,
+            train_dataframes=train_dataframes,
+            test_dataframes=test_dataframes,
+
+            epochs=epochs,
+            learning_rate=learning_rate,
+            patience=patience,
+            dropout=dropout,
+            slice_width=slice_width,
+
             lstm_hidden_dimension=lstm_hidden_dimension,
-            lstm_layer_dimension=lstm_layer_dimension,
-            clean=clean,
+            lstm_layer_dimension=lstm_layer_dimension
+        )
+
+    #
+    # Validation
+    #
+
+    if not skip_validation:
+        finalize_epochs = model.validate(
+            k_folds=k_folds,
+
+            random_state=random_state,
             quiet=quiet,
             dry_run=dry_run
         )
+    else:
+        finalize_epochs = epochs
+
+    model.finalize(
+        epochs=finalize_epochs,
+        quiet=quiet,
+        dry_run=dry_run
+    )
+
+    #
+    # Evaluation
+    #
+
+    model.evaluate(
+        clean=clean,
+        quiet=quiet,
+        dry_run=dry_run
+    )
 
     #
     #
