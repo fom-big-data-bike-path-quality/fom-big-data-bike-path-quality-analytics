@@ -49,3 +49,6 @@ class ModelPreparator:
             return 768
         else:
             return 256
+
+    def split_data_and_labels(self, array):
+        return array[:,1,:], array[:,0,0]

@@ -30,8 +30,8 @@ class LoggerFacade:
             TelegramLogger().log_line(self, message, images)
 
     def log_training_start(self, device_name, training_start_time_string, clean, quiet, transient, dry_run,
-                           skip_data_understanding, skip_validation, window_step, down_sampling_factor, model, k_folds,
-                           epochs, learning_rate, patience, slice_width, dropout, lstm_hidden_dimension,
+                           skip_data_understanding, skip_validation, window_step, down_sampling_factor, model_name,
+                           k_folds, epochs, learning_rate, patience, slice_width, dropout, lstm_hidden_dimension,
                            lstm_layer_dimension, measurement_speed_limit, test_size, random_state, telegram=None):
         message = "Training started with parameters " + \
                   "\n* device name " + str(device_name) + \
@@ -44,7 +44,7 @@ class LoggerFacade:
                   "\n* skip validation " + str(skip_validation) + \
                   "\n* window step " + str(window_step) + \
                   "\n* down-sampling factor " + str(down_sampling_factor) + \
-                  "\n* model " + model + \
+                  "\n* model name " + model_name + \
                   "\n* k-folds " + str(k_folds) + \
                   "\n* epochs " + str(epochs) + \
                   "\n* learning rate " + str(learning_rate) + \
@@ -59,16 +59,17 @@ class LoggerFacade:
 
         self.log_line(message=message, telegram=telegram)
 
-    def log_modelling_start(self, model, train_dataframes, resampled_train_dataframes, test_dataframes, telegram=None):
+    def log_modelling_start(self, model_name, train_dataframes, resampled_train_dataframes, test_dataframes,
+                            telegram=None):
 
         percentage = round(len(resampled_train_dataframes) / len(train_dataframes), 2) * 100
 
         if len(train_dataframes) == len(resampled_train_dataframes):
-            message = "Modelling started with " + model + \
+            message = "Modelling started with " + model_name + \
                       "\n* train dataframes " + str(len(train_dataframes)) + \
                       "\n* test dataframes " + str(len(test_dataframes))
         else:
-            message = "Modelling started with " + model + \
+            message = "Modelling started with " + model_name + \
                       "\n* train dataframes " + str(len(train_dataframes)) + " down-sampled to " + \
                       str(len(resampled_train_dataframes)) + " (" + str(percentage) + "%)" + \
                       "\n* test dataframes " + str(len(test_dataframes))
@@ -78,15 +79,24 @@ class LoggerFacade:
     def log_fold(self, time_elapsed, k_fold, k_folds, epochs, accuracy, precision, recall, f1_score,
                  cohen_kappa_score, matthew_correlation_coefficient, telegram=None):
 
-        message = get_fold_emoji(k_fold) + " Fold " + str(k_fold) + "/" + str(k_folds) + \
-                  " finished after " + str(
-            epochs) + " epochs in " + time_elapsed + "\n\nwith validation metrics" + \
+        if epochs is None:
+            message = get_fold_emoji(k_fold) + " Fold " + str(k_fold) + "/" + str(k_folds) + \
+                  " finished in " + time_elapsed + "\n\nwith validation metrics" + \
                   "\n* accuracy " + str(accuracy) + \
                   "\n* precision " + str(precision) + \
                   "\n* recall " + str(recall) + \
                   "\n* f1 score " + str(f1_score) + \
                   "\n* cohen's kappa score " + str(cohen_kappa_score) + \
                   "\n* matthew's correlation coefficient " + str(matthew_correlation_coefficient)
+        else:
+            message = get_fold_emoji(k_fold) + " Fold " + str(k_fold) + "/" + str(k_folds) + \
+                      " finished after " + str(epochs) + " epochs in " + time_elapsed + "\n\nwith validation metrics" + \
+                      "\n* accuracy " + str(accuracy) + \
+                      "\n* precision " + str(precision) + \
+                      "\n* recall " + str(recall) + \
+                      "\n* f1 score " + str(f1_score) + \
+                      "\n* cohen's kappa score " + str(cohen_kappa_score) + \
+                      "\n* matthew's correlation coefficient " + str(matthew_correlation_coefficient)
 
         self.log_line(message=message, telegram=telegram)
 
@@ -94,12 +104,17 @@ class LoggerFacade:
 
         message = "🍱 Validation finished in " + time_elapsed
 
-        with open(os.path.join(log_path_modelling, "plots", "overall-f1-score.png"), "rb") as f1_score_file:
-            self.log_line(message=message, images=[f1_score_file], telegram=telegram)
+        file_path = os.path.join(log_path_modelling, "plots", "overall-f1-score.png")
+        if os.path.exists(file_path):
+            with open(file_path, "rb") as f1_score_file:
+                self.log_line(message=message, images=[f1_score_file], telegram=telegram)
 
     def log_finalization(self, time_elapsed, epochs, telegram=None):
 
-        message = "Finalization finished after " + str(epochs) + " epochs in " + time_elapsed
+        if epochs is None:
+            message = "Finalization finished in " + time_elapsed
+        else:
+            message = "Finalization finished after " + str(epochs) + " epochs in " + time_elapsed
 
         self.log_line(message=message, telegram=telegram)
 
@@ -114,8 +129,10 @@ class LoggerFacade:
                   "\n* cohen's kappa score " + str(round(test_cohen_kappa_score, 2)) + \
                   "\n* matthew's correlation coefficient " + str(round(test_matthew_correlation_coefficient, 2))
 
-        with open(os.path.join(log_path_evaluation, "plots", "confusion_matrix.png"), "rb") as confusion_matrix_file:
-            self.log_line(message=message, images=[confusion_matrix_file], telegram=telegram)
+        file_path = os.path.join(log_path_evaluation, "plots", "confusion_matrix.png")
+        if os.path.exists(file_path):
+            with open(file_path, "rb") as confusion_matrix_file:
+                self.log_line(message=message, images=[confusion_matrix_file], telegram=telegram)
 
     def log_training_end(self, time_elapsed, telegram=None):
 
