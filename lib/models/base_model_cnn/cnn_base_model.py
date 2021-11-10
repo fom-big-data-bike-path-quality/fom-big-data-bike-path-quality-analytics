@@ -265,7 +265,7 @@ class CnnBaseModel:
         validation_matthew_correlation_coefficient_history = []
 
         # Run training loop
-        progress_bar = tqdm(iterable=range(1, epochs + 1), unit='epochs', desc="Train model")
+        progress_bar = tqdm(iterable=range(1, epochs + 1), unit="epoch", desc="Train model")
         for epoch in progress_bar:
 
             # Train model
@@ -422,7 +422,7 @@ class CnnBaseModel:
         optimizer = optim.Adam(classifier.parameters(), lr=learning_rate)
 
         # Run training loop
-        progress_bar = tqdm(iterable=range(1, epochs + 1), unit='epochs', desc="Train model")
+        progress_bar = tqdm(iterable=range(1, epochs + 1), unit="epoch", desc="Train model")
         for epoch in progress_bar:
 
             # Train model

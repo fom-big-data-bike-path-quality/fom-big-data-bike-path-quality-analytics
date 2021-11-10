@@ -36,7 +36,7 @@ class DataTransformer:
 
         copied_dataframes = dataframes.copy()
 
-        progress_bar = tqdm(iterable=copied_dataframes.items(), unit="dataframes", desc="Transform dataframes")
+        progress_bar = tqdm(iterable=copied_dataframes.items(), unit="dataframe", desc="Transform dataframes")
         for name, dataframe in progress_bar:
 
             dataframe["bike_activity_measurement_accelerometer"] = pd.to_numeric(dataframe.apply(lambda row: getAccelerometer(row), axis=1))

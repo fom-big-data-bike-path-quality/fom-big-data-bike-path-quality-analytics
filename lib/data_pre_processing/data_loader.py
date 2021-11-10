@@ -21,7 +21,7 @@ class DataLoader:
         if limit is not None:
             files = files[:limit]
 
-        progress_bar = tqdm(iterable=files, unit="files", desc="Load data frames")
+        progress_bar = tqdm(iterable=files, unit="file", desc="Load data frames")
         for file_path in progress_bar:
             file_name = os.path.basename(file_path.name)
             file_base_name = file_name.replace(".csv", "")

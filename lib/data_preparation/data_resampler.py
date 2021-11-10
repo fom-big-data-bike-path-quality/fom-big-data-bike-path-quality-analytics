@@ -67,7 +67,7 @@ class DataResampler:
         # Re-sample dataframes
         resampled_dataframes = {}
 
-        progress_bar = tqdm(iterable=copied_dataframes.items(), unit="dataframes", desc="Re-sample data frames")
+        progress_bar = tqdm(iterable=copied_dataframes.items(), unit="dataframe", desc="Re-sample data frames")
         for name, dataframe in progress_bar:
             surface_type = get_surface_type(dataframe, run_after_label_encoding)
 

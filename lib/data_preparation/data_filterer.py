@@ -18,7 +18,7 @@ class DataFilterer:
 
         dataframes_count = len(copied_dataframes.items())
 
-        progress_bar = tqdm(iterable=copied_dataframes.items(), unit="dataframes", desc="Filter data frames")
+        progress_bar = tqdm(iterable=copied_dataframes.items(), unit="dataframe", desc="Filter data frames")
         for name, dataframe in progress_bar:
 
             # Exclude dataframes which are not tracked under lab conditions

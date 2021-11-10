@@ -18,7 +18,7 @@ class DataNormalizer:
 
         min_max_scaler = MinMaxScaler()
 
-        progress_bar = tqdm(iterable=copied_dataframes.items(), unit="dataframes", desc="Normalize data frames")
+        progress_bar = tqdm(iterable=copied_dataframes.items(), unit="dataframe", desc="Normalize data frames")
         for name, dataframe in progress_bar:
             dataframe["bike_activity_measurement_accelerometer"] = min_max_scaler.fit_transform(
                 dataframe[['bike_activity_measurement_accelerometer']].values.astype(float))

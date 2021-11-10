@@ -33,7 +33,7 @@ class BikeActivityPlotter:
 
         files = list(Path(data_path).rglob("*.csv"))
 
-        progress_bar = tqdm(iterable=files, unit="files", desc="Plot bike activities")
+        progress_bar = tqdm(iterable=files, unit="file", desc="Plot bike activities")
         for file_path in progress_bar:
             file_name = os.path.basename(file_path.name)
             file_base_name = file_name.replace(".csv", "")
