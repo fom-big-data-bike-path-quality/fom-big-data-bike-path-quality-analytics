@@ -178,7 +178,7 @@ class KnnDtwBaseModel:
         # Make results path
         os.makedirs(os.path.join(self.log_path_modelling, "models", "fold-" + str(fold_index)), exist_ok=True)
 
-        self.logger.log_line("\n Fold # " + str(fold_index) + "\n")
+        self.logger.log_line("\n Fold # " + str(fold_index) + "/" + k_folds)
 
         train_dataframes = {id: list(dataframes.values())[id] for id in train_ids}
         validation_dataframes = {id: list(dataframes.values())[id] for id in validation_ids}
@@ -203,7 +203,8 @@ class KnnDtwBaseModel:
         )
 
         # Define classifier
-        classifier = KnnDtwClassifier(k=self.k_nearest_neighbors, subsample_step=1, max_warping_window=10, use_pruning=True)
+        classifier = KnnDtwClassifier(k=self.k_nearest_neighbors, subsample_step=1, max_warping_window=10,
+                                      use_pruning=True)
         classifier.fit(train_data, train_labels)
 
         # Get metrics for validation data
@@ -214,7 +215,8 @@ class KnnDtwBaseModel:
         validation_cohen_kappa_score, \
         validation_matthew_correlation_coefficient = get_metrics(classifier, validation_data, validation_labels)
 
-        np.save(os.path.join(self.log_path_modelling, "models", "fold-" + str(fold_index), "model"), classifier.distance_matrix)
+        np.save(os.path.join(self.log_path_modelling, "models", "fold-" + str(fold_index), "model"),
+                classifier.distance_matrix)
 
         self.logger.log_fold(
             time_elapsed="{}".format(datetime.now() - start_time),
@@ -260,7 +262,8 @@ class KnnDtwBaseModel:
         test_data, test_labels = self.model_preparator.split_data_and_labels(test_array)
 
         # Define classifier
-        classifier = KnnDtwClassifier(k=self.k_nearest_neighbors, subsample_step=1, max_warping_window=10, use_pruning=True)
+        classifier = KnnDtwClassifier(k=self.k_nearest_neighbors, subsample_step=1, max_warping_window=10,
+                                      use_pruning=True)
         classifier.fit(train_data, train_labels)
 
         # Get metrics for test data

@@ -81,7 +81,7 @@ class LoggerFacade:
 
         if epochs is None:
             message = get_fold_emoji(k_fold) + " Fold " + str(k_fold) + "/" + str(k_folds) + \
-                  " finished in " + time_elapsed + "\n\nwith validation metrics" + \
+                  " finished in " + time_elapsed + " with validation metrics" + \
                   "\n* accuracy " + str(accuracy) + \
                   "\n* precision " + str(precision) + \
                   "\n* recall " + str(recall) + \
@@ -90,7 +90,7 @@ class LoggerFacade:
                   "\n* matthew's correlation coefficient " + str(matthew_correlation_coefficient)
         else:
             message = get_fold_emoji(k_fold) + " Fold " + str(k_fold) + "/" + str(k_folds) + \
-                      " finished after " + str(epochs) + " epochs in " + time_elapsed + "\n\nwith validation metrics" + \
+                      " finished after " + str(epochs) + " epochs in " + time_elapsed + " with validation metrics" + \
                       "\n* accuracy " + str(accuracy) + \
                       "\n* precision " + str(precision) + \
                       "\n* recall " + str(recall) + \

@@ -211,7 +211,7 @@ class CnnBaseModel:
         # Make results path
         os.makedirs(os.path.join(self.log_path_modelling, "models", "fold-" + str(fold_index)), exist_ok=True)
 
-        self.logger.log_line("\n Fold # " + str(fold_index) + "\n")
+        self.logger.log_line("\n Fold # " + str(fold_index) + "/" + k_folds)
 
         train_dataframes = {id: list(dataframes.values())[id] for id in train_ids}
         validation_dataframes = {id: list(dataframes.values())[id] for id in validation_ids}

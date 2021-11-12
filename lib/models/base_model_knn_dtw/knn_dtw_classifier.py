@@ -9,7 +9,7 @@ def build_distance_matrix(train_data, test_data, subsample_step, max_warping_win
     test_data_shape = np.shape(test_data)
     distance_matrix = np.zeros((test_data_shape[0], train_data_shape[0]))
 
-    with tqdm(total=train_data_shape[0] * test_data_shape[0]) as progress:
+    with tqdm(total=train_data_shape[0] * test_data_shape[0], unit="field", desc="Build distance matrix") as progress:
         for i in range(0, test_data_shape[0]):
             for j in range(0, train_data_shape[0]):
                 distance_matrix[i, j] = dtw_distance(
