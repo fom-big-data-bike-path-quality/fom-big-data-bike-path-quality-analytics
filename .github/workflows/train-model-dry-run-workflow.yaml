@@ -39,6 +39,7 @@ jobs:
           pip install google-auth
           pip install google-cloud-core
           pip install google-cloud-storage
+          pip install dtaidistance
       - name: Run main script with CNN
         id: run-main-script-cnn
         run: |
