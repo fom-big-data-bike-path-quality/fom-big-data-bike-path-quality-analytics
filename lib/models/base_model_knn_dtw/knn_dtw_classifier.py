@@ -1,56 +1,27 @@
 import numpy as np
 from dtaidistance import dtw
-from scipy.spatial.distance import squareform
 from scipy.stats import mode
 from tqdm import tqdm
 
 
 def build_distance_matrix(train_data, test_data, subsample_step, max_warping_window, use_pruning):
-    # Compute the distance matrix
-    distance_matrix_count = 0
+    train_data_shape = np.shape(train_data)
+    test_data_shape = np.shape(test_data)
+    distance_matrix = np.zeros((test_data_shape[0], train_data_shape[0]))
 
-    # Compute condensed distance matrix (upper triangle) of pairwise dtw distances
-    # when x and y are the same array
-    if (np.array_equal(train_data, test_data)):
-        train_data_shape = np.shape(train_data)
-        distance_matrix = np.zeros((train_data_shape[0] * (train_data_shape[0] - 1)) // 2, dtype=np.double)
+    with tqdm(total=train_data_shape[0] * test_data_shape[0]) as progress:
+        for i in range(0, test_data_shape[0]):
+            for j in range(0, train_data_shape[0]):
+                distance_matrix[i, j] = dtw_distance(
+                    test_data[i, ::subsample_step],
+                    train_data[j, ::subsample_step],
+                    max_warping_window=max_warping_window,
+                    use_pruning=use_pruning
+                )
 
-        with tqdm(total=train_data_shape[0] * (train_data_shape[0] - 1), desc="Build distance matrix") as progress:
-            for i in range(0, train_data_shape[0] - 1):
-                for j in range(i + 1, train_data_shape[0]):
-                    distance_matrix[distance_matrix_count] = dtw_distance(
-                        train_data[i, ::subsample_step],
-                        test_data[j, ::subsample_step],
-                        max_warping_window=max_warping_window,
-                        use_pruning=use_pruning
-                    )
+                progress.update(1)
 
-                    distance_matrix_count += 1
-                    progress.update(1)
-
-        # Convert to squareform
-        distance_matrix = squareform(distance_matrix)
-        return distance_matrix
-
-    # Compute full distance matrix of dtw distances between x and y
-    else:
-        train_data_shape = np.shape(train_data)
-        test_data_shape = np.shape(test_data)
-        distance_matrix = np.zeros((test_data_shape[0], train_data_shape[0]))
-
-        with tqdm(total=train_data_shape[0] * test_data_shape[0]) as progress:
-            for i in range(0, test_data_shape[0]):
-                for j in range(0, train_data_shape[0]):
-                    distance_matrix[i, j] = dtw_distance(
-                        test_data[i, ::subsample_step],
-                        train_data[j, ::subsample_step],
-                        max_warping_window=max_warping_window,
-                        use_pruning=use_pruning
-                    )
-
-                    progress.update(1)
-
-        return distance_matrix
+    return distance_matrix
 
 
 def dtw_distance(timeseries_array_a, timeseries_array_b, max_warping_window, use_pruning=False):
