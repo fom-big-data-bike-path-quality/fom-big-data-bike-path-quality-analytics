@@ -67,6 +67,7 @@ def main(argv):
 
     model_name = None
     k_folds = 10
+    k_nearest_neighbors = 10
     epochs = 10_000
     learning_rate: float = 0.001
     patience = 500
@@ -82,19 +83,19 @@ def main(argv):
 
     # Read command line arguments
     try:
-        opts, args = getopt.getopt(argv, "hcqtdw:m:k:e:l:p:s:",
+        opts, args = getopt.getopt(argv, "hcqtdw:m:f:k:e:l:p:s:",
                                    ["help", "clean", "quiet", "transient", "dry-run", "skip-data-understanding",
                                     "skip-validation", "window-step=", "down-sampling-factor=", "model=", "k-folds=",
-                                    "epochs=", "learning-rate=", "patience=", "slice-width=", "dropout=",
-                                    "lstm-hidden-dimension=", "lstm-layer-dimension="])
+                                    "k-nearest-neighbors=", "epochs=", "learning-rate=", "patience=", "slice-width=",
+                                    "dropout=", "lstm-hidden-dimension=", "lstm-layer-dimension="])
     except getopt.GetoptError as error:
         print(argv)
         print(error)
         print(
             "main.py --help --clean --quiet --transient --dry-run --skip-data-understanding --skip-validation " +
             "--window-step <window-step> --down-sampling-factor <down-sampling-factor> --model <model>" +
-            "--k-folds <k-folds> --epochs <epochs> --learning-rate <learning-rate> " +
-            "--patience <patience> --slice-width <slice-width> --dropout <dropout>" +
+            "--k-folds <k-folds> --k-nearest-neighbors <k-nearest-neighbors> --epochs <epochs> "
+            "--learning-rate <learning-rate> --patience <patience> --slice-width <slice-width> --dropout <dropout>" +
             "--lstm-hidden-dimension <lstm-hidden-dimension> --lstm-layer-dimension <lstm-layer-dimension>")
         sys.exit(2)
     for opt, arg in opts:
@@ -112,12 +113,12 @@ def main(argv):
                   "factor by which target classes are capped in comparison to smallest class")
             print("--model <model>                  name of the model to use for training")
             print("--k-folds <k-folds>              number of k-folds")
-            print("--epochs <epochs>                number of epochs")
-            print("--learning-rate <learning-rate>  learning rate")
-            print(
-                "--patience <patience>            number of epochs to wait for improvements before finishing training")
-            print("--slice-width <slice-width>      number of measurements per slice")
-            print("--dropout <dropout>              dropout percentage")
+            print("--k-nearest-neighbors <k-nearest-neighbors>        number of k-folds")
+            print("--epochs <epochs>                                  number of epochs")
+            print("--learning-rate <learning-rate>                    learning rate")
+            print("--patience <patience>                              number of epochs to wait for improvements before finishing training")
+            print("--slice-width <slice-width>                        number of measurements per slice")
+            print("--dropout <dropout>                                dropout percentage")
             print("--lstm-hidden-dimension <lstm-hidden-dimension>    hidden dimensions in LSTM")
             print("--lstm-layer-dimension <lstm-layer-dimension>      layer dimensions in LSTM")
             sys.exit()
@@ -144,8 +145,10 @@ def main(argv):
             down_sampling_factor = float(arg)
         elif opt in ("-m", "--model"):
             model_name = arg
-        elif opt in ("-k", "--k-folds"):
+        elif opt in ("-f", "--k-folds"):
             k_folds = int(arg)
+        elif opt in ("-k", "--k-nearest-neighbors"):
+            k_nearest_neighbors = int(arg)
         elif opt in ("-e", "--epochs"):
             epochs = int(arg)
         elif opt in ("-l", "--learning-rate"):
@@ -369,6 +372,7 @@ def main(argv):
             log_path_evaluation=log_path_evaluation,
             train_dataframes=train_dataframes,
             test_dataframes=test_dataframes,
+            k_nearest_neighbors=k_nearest_neighbors,
             slice_width=slice_width
         )
 
