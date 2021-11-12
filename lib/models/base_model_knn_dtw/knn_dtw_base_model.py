@@ -6,6 +6,7 @@ from datetime import datetime
 import numpy as np
 import pandas as pd
 import torch
+from confusion_matrix_plotter import ConfusionMatrixPlotter
 from label_encoder import LabelEncoder
 from model_evaluator import ModelEvaluator
 from model_logger import ModelLogger
@@ -86,7 +87,8 @@ def get_metrics(classifier, data, labels):
 
 class KnnDtwBaseModel:
 
-    def __init__(self, logger, log_path_modelling, log_path_evaluation, train_dataframes, test_dataframes, slice_width):
+    def __init__(self, logger, log_path_modelling, log_path_evaluation, train_dataframes, test_dataframes,
+                 k_nearest_neighbors, slice_width):
         self.logger = logger
         self.log_path_modelling = log_path_modelling
         self.log_path_evaluation = log_path_evaluation
@@ -94,6 +96,7 @@ class KnnDtwBaseModel:
         self.train_dataframes = train_dataframes
         self.test_dataframes = test_dataframes
 
+        self.k_nearest_neighbors = k_nearest_neighbors
         self.slice_width = slice_width
 
         self.model_logger = ModelLogger()
@@ -203,14 +206,6 @@ class KnnDtwBaseModel:
         classifier = KnnDtwClassifier(k=self.k_nearest_neighbors, subsample_step=1, max_warping_window=10, use_pruning=True)
         classifier.fit(train_data, train_labels)
 
-        # Get metrics for train data
-        train_accuracy, \
-        train_precision, \
-        train_recall, \
-        train_f1_score, \
-        train_cohen_kappa_score, \
-        train_matthew_correlation_coefficient = get_metrics(classifier, train_data, train_labels)
-
         # Get metrics for validation data
         validation_accuracy, \
         validation_precision, \
@@ -218,6 +213,8 @@ class KnnDtwBaseModel:
         validation_f1_score, \
         validation_cohen_kappa_score, \
         validation_matthew_correlation_coefficient = get_metrics(classifier, validation_data, validation_labels)
+
+        np.save(os.path.join(self.log_path_modelling, "models", "fold-" + str(fold_index), "model"), classifier.distance_matrix)
 
         self.logger.log_fold(
             time_elapsed="{}".format(datetime.now() - start_time),
@@ -239,28 +236,59 @@ class KnnDtwBaseModel:
     @TrackingDecorator.track_time
     def finalize(self, epochs, quiet=False, dry_run=False):
         """
-        Trains a final model by using all train dataframes
+        Trains a final model by using all train dataframes (not necessary since kNN is instance based)
+        """
+        pass
+
+    @TrackingDecorator.track_time
+    def evaluate(self, clean=False, quiet=False, dry_run=False):
+        """
+        Evaluates finalized model against test dataframes
         """
 
         start_time = datetime.now()
 
         # Make results path
-        os.makedirs(self.log_path_modelling, exist_ok=True)
+        os.makedirs(self.log_path_evaluation, exist_ok=True)
 
         # Split data and labels for train
         train_array = self.model_preparator.create_array(self.train_dataframes)
         train_data, train_labels = self.model_preparator.split_data_and_labels(train_array)
 
+        # Split data and labels for validation
+        test_array = self.model_preparator.create_array(self.test_dataframes)
+        test_data, test_labels = self.model_preparator.split_data_and_labels(test_array)
+
         # Define classifier
-        classifier = KnnDtwClassifier(k=5, max_warping_window=10)
+        classifier = KnnDtwClassifier(k=self.k_nearest_neighbors, subsample_step=1, max_warping_window=10, use_pruning=True)
         classifier.fit(train_data, train_labels)
 
-        self.logger.log_finalization(
+        # Get metrics for test data
+        test_accuracy, \
+        test_precision, \
+        test_recall, \
+        test_f1_score, \
+        test_cohen_kappa_score, \
+        test_matthew_correlation_coefficient = get_metrics(classifier, test_data, test_labels)
+
+        np.save(os.path.join(self.log_path_modelling, "model"), classifier.distance_matrix)
+
+        # Plot confusion matrix
+        test_confusion_matrix_dataframe, targets, predictions = get_confusion_matrix_dataframe(classifier, test_data,
+                                                                                               test_labels)
+        ConfusionMatrixPlotter().run(self.logger, os.path.join(self.log_path_evaluation, "plots"),
+                                     test_confusion_matrix_dataframe, clean=clean)
+
+        self.logger.log_evaluation(
             time_elapsed="{}".format(datetime.now() - start_time),
-            epochs=None,
+            log_path_evaluation=self.log_path_evaluation,
+            test_accuracy=test_accuracy,
+            test_precision=test_precision,
+            test_recall=test_recall,
+            test_f1_score=test_f1_score,
+            test_cohen_kappa_score=test_cohen_kappa_score,
+            test_matthew_correlation_coefficient=test_matthew_correlation_coefficient,
             telegram=not quiet and not dry_run
         )
 
-    @TrackingDecorator.track_time
-    def evaluate(self, clean=False, quiet=False, dry_run=False):
-        pass
+        return test_accuracy, test_precision, test_recall, test_f1_score, test_cohen_kappa_score, test_matthew_correlation_coefficient
