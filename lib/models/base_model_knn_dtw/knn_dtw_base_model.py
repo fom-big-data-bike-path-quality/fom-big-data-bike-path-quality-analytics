@@ -200,7 +200,7 @@ class KnnDtwBaseModel:
         )
 
         # Define classifier
-        classifier = KnnDtwClassifier(k=5, max_warping_window=10)
+        classifier = KnnDtwClassifier(k=self.k_nearest_neighbors, subsample_step=1, max_warping_window=10, use_pruning=True)
         classifier.fit(train_data, train_labels)
 
         # Get metrics for train data
