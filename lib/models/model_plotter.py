@@ -2,6 +2,7 @@ import os
 
 from bike_activity_surface_type_plotter import BikeActivitySurfaceTypePlotter
 from training_result_plotter import TrainingResultPlotter
+from training_result_plotter_bar import TrainingResultPlotterBar
 
 
 class ModelPlotter:
@@ -88,6 +89,93 @@ class ModelPlotter:
             title="Matthews's correlation coefficient score history",
             description="Matthews's correlation coefficient score history",
             xlabel="Epoch",
+            ylabel="Value",
+            clean=True,
+            quiet=quiet
+        )
+
+    def plot_fold_results_hist(self, logger, log_path, fold_labels, overall_validation_accuracy_history,
+                               overall_validation_precision_history, overall_validation_recall_history,
+                               overall_validation_f1_score_history, overall_validation_cohen_kappa_score_history,
+                               overall_validation_matthew_correlation_coefficient_history, quiet):
+        TrainingResultPlotterBar().run(
+            logger=logger,
+            data=overall_validation_accuracy_history,
+            labels=fold_labels,
+            results_path=os.path.join(log_path, "plots"),
+            file_name="overall-accuracy",
+            title="Accuracy history",
+            description="Accuracy history",
+            xlabel="Fold",
+            ylabel="Value",
+            clean=True,
+            quiet=quiet
+        )
+
+        TrainingResultPlotterBar().run(
+            logger=logger,
+            data=overall_validation_precision_history,
+            labels=fold_labels,
+            results_path=os.path.join(log_path, "plots"),
+            file_name="overall-precision",
+            title="Precision history",
+            description="Precision history",
+            xlabel="Fold",
+            ylabel="Value",
+            clean=True,
+            quiet=quiet
+        )
+
+        TrainingResultPlotterBar().run(
+            logger=logger,
+            data=overall_validation_recall_history,
+            labels=fold_labels,
+            results_path=os.path.join(log_path, "plots"),
+            file_name="overall-recall",
+            title="Recall history",
+            description="Recall history",
+            xlabel="Fold",
+            ylabel="Value",
+            clean=True,
+            quiet=quiet
+        )
+
+        TrainingResultPlotterBar().run(
+            logger=logger,
+            data=overall_validation_f1_score_history,
+            labels=fold_labels,
+            results_path=os.path.join(log_path, "plots"),
+            file_name="overall-f1-score",
+            title="F1 score history",
+            description="F1 score history",
+            xlabel="Fold",
+            ylabel="Value",
+            clean=True,
+            quiet=quiet)
+
+        TrainingResultPlotterBar().run(
+            logger=logger,
+            data=overall_validation_cohen_kappa_score_history,
+            labels=fold_labels,
+            results_path=os.path.join(log_path, "plots"),
+            file_name="overall-cohen-kappa-score",
+            title="Cohen's kappa score history",
+            description="Cohen's kappa score history",
+            xlabel="Fold",
+            ylabel="Value",
+            clean=True,
+            quiet=quiet
+        )
+
+        TrainingResultPlotterBar().run(
+            logger=logger,
+            data=overall_validation_matthew_correlation_coefficient_history,
+            labels=fold_labels,
+            results_path=os.path.join(log_path, "plots"),
+            file_name="overall-matthew-correlation-coefficient-score",
+            title="Matthews's correlation coefficient score history",
+            description="Matthews's correlation coefficient score history",
+            xlabel="Fold",
             ylabel="Value",
             clean=True,
             quiet=quiet

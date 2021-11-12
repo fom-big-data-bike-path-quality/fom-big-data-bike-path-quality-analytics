@@ -155,7 +155,18 @@ class KnnDtwBaseModel:
             overall_validation_matthew_correlation_coefficient_history.append(
                 validation_matthew_correlation_coefficient)
 
-        # TODO Plot
+        self.model_plotter.plot_fold_results_hist(
+            logger=self.logger,
+            log_path=self.log_path_modelling,
+            fold_labels=fold_labels,
+            overall_validation_accuracy_history=overall_validation_accuracy_history,
+            overall_validation_precision_history=overall_validation_precision_history,
+            overall_validation_recall_history=overall_validation_recall_history,
+            overall_validation_f1_score_history=overall_validation_f1_score_history,
+            overall_validation_cohen_kappa_score_history=overall_validation_cohen_kappa_score_history,
+            overall_validation_matthew_correlation_coefficient_history=overall_validation_matthew_correlation_coefficient_history,
+            quiet=quiet
+        )
 
         self.model_logger.log_fold_results(
             logger=self.logger,
