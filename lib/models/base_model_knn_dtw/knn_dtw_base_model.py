@@ -119,12 +119,12 @@ class KnnDtwBaseModel:
         fold_index = 0
         fold_labels = []
 
-        overall_validation_accuracy = []
-        overall_validation_precision = []
-        overall_validation_recall = []
-        overall_validation_f1_score = []
-        overall_validation_cohen_kappa_score = []
-        overall_validation_matthew_correlation_coefficient = []
+        overall_validation_accuracy_history = []
+        overall_validation_precision_history = []
+        overall_validation_recall_history = []
+        overall_validation_f1_score_history = []
+        overall_validation_cohen_kappa_score_history = []
+        overall_validation_matthew_correlation_coefficient_history = []
 
         ids = sorted(list(self.train_dataframes.keys()))
 
@@ -147,17 +147,25 @@ class KnnDtwBaseModel:
             )
 
             # Aggregate fold results
-            overall_validation_accuracy.append(validation_accuracy)
-            overall_validation_precision.append(validation_precision)
-            overall_validation_recall.append(validation_recall)
-            overall_validation_f1_score.append(validation_f1_score)
-            overall_validation_cohen_kappa_score.append(validation_cohen_kappa_score)
-            overall_validation_matthew_correlation_coefficient.append(
+            overall_validation_accuracy_history.append(validation_accuracy)
+            overall_validation_precision_history.append(validation_precision)
+            overall_validation_recall_history.append(validation_recall)
+            overall_validation_f1_score_history.append(validation_f1_score)
+            overall_validation_cohen_kappa_score_history.append(validation_cohen_kappa_score)
+            overall_validation_matthew_correlation_coefficient_history.append(
                 validation_matthew_correlation_coefficient)
 
         # TODO Plot
 
-        # TODO Log
+        self.model_logger.log_fold_results(
+            logger=self.logger,
+            overall_validation_accuracy_history=overall_validation_accuracy_history,
+            overall_validation_precision_history=overall_validation_precision_history,
+            overall_validation_recall_history=overall_validation_recall_history,
+            overall_validation_f1_score_history=overall_validation_f1_score_history,
+            overall_validation_cohen_kappa_score_history=overall_validation_cohen_kappa_score_history,
+            overall_validation_matthew_correlation_coefficient_history=overall_validation_matthew_correlation_coefficient_history,
+            quiet=quiet)
 
         self.logger.log_validation(
             time_elapsed="{}".format(datetime.now() - start_time),
