@@ -48,3 +48,7 @@ jobs:
         id: run-main-script-lstm
         run: |
           python main.py --dry-run --model=lstm
+      - name: Run main script with KNN DTW
+        id: run-main-script-knn-dtw
+        run: |
+          python main.py --dry-run --model=knn-dtw
