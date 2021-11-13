@@ -7,6 +7,7 @@ import numpy as np
 import pandas as pd
 import torch
 from confusion_matrix_plotter import ConfusionMatrixPlotter
+from distance_matrix_plotter import DistanceMatrixPlotter
 from label_encoder import LabelEncoder
 from model_evaluator import ModelEvaluator
 from model_logger import ModelLogger
@@ -195,7 +196,7 @@ class KnnDtwBaseModel:
         start_time = datetime.now()
 
         # Make results path
-        os.makedirs(os.path.join(self.log_path_modelling, "models", "fold-" + str(fold_index)), exist_ok=True)
+        os.makedirs(os.path.join(self.log_path_modelling, "fold-" + str(fold_index), "models"), exist_ok=True)
 
         self.logger.log_line("\n Fold # " + str(fold_index) + "/" + str(k_folds))
 
@@ -213,7 +214,7 @@ class KnnDtwBaseModel:
         # Plot target variable distribution
         self.model_plotter.plot_fold_distribution(
             logger=self.logger,
-            log_path=self.log_path_modelling,
+            log_path=os.path.join(self.log_path_modelling, "fold-" + str(fold_index), "plots"),
             train_dataframes=train_dataframes,
             validation_dataframes=validation_dataframes,
             fold_index=fold_index,
@@ -234,7 +235,17 @@ class KnnDtwBaseModel:
         validation_cohen_kappa_score, \
         validation_matthew_correlation_coefficient = get_metrics(classifier, validation_data, validation_labels)
 
-        np.save(os.path.join(self.log_path_modelling, "models", "fold-" + str(fold_index), "model"),
+        # Plot distance matrix
+        distance_matrix_dataframe = pd.DataFrame(data=classifier.distance_matrix.astype(int))
+        DistanceMatrixPlotter().run(
+            logger=self.logger,
+            results_path=os.path.join(self.log_path_modelling, "fold-" + str(fold_index), "plots"),
+            distance_matrix_dataframe=distance_matrix_dataframe,
+            clean=False,
+            quiet=False
+        )
+
+        np.save(os.path.join(self.log_path_modelling, "fold-" + str(fold_index), "models", "model"),
                 classifier.distance_matrix)
 
         self.logger.log_fold(
@@ -292,6 +303,16 @@ class KnnDtwBaseModel:
         test_f1_score, \
         test_cohen_kappa_score, \
         test_matthew_correlation_coefficient = get_metrics(classifier, test_data, test_labels)
+
+        # Plot distance matrix
+        distance_matrix_dataframe = pd.DataFrame(data=classifier.distance_matrix.astype(int))
+        DistanceMatrixPlotter().run(
+            logger=self.logger,
+            results_path=self.log_path_modelling,
+            distance_matrix_dataframe=distance_matrix_dataframe,
+            clean=False,
+            quiet=False
+        )
 
         np.save(os.path.join(self.log_path_modelling, "model"), classifier.distance_matrix)
 

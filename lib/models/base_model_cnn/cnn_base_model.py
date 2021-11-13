@@ -209,7 +209,7 @@ class CnnBaseModel:
         start_time = datetime.now()
 
         # Make results path
-        os.makedirs(os.path.join(self.log_path_modelling, "models", "fold-" + str(fold_index)), exist_ok=True)
+        os.makedirs(os.path.join(self.log_path_modelling, "fold-" + str(fold_index), "models"), exist_ok=True)
 
         self.logger.log_line("\n Fold # " + str(fold_index) + "/" + str(k_folds))
 
@@ -229,7 +229,7 @@ class CnnBaseModel:
         # Plot target variable distribution
         self.model_plotter.plot_fold_distribution(
             logger=self.logger,
-            log_path=self.log_path_modelling,
+            log_path=os.path.join(self.log_path_modelling, "fold-" + str(fold_index), "plots"),
             train_dataframes=train_dataframes,
             validation_dataframes=validation_dataframes,
             fold_index=fold_index,
@@ -355,7 +355,7 @@ class CnnBaseModel:
                 validation_cohen_kappa_score_max = validation_cohen_kappa_score
                 validation_matthew_correlation_coefficient_max = validation_matthew_correlation_coefficient
                 torch.save(classifier.state_dict(),
-                           os.path.join(self.log_path_modelling, "models", "fold-" + str(fold_index), "model.pickle"))
+                           os.path.join(self.log_path_modelling, "fold-" + str(fold_index), "models", "model.pickle"))
             else:
                 trials += 1
                 if trials >= patience and not quiet:

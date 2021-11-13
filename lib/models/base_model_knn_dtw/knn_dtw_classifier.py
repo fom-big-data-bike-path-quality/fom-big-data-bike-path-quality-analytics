@@ -35,6 +35,7 @@ class KnnDtwClassifier:
         self.subsample_step = subsample_step
         self.max_warping_window = max_warping_window
         self.use_pruning = use_pruning
+        self.distance_matrix = None
 
     def fit(self, train_data, train_labels):
         self.train_data = train_data
