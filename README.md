@@ -59,20 +59,28 @@ Run this command to start the main script.
 ```shell script
 python main.py [OPTION]...
 
-  -h, --help                           show this help
-  -c, --clean                          clean intermediate results before start
-  -q, --quiet                          do not log outputs
-  -t, --transient                      do not store results
-  -d, --dry-run                        only run a limited training to make sure syntax is correct
-  -k, --k-folds <kfolds>               number of k-folds
-  -e, --epochs <epochs>                number of epochs
-  -l, --learning-rate <learning-rate>  learning rate
-  -p, --patience <patience>            number of epochs to wait for improvements before finishing training
-  -s, --slice-width <slice-width>      number of measurements per slice
-  -w, --window-step <window-step>      step size used for sliding window data splitter
+--help                                             show this help
+--clean                                            clean intermediate results before start
+--quiet                                            do not log outputs
+--transient                                        do not store results
+--dry-run                                          only run a limited training to make sure syntax is correct
+--skip-data-understanding                          skip data understanding
+--skip-validation                                  skip validation
+--window-step <window-step>                        step size used for sliding window data splitter
+--down-sampling-factor <down-sampling-factor>      factor by which target classes are capped in comparison to smallest class
+--model <model>                                    name of the model to use for training
+--k-folds <k-folds>                                number of k-folds
+--k-nearest-neighbors <k-nearest-neighbors>        number of k-folds
+--epochs <epochs>                                  number of epochs
+--learning-rate <learning-rate>                    learning rate
+--patience <patience>                              number of epochs to wait for improvements before finishing training
+--slice-width <slice-width>                        number of measurements per slice
+--dropout <dropout>                                dropout percentage
+--lstm-hidden-dimension <lstm-hidden-dimension>    hidden dimensions in LSTM
+--lstm-layer-dimension <lstm-layer-dimension>      layer dimensions in LSTM
 
 Examples:
-  python main.py -c -e 3000 -l 0.001
+  python main.py -c -m cnn -e 3000 -l 0.001 
 ```
 
 ## Roadmap
