@@ -18,6 +18,10 @@ on:
         description: 'number of k-folds'
         required: true
         default: 10
+      k-nearest-neighbors:
+        description: 'number of k-folds'
+        required: true
+        default: 10
       epochs:
         description: 'number of epochs'
         required: true
@@ -26,10 +30,6 @@ on:
         description: 'learning rate'
         required: true
         default: 0.001
-      patience:
-        description: 'number of epochs to wait for improvements before finishing training'
-        required: true
-        default: 500
       slice-width:
         description: 'number of measurements per slice'
         required: true
@@ -98,7 +98,7 @@ jobs:
           echo "sudo -u training bash -c \"cd ~/fom-big-data-bike-path-quality-analytics; pip3 install google-cloud-core >> log.txt\"" >> startup.sh
           echo "sudo -u training bash -c \"cd ~/fom-big-data-bike-path-quality-analytics; pip3 install google-cloud-storage >> log.txt\"" >> startup.sh
           echo "sudo -u training bash -c \"cd ~/fom-big-data-bike-path-quality-analytics; pip3 install dtaidistance >> log.txt\"" >> startup.sh
-          echo "sudo -u training bash -c \"cd ~/fom-big-data-bike-path-quality-analytics; nohup python3 main.py --clean --window-step=${{ github.event.inputs.window-step }} --down-sampling-factor=${{ github.event.inputs.down-sampling-factor }} --model=${{ github.event.inputs.model }} --k-folds=${{ github.event.inputs.k-folds }} --epochs=${{ github.event.inputs.epochs }} --learning-rate=${{ github.event.inputs.learning-rate }} --patience=${{ github.event.inputs.patience }} --slice-width=${{ github.event.inputs.slice-width }} --lstm-hidden-dimension=${{ github.event.inputs.lstm-hidden-dimension }} --lstm-layer-dimension=${{ github.event.inputs.lstm-layer-dimension }} 2>&1 >> log.txt &\"" >> startup.sh
+          echo "sudo -u training bash -c \"cd ~/fom-big-data-bike-path-quality-analytics; nohup python3 main.py --clean --window-step=${{ github.event.inputs.window-step }} --down-sampling-factor=${{ github.event.inputs.down-sampling-factor }} --model=${{ github.event.inputs.model }} --k-folds=${{ github.event.inputs.k-folds }} --k-nearest-neighbors=${{ github.event.inputs.k-nearest-neighbors }} --epochs=${{ github.event.inputs.epochs }} --learning-rate=${{ github.event.inputs.learning-rate }} --slice-width=${{ github.event.inputs.slice-width }} --lstm-hidden-dimension=${{ github.event.inputs.lstm-hidden-dimension }} --lstm-layer-dimension=${{ github.event.inputs.lstm-layer-dimension }} 2>&1 >> log.txt &\"" >> startup.sh
       - name: Create compute instance
         id: create-compute-instance
         run: |

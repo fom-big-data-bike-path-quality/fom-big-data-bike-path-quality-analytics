@@ -117,7 +117,7 @@ def main(argv):
                 "--down-sampling-factor <down-sampling-factor>      factor by which target classes are capped in comparison to smallest class")
             print("--model <model>                                    name of the model to use for training")
             print("--k-folds <k-folds>                                number of k-folds")
-            print("--k-nearest-neighbors <k-nearest-neighbors>        number of k-folds")
+            print("--k-nearest-neighbors <k-nearest-neighbors>        number of nearest neighbors to consider in kNN approach")
             print("--epochs <epochs>                                  number of epochs")
             print("--learning-rate <learning-rate>                    learning rate")
             print(

@@ -70,7 +70,7 @@ python main.py [OPTION]...
 --down-sampling-factor <down-sampling-factor>      factor by which target classes are capped in comparison to smallest class
 --model <model>                                    name of the model to use for training
 --k-folds <k-folds>                                number of k-folds
---k-nearest-neighbors <k-nearest-neighbors>        number of k-folds
+--k-nearest-neighbors <k-nearest-neighbors>        number of nearest neighbors to consider in kNN approach
 --epochs <epochs>                                  number of epochs
 --learning-rate <learning-rate>                    learning rate
 --patience <patience>                              number of epochs to wait for improvements before finishing training
