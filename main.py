@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 import getopt
 import os
 import sys
@@ -106,17 +108,20 @@ def main(argv):
             print("--clean                                            clean intermediate results before start")
             print("--quiet                                            do not log outputs")
             print("--transient                                        do not store results")
-            print("--dry-run                                          only run a limited training to make sure syntax is correct")
+            print(
+                "--dry-run                                          only run a limited training to make sure syntax is correct")
             print("--skip-data-understanding                          skip data understanding")
             print("--skip-validation                                  skip validation")
             print("--window-step <window-step>                        step size used for sliding window data splitter")
-            print("--down-sampling-factor <down-sampling-factor>      factor by which target classes are capped in comparison to smallest class")
+            print(
+                "--down-sampling-factor <down-sampling-factor>      factor by which target classes are capped in comparison to smallest class")
             print("--model <model>                                    name of the model to use for training")
             print("--k-folds <k-folds>                                number of k-folds")
             print("--k-nearest-neighbors <k-nearest-neighbors>        number of k-folds")
             print("--epochs <epochs>                                  number of epochs")
             print("--learning-rate <learning-rate>                    learning rate")
-            print("--patience <patience>                              number of epochs to wait for improvements before finishing training")
+            print(
+                "--patience <patience>                              number of epochs to wait for improvements before finishing training")
             print("--slice-width <slice-width>                        number of measurements per slice")
             print("--dropout <dropout>                                dropout percentage")
             print("--lstm-hidden-dimension <lstm-hidden-dimension>    hidden dimensions in LSTM")
