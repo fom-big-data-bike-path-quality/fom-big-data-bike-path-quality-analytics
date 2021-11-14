@@ -19,7 +19,7 @@ on:
         required: true
         default: 10
       k-nearest-neighbors:
-        description: 'number of k-folds'
+        description: 'number of nearest neighbors to consider in kNN approach'
         required: true
         default: 10
       epochs:
