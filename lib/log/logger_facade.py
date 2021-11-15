@@ -31,8 +31,9 @@ class LoggerFacade:
 
     def log_training_start(self, device_name, training_start_time_string, clean, quiet, transient, dry_run,
                            skip_data_understanding, skip_validation, window_step, down_sampling_factor, model_name,
-                           k_folds, epochs, learning_rate, patience, slice_width, dropout, lstm_hidden_dimension,
-                           lstm_layer_dimension, measurement_speed_limit, test_size, random_state, telegram=None):
+                           k_folds, k_nearest_neighbors, epochs, learning_rate, patience, slice_width, dropout,
+                           lstm_hidden_dimension, lstm_layer_dimension, measurement_speed_limit, test_size,
+                           random_state, telegram=None):
         message = "Training started with parameters " + \
                   "\n* device name " + str(device_name) + \
                   "\n* start time " + str(training_start_time_string) + \
@@ -46,6 +47,7 @@ class LoggerFacade:
                   "\n* down-sampling factor " + str(down_sampling_factor) + \
                   "\n* model name " + model_name + \
                   "\n* k-folds " + str(k_folds) + \
+                  "\n* k-nearest-neighbors" + str(k_nearest_neighbors) + \
                   "\n* epochs " + str(epochs) + \
                   "\n* learning rate " + str(learning_rate) + \
                   "\n* patience " + str(patience) + \

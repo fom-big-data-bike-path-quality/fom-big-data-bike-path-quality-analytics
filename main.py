@@ -214,6 +214,7 @@ def main(argv):
 
         model_name=model_name,
         k_folds=k_folds,
+        k_nearest_neighbors=k_nearest_neighbors,
         epochs=epochs,
         learning_rate=learning_rate,
         patience=patience,
