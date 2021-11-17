@@ -7,19 +7,22 @@ from datetime import datetime
 
 import torch
 
+file_path = os.path.realpath(__file__)
+script_path = os.path.dirname(file_path)
+
 # Make library available in path
 library_paths = [
-    os.path.join(os.getcwd(), 'lib'),
-    os.path.join(os.getcwd(), 'lib', 'log'),
-    os.path.join(os.getcwd(), 'lib', 'data_pre_processing'),
-    os.path.join(os.getcwd(), 'lib', 'data_preparation'),
-    os.path.join(os.getcwd(), 'lib', 'plotters'),
-    os.path.join(os.getcwd(), 'lib', 'models'),
-    os.path.join(os.getcwd(), 'lib', 'models', 'base_model_knn_dtw'),
-    os.path.join(os.getcwd(), 'lib', 'models', 'base_model_cnn'),
-    os.path.join(os.getcwd(), 'lib', 'models', 'base_model_cnn', 'layers'),
-    os.path.join(os.getcwd(), 'lib', 'models', 'base_model_lstm'),
-    os.path.join(os.getcwd(), 'lib', 'cloud'),
+    os.path.join(script_path, 'lib'),
+    os.path.join(script_path, 'lib', 'log'),
+    os.path.join(script_path, 'lib', 'data_pre_processing'),
+    os.path.join(script_path, 'lib', 'data_preparation'),
+    os.path.join(script_path, 'lib', 'plotters'),
+    os.path.join(script_path, 'lib', 'models'),
+    os.path.join(script_path, 'lib', 'models', 'base_model_knn_dtw'),
+    os.path.join(script_path, 'lib', 'models', 'base_model_cnn'),
+    os.path.join(script_path, 'lib', 'models', 'base_model_cnn', 'layers'),
+    os.path.join(script_path, 'lib', 'models', 'base_model_lstm'),
+    os.path.join(script_path, 'lib', 'cloud'),
 ]
 
 for p in library_paths:
@@ -117,7 +120,8 @@ def main(argv):
                 "--down-sampling-factor <down-sampling-factor>      factor by which target classes are capped in comparison to smallest class")
             print("--model <model>                                    name of the model to use for training")
             print("--k-folds <k-folds>                                number of k-folds")
-            print("--k-nearest-neighbors <k-nearest-neighbors>        number of nearest neighbors to consider in kNN approach")
+            print(
+                "--k-nearest-neighbors <k-nearest-neighbors>        number of nearest neighbors to consider in kNN approach")
             print("--epochs <epochs>                                  number of epochs")
             print("--learning-rate <learning-rate>                    learning rate")
             print(
@@ -176,8 +180,6 @@ def main(argv):
         raise getopt.GetoptError("invalid model name. valid options are " + str(available_model_names))
 
     # Set paths
-    file_path = os.path.realpath(__file__)
-    script_path = os.path.dirname(file_path)
     data_path = os.path.join(script_path, "data", "data")
     slices_path = os.path.join(data_path, "measurements", "slices",
                                "width" + str(slice_width) + "_step" + str(window_step))
