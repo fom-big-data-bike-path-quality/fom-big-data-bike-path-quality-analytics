@@ -1,6 +1,7 @@
-from torch.utils.data import TensorDataset, DataLoader
-import torch
 import numpy as np
+import torch
+from torch.utils.data import TensorDataset, DataLoader
+
 
 class ModelPreparator:
 
@@ -52,3 +53,12 @@ class ModelPreparator:
 
     def split_data_and_labels(self, array):
         return array[:,1,:], array[:,0,0]
+
+    def create_tensor(self, dataframes, device):
+        array = self.create_array(dataframes)
+        dataset = self.create_dataset(array)
+        data_loader = self.create_loader(dataset, shuffle=False)
+
+        for i, batch in enumerate(data_loader):
+            x_raw, y_batch = [t.to(device) for t in batch]
+            return x_raw

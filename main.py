@@ -245,7 +245,8 @@ def main(argv):
 
     if not skip_data_understanding:
         filtered_dataframes = DataFilterer().run(logger=logger, dataframes=dataframes, slice_width=slice_width,
-                                                 measurement_speed_limit=measurement_speed_limit, quiet=True)
+                                                 measurement_speed_limit=measurement_speed_limit,
+                                                 keep_unflagged_lab_conditions=False, quiet=True)
 
         BikeActivityPlotter().run(
             logger=logger,
@@ -339,8 +340,10 @@ def main(argv):
     #
 
     dataframes = DataFilterer().run(logger=logger, dataframes=dataframes, slice_width=slice_width,
-                                    measurement_speed_limit=measurement_speed_limit, quiet=quiet)
-    dataframes = DataTransformer().run(logger=logger, dataframes=dataframes, quiet=quiet)
+                                    measurement_speed_limit=measurement_speed_limit,
+                                    keep_unflagged_lab_conditions=False, quiet=quiet)
+    dataframes = DataTransformer().run(logger=logger, dataframes=dataframes, skip_label_encode_surface_type=False,
+                                       quiet=quiet)
     dataframes = DataNormalizer().run(logger=logger, dataframes=dataframes, quiet=quiet)
 
     train_dataframes, test_dataframes = TrainTestDataSplitter().run(

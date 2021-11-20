@@ -27,13 +27,23 @@ class DataLoader:
             file_base_name = file_name.replace(".csv", "")
 
             dataframe = pd.read_csv(file_path, skiprows=1, names=[
-                "bike_activity_uid", "bike_activity_sample_uid", "bike_activity_measurement",
+                # Descriptive values
+                "bike_activity_uid",
+                "bike_activity_sample_uid",
+                "bike_activity_measurement",
                 "bike_activity_measurement_timestamp",
-                "bike_activity_measurement_lon", "bike_activity_measurement_lat", "bike_activity_measurement_speed",
-                "bike_activity_measurement_accelerometer_x", "bike_activity_measurement_accelerometer_y",
-                "bike_activity_measurement_accelerometer_z", "bike_activity_phone_position", "bike_activity_bike_type",
-                "bike_activity_flagged_lab_conditions", "bike_activity_surface_type", "bike_activity_smoothness_type",
-                "bike_activity_measurement_accelerometer"
+                "bike_activity_measurement_lon",
+                "bike_activity_measurement_lat",
+                # Input values
+                "bike_activity_measurement_speed",
+                "bike_activity_measurement_accelerometer_x",
+                "bike_activity_measurement_accelerometer_y",
+                "bike_activity_measurement_accelerometer_z",
+                "bike_activity_phone_position",
+                "bike_activity_bike_type",
+                # Output values
+                "bike_activity_surface_type",
+                "bike_activity_smoothness_type"
             ])
 
             dataframes[file_base_name] = dataframe

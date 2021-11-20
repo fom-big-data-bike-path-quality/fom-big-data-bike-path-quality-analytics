@@ -11,7 +11,8 @@ from tracking_decorator import TrackingDecorator
 class DataFilterer:
 
     @TrackingDecorator.track_time
-    def run(self, logger, dataframes, slice_width, measurement_speed_limit, quiet=False):
+    def run(self, logger, dataframes, slice_width, measurement_speed_limit, keep_unflagged_lab_conditions=False,
+            quiet=False):
 
         copied_dataframes = dataframes.copy()
         filtered_dataframes = {}
@@ -22,7 +23,8 @@ class DataFilterer:
         for name, dataframe in progress_bar:
 
             # Exclude dataframes which are not tracked under lab conditions
-            if False in dataframe.bike_activity_flagged_lab_conditions.values:
+            if not keep_unflagged_lab_conditions and (
+                    not "bike_activity_flagged_lab_conditions" in dataframe.columns or False in dataframe.bike_activity_flagged_lab_conditions.values):
                 if not quiet:
                     logger.log_line("✗️ Filtering out " + name + " (not tracked under lab conditions)", console=False,
                                     file=True)

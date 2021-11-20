@@ -19,11 +19,13 @@ def getAccelerometer(row):
                       + bike_activity_measurement_accelerometer_z ** 2) / 3)
 
 
-def getLabelEncoding(row):
+def label_encoding(row):
     bike_activity_surface_type = row["bike_activity_surface_type"]
 
     return LabelEncoder().label_to_index(bike_activity_surface_type)
 
+def reverse_label_encoding(index):
+    return LabelEncoder().classes[index]
 
 #
 # Main
@@ -32,7 +34,7 @@ def getLabelEncoding(row):
 class DataTransformer:
 
     @TrackingDecorator.track_time
-    def run(self, logger, dataframes, quiet=False):
+    def run(self, logger, dataframes, skip_label_encode_surface_type=False, quiet=False):
 
         copied_dataframes = dataframes.copy()
 
@@ -40,7 +42,11 @@ class DataTransformer:
         for name, dataframe in progress_bar:
 
             dataframe["bike_activity_measurement_accelerometer"] = pd.to_numeric(dataframe.apply(lambda row: getAccelerometer(row), axis=1))
-            dataframe["bike_activity_surface_type"] = dataframe.apply(lambda row: getLabelEncoding(row), axis=1)
+
+            if not skip_label_encode_surface_type:
+                dataframe["bike_activity_surface_type"] = dataframe.apply(lambda row: label_encoding(row), axis=1)
+            else:
+                dataframe["bike_activity_surface_type"] = dataframe.apply(lambda row: -1, axis=1)
 
             dataframe.drop(["bike_activity_uid",
                             "bike_activity_sample_uid",
@@ -54,8 +60,10 @@ class DataTransformer:
                             "bike_activity_measurement_accelerometer_z",
                             "bike_activity_phone_position",
                             "bike_activity_bike_type",
-                            "bike_activity_flagged_lab_conditions",
                             "bike_activity_smoothness_type"], axis=1, inplace=True)
+
+            if "bike_activity_flagged_lab_conditions" in dataframe.columns:
+                dataframe.drop(["bike_activity_flagged_lab_conditions"], axis=1, inplace=True)
 
         if not quiet:
             class_name = self.__class__.__name__
@@ -64,3 +72,6 @@ class DataTransformer:
             logger.log_line(class_name + "." + function_name + " transformed " + str(len(copied_dataframes)) + " dataframes")
 
         return copied_dataframes
+
+    def run_reverse(self, index):
+        return reverse_label_encoding(index)
