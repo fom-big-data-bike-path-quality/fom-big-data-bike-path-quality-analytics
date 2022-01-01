@@ -5,21 +5,7 @@
 
 /venv/
 
-/lib/__pycache__/*
-/lib/cloud/__pycache__/*
+**/__pycache__
 /lib/cloud/*.json
-/lib/data_pre_processing/__pycache__/*
-/lib/data_preparation/__pycache__/*
-/lib/data_transformation/__pycache__/*
-/lib/log/__pycache__/*
 /lib/log/telegram.config
-/lib/models/__pycache__/*
-/lib/models/base_model_cnn/__pycache__/*
-/lib/models/base_model_cnn/layers/__pycache__/*
-/lib/models/base_model_knn_dtw/__pycache__/*
-/lib/models/base_model_knn_dtw/layers/__pycache__/*
-/lib/models/base_model_lstm/__pycache__/*
-/lib/models/base_model_lstm/layers/__pycache__/*
-/lib/plotters/__pycache__/*
-/lib/statistics/__pycache__/*
 /workspace/
