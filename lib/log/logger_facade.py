@@ -47,7 +47,7 @@ class LoggerFacade:
                   "\n* down-sampling factor " + str(down_sampling_factor) + \
                   "\n* model name " + model_name + \
                   "\n* k-folds " + str(k_folds) + \
-                  "\n* k-nearest-neighbors" + str(k_nearest_neighbors) + \
+                  "\n* k-nearest-neighbors " + str(k_nearest_neighbors) + \
                   "\n* epochs " + str(epochs) + \
                   "\n* learning rate " + str(learning_rate) + \
                   "\n* patience " + str(patience) + \
