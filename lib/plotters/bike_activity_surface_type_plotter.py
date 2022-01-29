@@ -40,7 +40,7 @@ class BikeActivitySurfaceTypePlotter:
 
     @TrackingDecorator.track_time
     def run(self, logger, dataframes, slice_width, results_path, file_name, title, description, xlabel,
-            run_after_label_encoding=False, clean=False, quiet=False):
+            color="#3A6FB0", run_after_label_encoding=False, clean=False, quiet=False):
         if len(dataframes) == 0:
             logger.log_line("✗️ Not plotting " + file_name + " because there are no dataframes to plot", console=False, file=True)
         else:
@@ -86,7 +86,7 @@ class BikeActivitySurfaceTypePlotter:
             plt.title(title)
             plt.xlabel(xlabel)
             plt.ylabel("percentage")
-            plt.hist(data, rwidth=0.8, weights=np.ones(len(data)) / len(data), align="left")
+            plt.hist(data, rwidth=0.8, weights=np.ones(len(data)) / len(data), align="left", color=color)
             plt.gca().yaxis.set_major_formatter(PercentFormatter(1))
             plt.savefig(
                 fname=os.path.join(results_path, file_name + "_relative.png"),
@@ -111,7 +111,7 @@ class BikeActivitySurfaceTypePlotter:
 
 
     @TrackingDecorator.track_time
-    def run_bar(self, logger, data, results_path, file_name, title, description, xlabel, clean=False, quiet=False):
+    def run_bar(self, logger, data, results_path, file_name, title, description, xlabel, color="#3A6FB0", clean=False, quiet=False):
         # Make results path
         os.makedirs(results_path, exist_ok=True)
 
@@ -126,7 +126,7 @@ class BikeActivitySurfaceTypePlotter:
         plt.title(title)
         plt.xlabel(xlabel)
         plt.ylabel("amount")
-        plt.bar(data.keys(), list(data.values()))
+        plt.bar(data.keys(), list(data.values()), color=color)
         plt.savefig(
             fname=os.path.join(results_path, file_name + "_absolute_bar.png"),
             format="png",
@@ -144,7 +144,7 @@ class BikeActivitySurfaceTypePlotter:
         plt.title(title)
         plt.xlabel(xlabel)
         plt.ylabel("percentage")
-        plt.bar(data.keys(), list(map(lambda x: x / sum(list(data.values())), list(data.values()))))
+        plt.bar(data.keys(), list(map(lambda x: x / sum(list(data.values())), list(data.values()))), color=color)
         plt.gca().yaxis.set_major_formatter(PercentFormatter(1))
         plt.savefig(
             fname=os.path.join(results_path, file_name + "_relative_bar.png"),

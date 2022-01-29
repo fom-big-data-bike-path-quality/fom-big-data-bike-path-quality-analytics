@@ -17,7 +17,8 @@ from tqdm import tqdm
 class BikeActivitySlicePlotter:
 
     @TrackingDecorator.track_time
-    def run(self, logger, data_path, results_path, xlabel, ylabel, clean=False, quiet=False):
+    def run(self, logger, data_path, results_path, xlabel, ylabel, colors=["#3A6FB0", "#79ABD1"], clean=False,
+            quiet=False):
 
         # Make results path
         os.makedirs(results_path, exist_ok=True)
@@ -75,8 +76,8 @@ class BikeActivitySlicePlotter:
                     # plt.plot(data_accelerometer_x, label="accelerometer x")
                     # plt.plot(data_accelerometer_y, label="accelerometer y")
                     # plt.plot(data_accelerometer_z, label="accelerometer z")
-                    plt.plot(data_accelerometer, label="accelerometer")
-                    plt.plot(data_speed, label="speed")
+                    plt.plot(data_accelerometer, label="accelerometer", color=colors[0])
+                    plt.plot(data_speed, label="speed", color=colors[1])
                     plt.legend()
 
                     plt.savefig(fname=results_file,

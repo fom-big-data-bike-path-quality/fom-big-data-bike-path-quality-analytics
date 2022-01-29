@@ -21,7 +21,8 @@ def smooth(y, box_pts):
 class TrainingResultPlotterBar:
 
     @TrackingDecorator.track_time
-    def run(self, logger, data, labels, results_path, file_name, title, description, xlabel, ylabel, clean=False, quiet=False):
+    def run(self, logger, data, labels, results_path, file_name, title, description, xlabel, ylabel, color="#3A6FB0",
+            clean=False, quiet=False):
         # Make results path
         os.makedirs(results_path, exist_ok=True)
 
@@ -33,7 +34,7 @@ class TrainingResultPlotterBar:
 
         y_pos = np.arange(len(labels))
 
-        plt.bar(y_pos, data, align='center', alpha=0.5)
+        plt.bar(y_pos, data, align='center', alpha=0.5, color=color)
         plt.xticks(y_pos, labels)
         plt.ylabel(ylabel)
         plt.title(description)

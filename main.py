@@ -67,7 +67,7 @@ def main(argv):
     skip_data_understanding = False
     skip_validation = False
 
-    limit = None
+    limit = 100
 
     window_step = 50
     down_sampling_factor = 3.0
@@ -304,6 +304,7 @@ def main(argv):
         title="Surface type distribution (train)",
         description="Distribution of surface types in train data",
         xlabel="surface type",
+        color="#3A6FB0",
         clean=clean,
         quiet=quiet
     )
@@ -318,6 +319,7 @@ def main(argv):
         title="Surface type distribution (test)",
         description="Distribution of surface types in test data",
         xlabel="surface type",
+        color="#79ABD1",
         clean=clean,
         quiet=quiet
     )
