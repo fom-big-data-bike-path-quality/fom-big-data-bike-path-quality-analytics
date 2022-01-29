@@ -15,6 +15,7 @@ library_paths = [
     os.path.join(script_path, 'lib'),
     os.path.join(script_path, 'lib', 'log'),
     os.path.join(script_path, 'lib', 'data_pre_processing'),
+    os.path.join(script_path, 'lib', 'data_statistics'),
     os.path.join(script_path, 'lib', 'data_preparation'),
     os.path.join(script_path, 'lib', 'plotters'),
     os.path.join(script_path, 'lib', 'models'),
@@ -33,6 +34,7 @@ for p in library_paths:
 from logger_facade import LoggerFacade
 from data_loader import DataLoader
 from data_filterer import DataFilterer
+from data_statistics import DataStatistics
 from data_transformer import DataTransformer
 from data_normalizer import DataNormalizer
 from bike_activity_plotter import BikeActivityPlotter
@@ -195,6 +197,7 @@ def main(argv):
         log_latest_path = None
 
     log_path_data_understanding = os.path.join(log_path, "02-data-understanding")
+    log_path_data_preparation = os.path.join(log_path, "03-data-preparation")
     log_path_modelling = os.path.join(log_path, "04-modelling")
     log_path_evaluation = os.path.join(log_path, "05-evaluation")
 
@@ -244,10 +247,6 @@ def main(argv):
     #
 
     if not skip_data_understanding:
-        filtered_dataframes = DataFilterer().run(logger=logger, dataframes=dataframes, slice_width=slice_width,
-                                                 measurement_speed_limit=measurement_speed_limit,
-                                                 keep_unflagged_lab_conditions=False, quiet=True)
-
         BikeActivityPlotter().run(
             logger=logger,
             data_path=os.path.join(data_path, "measurements", "csv"),
@@ -267,73 +266,6 @@ def main(argv):
         #     clean=clean,
         #     quiet=quiet
         # )
-
-        train_dataframes, test_dataframes = TrainTestDataSplitter().run(
-            logger=logger,
-            dataframes=filtered_dataframes,
-            test_size=test_size,
-            random_state=random_state,
-            quiet=True
-        )
-
-        resampled_train_dataframes = DataResampler().run_down_sampling(
-            logger=logger,
-            dataframes=train_dataframes,
-            down_sampling_factor=down_sampling_factor,
-            quiet=quiet
-        )
-
-        BikeActivitySurfaceTypePlotter().run(
-            logger=logger,
-            dataframes=train_dataframes,
-            slice_width=slice_width,
-            results_path=os.path.join(log_path_data_understanding, "plots", "bike-activity-surface-type"),
-            file_name="surface_type_train",
-            title="Surface type distribution (train)",
-            description="Distribution of surface types in input data",
-            xlabel="surface type",
-            clean=clean,
-            quiet=quiet
-        )
-
-        BikeActivitySurfaceTypePlotter().run(
-            logger=logger,
-            dataframes=train_dataframes,
-            slice_width=slice_width,
-            results_path=log_path_data_understanding + "/plots/bike-activity-surface-type",
-            file_name="surface_type_train",
-            title="Surface type distribution (train)",
-            description="Distribution of surface types in input data",
-            xlabel="surface type",
-            clean=clean,
-            quiet=quiet
-        )
-
-        BikeActivitySurfaceTypePlotter().run(
-            logger=logger,
-            dataframes=test_dataframes,
-            slice_width=slice_width,
-            results_path=os.path.join(log_path_data_understanding, "plots", "bike-activity-surface-type"),
-            file_name="surface_type_test",
-            title="Surface type distribution (test)",
-            description="Distribution of surface types in input data",
-            xlabel="surface type",
-            clean=clean,
-            quiet=quiet
-        )
-
-        BikeActivitySurfaceTypePlotter().run(
-            logger=logger,
-            dataframes=resampled_train_dataframes,
-            slice_width=slice_width,
-            results_path=log_path_data_understanding + "/plots/bike-activity-surface-type",
-            file_name="surface_type_train_resampled",
-            title="Surface type distribution (train, resampled)",
-            description="Distribution of surface types in input data",
-            xlabel="surface type",
-            clean=clean,
-            quiet=quiet
-        )
 
     #
     # Data Preparation
@@ -359,6 +291,48 @@ def main(argv):
         dataframes=train_dataframes,
         down_sampling_factor=down_sampling_factor,
         run_after_label_encoding=True,
+        quiet=quiet
+    )
+
+    BikeActivitySurfaceTypePlotter().run_bar(
+        logger=logger,
+        data=DataStatistics().run(
+            dataframes=train_dataframes
+        ),
+        results_path=log_path_data_preparation,
+        file_name="surface_type_train",
+        title="Surface type distribution (train)",
+        description="Distribution of surface types in train data",
+        xlabel="surface type",
+        clean=clean,
+        quiet=quiet
+    )
+
+    BikeActivitySurfaceTypePlotter().run_bar(
+        logger=logger,
+        data=DataStatistics().run(
+            dataframes=test_dataframes
+        ),
+        results_path=log_path_data_preparation,
+        file_name="surface_type_test",
+        title="Surface type distribution (test)",
+        description="Distribution of surface types in test data",
+        xlabel="surface type",
+        clean=clean,
+        quiet=quiet
+    )
+
+    BikeActivitySurfaceTypePlotter().run_bar(
+        logger=logger,
+        data=DataStatistics().run(
+            dataframes=resampled_train_dataframes
+        ),
+        results_path=log_path_data_preparation,
+        file_name="surface_type_train_resampled",
+        title="Surface type distribution (train, resampled)",
+        description="Distribution of surface types in resampled train data",
+        xlabel="surface type",
+        clean=clean,
         quiet=quiet
     )
 
