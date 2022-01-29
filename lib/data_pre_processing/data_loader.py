@@ -41,6 +41,7 @@ class DataLoader:
                 "bike_activity_measurement_accelerometer_z",
                 "bike_activity_phone_position",
                 "bike_activity_bike_type",
+                "bike_activity_flagged_lab_conditions",
                 # Output values
                 "bike_activity_surface_type",
                 "bike_activity_smoothness_type"
