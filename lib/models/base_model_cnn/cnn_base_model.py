@@ -16,6 +16,7 @@ from sklearn.model_selection import KFold
 from torch import nn
 from torch import optim
 from torch.nn import functional as F
+from torchviz import make_dot
 from tqdm import tqdm
 from tracking_decorator import TrackingDecorator
 
@@ -281,6 +282,13 @@ class CnnBaseModel:
                 input, target = [t.to(device) for t in batch]
                 optimizer.zero_grad()
                 output = classifier(input)
+
+                if not os.path.exists(os.path.join(self.log_path_modelling, "model.png")):
+
+                    # Plot classifier
+                    make_dot(var=output, params=dict(list(classifier.named_parameters()))) \
+                        .render(os.path.join(self.log_path_modelling, "model"), format="png")
+
                 loss = criterion(output, target)
                 train_epoch_loss += loss.item()
                 loss.backward()

@@ -50,6 +50,7 @@ pip install google-api-tools
 pip install google-auth
 pip install google-cloud-core
 pip install google-cloud-storage
+pip install torchviz
 ```
 
 ## Usage
