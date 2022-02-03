@@ -20,7 +20,7 @@ class GoogleCloudPlatformBucketUploader:
         # Set script path
         file_path = os.path.realpath(__file__)
         script_path = os.path.dirname(file_path)
-        config_file_path = os.path.join(script_path, "bike-path-quality-2bebc8ae5dc6.json")
+        config_file_path = os.path.join(script_path, "bike-path-quality-339900-a8e468a52c18.json")
 
         # Check for config file
         if not Path(config_file_path).exists():
@@ -57,7 +57,7 @@ class GoogleCloudPlatformBucketUploader:
         # Set script path
         file_path = os.path.realpath(__file__)
         script_path = os.path.dirname(file_path)
-        config_file_path = os.path.join(script_path, "bike-path-quality-2bebc8ae5dc6.json")
+        config_file_path = os.path.join(script_path, "bike-path-quality-339900-a8e468a52c18.json")
 
         # Check for config file
         if not Path(config_file_path).exists():

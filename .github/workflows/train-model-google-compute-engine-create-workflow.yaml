@@ -43,10 +43,10 @@ on:
         required: true
         default: 3
 env:
-  PROJECT_ID: "bike-path-quality"
+  PROJECT_ID: "bike-path-quality-339900"
   GCE_INSTANCE: "bike-path-quality-analytics"
   GCE_INSTANCE_ZONE: "europe-west2-a"
-  GCE_SERVICE_ACCOUNT: "bike-path-quality-analytics@bike-path-quality.iam.gserviceaccount.com"
+  GCE_SERVICE_ACCOUNT: "bike-path-quality-analytics@bike-path-quality-339900.iam.gserviceaccount.com"
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -66,7 +66,7 @@ jobs:
           GOOGLE_CLOUD_TOKEN: ${{ secrets.GOOGLE_CLOUD_TOKEN }}
       - name: Prepare Google Cloud service account token
         id: prepare-google-cloud-service-account-token
-        run: echo $GOOGLE_CLOUD_TOKEN | base64 --decode > ./bike-path-quality-2bebc8ae5dc6.json
+        run: echo $GOOGLE_CLOUD_TOKEN | base64 --decode > ./bike-path-quality-339900-a8e468a52c18.json
         env:
           GOOGLE_CLOUD_TOKEN: ${{ secrets.GOOGLE_CLOUD_TOKEN }}
       - name: Create startup script
@@ -80,8 +80,8 @@ jobs:
           echo "sudo -u training bash -c \"mkdir -p ~/.ssh; ssh-keyscan github.com >> ~/.ssh/known_hosts\"" >> startup.sh
           echo "sudo -u training bash -c \"cd ~; git clone https://github.com/fom-big-data-bike-path-quality/fom-big-data-bike-path-quality-analytics.git\"" >> startup.sh
           echo "sudo -u training bash -c \"cd ~; git clone https://github.com/fom-big-data-bike-path-quality/fom-big-data-bike-path-quality-data.git fom-big-data-bike-path-quality-analytics/data\"" >> startup.sh
-          echo "sudo -u training bash -c \"gsutil cp gs://bike-path-quality-analytics/telegram.config ~/fom-big-data-bike-path-quality-analytics/lib/log/\"" >> startup.sh
-          echo "sudo -u training bash -c \"gsutil cp gs://bike-path-quality-analytics/bike-path-quality-2bebc8ae5dc6.json ~/fom-big-data-bike-path-quality-analytics/lib/cloud/\"" >> startup.sh
+          echo "sudo -u training bash -c \"gsutil cp gs://bike-path-quality-training-analytics/telegram.config ~/fom-big-data-bike-path-quality-analytics/lib/log/\"" >> startup.sh
+          echo "sudo -u training bash -c \"gsutil cp gs://bike-path-quality-training-analytics/bike-path-quality-339900-a8e468a52c18.json ~/fom-big-data-bike-path-quality-analytics/lib/cloud/\"" >> startup.sh
           echo "sudo -u training bash -c \"cd ~/fom-big-data-bike-path-quality-analytics; rm -rf data/data/measurements/csv\"" >> startup.sh
           echo "sudo -u training bash -c \"cd ~/fom-big-data-bike-path-quality-analytics; rm -rf data/data/measurements/geojson\"" >> startup.sh
           echo "sudo -u training bash -c \"cd ~/fom-big-data-bike-path-quality-analytics; rm -rf data/data/measurements/json\"" >> startup.sh
