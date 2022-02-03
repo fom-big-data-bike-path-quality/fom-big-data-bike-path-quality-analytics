@@ -22,7 +22,8 @@ class TrainingResultPlotter:
 
     @TrackingDecorator.track_time
     def run(self, logger, data, labels, results_path, file_name, title, description, xlabel, ylabel,
-            colors=["#3A6FB0", "#79ABD1", "#C9DAEC"], clean=False, quiet=False):
+            colors=["#152F67", "#234F95", "#3A6FB0", "#5790C1", "#79ABD1", "#A5C8DD", "#C9DAEC"], clean=False,
+            quiet=False):
 
         # Make results path
         os.makedirs(results_path, exist_ok=True)
@@ -40,7 +41,7 @@ class TrainingResultPlotter:
         plt.ylabel(ylabel)
 
         for i in range(len(data)):
-            plt.plot(smooth(data[i], 5), label=labels[i], color=colors[i])
+            plt.plot(smooth(data[i], 5), label=labels[i], color=colors[i % len(colors)])
 
         plt.legend()
 
