@@ -64,11 +64,18 @@ jobs:
           export_default_credentials: true
         env:
           GOOGLE_CLOUD_TOKEN: ${{ secrets.GOOGLE_CLOUD_TOKEN }}
+#      - name: Prepare Google Cloud service account token
+#        id: prepare-google-cloud-service-account-token
+#        run: echo $GOOGLE_CLOUD_TOKEN | base64 --decode > ./bike-path-quality-339900-a8e468a52c18.json
+#        env:
+#          GOOGLE_CLOUD_TOKEN: ${{ secrets.GOOGLE_CLOUD_TOKEN }}
       - name: Prepare Google Cloud service account token
         id: prepare-google-cloud-service-account-token
-        run: echo $GOOGLE_CLOUD_TOKEN | base64 --decode > ./bike-path-quality-339900-a8e468a52c18.json
-        env:
-          GOOGLE_CLOUD_TOKEN: ${{ secrets.GOOGLE_CLOUD_TOKEN }}
+        uses: timheuer/base64-to-file@v1.1
+        with:
+          fileName: 'bike-path-quality-339900-a8e468a52c18.json'
+          fileDir: '.'
+          encodedString: ${{ secrets.GOOGLE_CLOUD_TOKEN }}
       - name: Create startup script
         id: create-startup-script
         run: |
