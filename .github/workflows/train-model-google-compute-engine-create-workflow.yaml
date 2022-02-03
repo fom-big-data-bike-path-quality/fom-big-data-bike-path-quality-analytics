@@ -76,6 +76,7 @@ jobs:
           echo "sleep 300" >> startup.sh
           echo "sudo apt-get install python3-venv -y >> log.txt" >> startup.sh
           echo "sudo useradd -m -s /bin/bash training >> log.txt" >> startup.sh
+          echo "sudo apt-get install -y graphviz >> log.txt" >> startup.sh
           echo "sudo -u training bash -c \"mkdir -p ~/.ssh; ssh-keyscan github.com >> ~/.ssh/known_hosts\"" >> startup.sh
           echo "sudo -u training bash -c \"cd ~; git clone https://github.com/fom-big-data-bike-path-quality/fom-big-data-bike-path-quality-analytics.git\"" >> startup.sh
           echo "sudo -u training bash -c \"cd ~; git clone https://github.com/fom-big-data-bike-path-quality/fom-big-data-bike-path-quality-data.git fom-big-data-bike-path-quality-analytics/data\"" >> startup.sh
