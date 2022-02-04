@@ -32,9 +32,10 @@ class ResultHandler:
                     zipFile.write(filePath, zip_root_dir + filePath[lenDirPath:])
             zipFile.close()
 
-    def upload_results(self, logger, upload_file_path, project_id, bucket_name, quiet=False):
+    def upload_results(self, logger, gcp_token_file, upload_file_path, project_id, bucket_name, quiet=False):
         GoogleCloudPlatformBucketUploader().upload_file(
             logger=logger,
+            gcp_token_file=gcp_token_file,
             upload_file_path=upload_file_path,
             project_id=project_id,
             bucket_name=bucket_name,

@@ -88,6 +88,10 @@ def main(argv):
     test_size: float = 0.15
     random_state = 0
 
+    gcp_project_id = "bike-path-quality-339900"
+    gcp_bucket_name = "bike-path-quality-training-results"
+    gcp_token_file = "bike-path-quality-339900-a8e468a52c18.json"
+
     # Read command line arguments
     try:
         opts, args = getopt.getopt(argv, "hcqtdw:m:f:k:e:l:p:s:",
@@ -449,9 +453,10 @@ def main(argv):
         )
         ResultHandler().upload_results(
             logger=logger,
+            gcp_token_file=gcp_token_file,
             upload_file_path=os.path.join(script_path, "results", "results", training_start_time_string + ".zip"),
-            project_id="bike-path-quality",
-            bucket_name="bike-path-quality-results",
+            project_id=gcp_project_id,
+            bucket_name=gcp_bucket_name,
             quiet=quiet
         )
 
