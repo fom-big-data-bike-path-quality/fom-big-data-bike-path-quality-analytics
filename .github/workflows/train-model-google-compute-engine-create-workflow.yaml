@@ -56,26 +56,12 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v2.3.3
+      - name: Login to Google Cloud
+        uses: 'google-github-actions/auth@v0'
+        with:
+          credentials_json: ${{ secrets.GOOGLE_CLOUD_TOKEN }}
       - name: Set up Cloud SDK
-        uses: google-github-actions/setup-gcloud@master
-        with:
-          project_id: "$PROJECT_ID"
-          service_account_key: ${{ secrets.GOOGLE_CLOUD_TOKEN }}
-          export_default_credentials: true
-        env:
-          GOOGLE_CLOUD_TOKEN: ${{ secrets.GOOGLE_CLOUD_TOKEN }}
-#      - name: Prepare Google Cloud service account token
-#        id: prepare-google-cloud-service-account-token
-#        run: echo $GOOGLE_CLOUD_TOKEN | base64 --decode > ./bike-path-quality-339900-a8e468a52c18.json
-#        env:
-#          GOOGLE_CLOUD_TOKEN: ${{ secrets.GOOGLE_CLOUD_TOKEN }}
-      - name: Prepare Google Cloud service account token
-        id: prepare-google-cloud-service-account-token
-        uses: timheuer/base64-to-file@v1.1
-        with:
-          fileName: 'bike-path-quality-339900-a8e468a52c18.json'
-          fileDir: '.'
-          encodedString: ${{ secrets.GOOGLE_CLOUD_TOKEN }}
+        uses: 'google-github-actions/setup-gcloud@v0'
       - name: Create startup script
         id: create-startup-script
         run: |
