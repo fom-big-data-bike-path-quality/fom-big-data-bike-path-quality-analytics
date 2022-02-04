@@ -89,7 +89,7 @@ def get_metrics(classifier, data, labels):
 class KnnDtwBaseModel:
 
     def __init__(self, logger, log_path_modelling, log_path_evaluation, train_dataframes, test_dataframes,
-                 k_nearest_neighbors, slice_width):
+                 k_nearest_neighbors, subsample_step, max_warping_window, slice_width):
         self.logger = logger
         self.log_path_modelling = log_path_modelling
         self.log_path_evaluation = log_path_evaluation
@@ -98,6 +98,8 @@ class KnnDtwBaseModel:
         self.test_dataframes = test_dataframes
 
         self.k_nearest_neighbors = k_nearest_neighbors
+        self.subsample_step = subsample_step
+        self.max_warping_window = max_warping_window
         self.slice_width = slice_width
 
         self.model_logger = ModelLogger()

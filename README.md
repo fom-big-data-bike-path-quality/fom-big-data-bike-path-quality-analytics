@@ -65,13 +65,19 @@ python main.py [OPTION]...
 --quiet                                            do not log outputs
 --transient                                        do not store results
 --dry-run                                          only run a limited training to make sure syntax is correct
+
 --skip-data-understanding                          skip data understanding
 --skip-validation                                  skip validation
+
 --window-step <window-step>                        step size used for sliding window data splitter
 --down-sampling-factor <down-sampling-factor>      factor by which target classes are capped in comparison to smallest class
 --model <model>                                    name of the model to use for training
 --k-folds <k-folds>                                number of k-folds
+
 --k-nearest-neighbors <k-nearest-neighbors>        number of nearest neighbors to consider in kNN approach
+--dtw-subsample-step <dtw-subsample-step>          subsample steps for DTW
+--dtw-max-warping-window <dtw-max-warping-window>  max warping window for DTW
+
 --epochs <epochs>                                  number of epochs
 --learning-rate <learning-rate>                    learning rate
 --patience <patience>                              number of epochs to wait for improvements before finishing training
@@ -82,6 +88,11 @@ python main.py [OPTION]...
 
 Examples:
   python main.py -c -m cnn -e 3000 -l 0.001 
+```
+
+An example to run the kNN model is
+```
+python main.py --clean --model=knn-dtw --k-nearest-neighbors=10 --dtw-subsample-step=1 --dtw-max-warping-window=10
 ```
 
 ## Roadmap

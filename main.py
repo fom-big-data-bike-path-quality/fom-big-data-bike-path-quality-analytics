@@ -75,6 +75,8 @@ def main(argv):
     model_name = None
     k_folds = 10
     k_nearest_neighbors = 10
+    subsample_step = 1
+    max_warping_window = 10
     epochs = 10_000
     learning_rate: float = 0.001
     patience = 500
@@ -97,16 +99,18 @@ def main(argv):
         opts, args = getopt.getopt(argv, "hcqtdw:m:f:k:e:l:p:s:",
                                    ["help", "clean", "quiet", "transient", "dry-run", "skip-data-understanding",
                                     "skip-validation", "window-step=", "down-sampling-factor=", "model=", "k-folds=",
-                                    "k-nearest-neighbors=", "epochs=", "learning-rate=", "patience=", "slice-width=",
-                                    "dropout=", "lstm-hidden-dimension=", "lstm-layer-dimension="])
+                                    "k-nearest-neighbors=", "dtw-subsample-step=", "dtw-max-warping-window=", "epochs=",
+                                    "learning-rate=", "patience=", "slice-width=", "dropout=", "lstm-hidden-dimension=",
+                                    "lstm-layer-dimension="])
     except getopt.GetoptError as error:
         print(argv)
         print(error)
         print(
             "main.py --help --clean --quiet --transient --dry-run --skip-data-understanding --skip-validation " +
-            "--window-step <window-step> --down-sampling-factor <down-sampling-factor> --model <model>" +
-            "--k-folds <k-folds> --k-nearest-neighbors <k-nearest-neighbors> --epochs <epochs> "
-            "--learning-rate <learning-rate> --patience <patience> --slice-width <slice-width> --dropout <dropout>" +
+            "--window-step <window-step> --down-sampling-factor <down-sampling-factor> --model <model> " +
+            "--k-folds <k-folds> --k-nearest-neighbors <k-nearest-neighbors> --dtw-subsample-step <dtw-subsample-step> " +
+            "--dtw-max-warping-window <dtw-max-warping-window> --epochs <epochs> " +
+            "--learning-rate <learning-rate> --patience <patience> --slice-width <slice-width> --dropout <dropout> " +
             "--lstm-hidden-dimension <lstm-hidden-dimension> --lstm-layer-dimension <lstm-layer-dimension>")
         sys.exit(2)
     for opt, arg in opts:
@@ -128,6 +132,8 @@ def main(argv):
             print("--k-folds <k-folds>                                number of k-folds")
             print(
                 "--k-nearest-neighbors <k-nearest-neighbors>        number of nearest neighbors to consider in kNN approach")
+            print("--dtw-subsample-step <dtw-subsample-step>          subsample steps for DTW")
+            print("--dtw-max-warping-window <dtw-max-warping-window>  max warping window for DTW")
             print("--epochs <epochs>                                  number of epochs")
             print("--learning-rate <learning-rate>                    learning rate")
             print(
@@ -167,6 +173,10 @@ def main(argv):
             k_folds = int(arg)
         elif opt in ("-k", "--k-nearest-neighbors"):
             k_nearest_neighbors = int(arg)
+        elif opt in ("--dtw-subsample-step"):
+            subsample_step = int(arg)
+        elif opt in ("--dtw-max-warping-window"):
+            max_warping_window = int(arg)
         elif opt in ("-e", "--epochs"):
             epochs = int(arg)
         elif opt in ("-l", "--learning-rate"):
@@ -367,6 +377,8 @@ def main(argv):
             train_dataframes=train_dataframes,
             test_dataframes=test_dataframes,
             k_nearest_neighbors=k_nearest_neighbors,
+            subsample_step=subsample_step,
+            max_warping_window=max_warping_window,
             slice_width=slice_width
         )
 
