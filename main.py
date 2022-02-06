@@ -67,7 +67,7 @@ def main(argv):
     skip_data_understanding = False
     skip_validation = False
 
-    limit = 100
+    limit = None
 
     window_step = 50
     down_sampling_factor = 3.0

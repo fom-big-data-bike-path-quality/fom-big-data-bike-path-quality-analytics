@@ -14,7 +14,7 @@ from tracking_decorator import TrackingDecorator
 class DataLoader:
 
     @TrackingDecorator.track_time
-    def run(self, logger, data_path, limit=100, quiet=False):
+    def run(self, logger, data_path, limit=None, quiet=False):
         dataframes = {}
         files = list(Path(data_path).rglob("*.csv"))
 
