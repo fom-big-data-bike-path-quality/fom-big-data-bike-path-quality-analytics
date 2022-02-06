@@ -108,10 +108,11 @@ def main(argv):
         print(
             "main.py --help --clean --quiet --transient --dry-run --skip-data-understanding --skip-validation " +
             "--window-step <window-step> --down-sampling-factor <down-sampling-factor> --model <model> " +
-            "--k-folds <k-folds> --k-nearest-neighbors <k-nearest-neighbors> --dtw-subsample-step <dtw-subsample-step> " +
-            "--dtw-max-warping-window <dtw-max-warping-window> --epochs <epochs> " +
-            "--learning-rate <learning-rate> --patience <patience> --slice-width <slice-width> --dropout <dropout> " +
-            "--lstm-hidden-dimension <lstm-hidden-dimension> --lstm-layer-dimension <lstm-layer-dimension>")
+            "--k-folds <k-folds> --k-nearest-neighbors <k-nearest-neighbors> "
+            "--dtw-subsample-step <dtw-subsample-step> --dtw-max-warping-window <dtw-max-warping-window> "
+            "--epochs <epochs> --learning-rate <learning-rate> --patience <patience> --slice-width <slice-width> "
+            "--dropout <dropout> --lstm-hidden-dimension <lstm-hidden-dimension> "
+            "--lstm-layer-dimension <lstm-layer-dimension>")
         sys.exit(2)
     for opt, arg in opts:
         if opt in ("-h", "--help"):
@@ -121,23 +122,23 @@ def main(argv):
             print("--clean                                            clean intermediate results before start")
             print("--quiet                                            do not log outputs")
             print("--transient                                        do not store results")
-            print(
-                "--dry-run                                          only run a limited training to make sure syntax is correct")
+            print("--dry-run                                          " +
+                  "only run a limited training to make sure syntax is correct")
             print("--skip-data-understanding                          skip data understanding")
             print("--skip-validation                                  skip validation")
             print("--window-step <window-step>                        step size used for sliding window data splitter")
-            print(
-                "--down-sampling-factor <down-sampling-factor>      factor by which target classes are capped in comparison to smallest class")
+            print("--down-sampling-factor <down-sampling-factor>      " +
+                  "factor by which target classes are capped in comparison to smallest class")
             print("--model <model>                                    name of the model to use for training")
             print("--k-folds <k-folds>                                number of k-folds")
-            print(
-                "--k-nearest-neighbors <k-nearest-neighbors>        number of nearest neighbors to consider in kNN approach")
+            print("--k-nearest-neighbors <k-nearest-neighbors>        " +
+                  "number of nearest neighbors to consider in kNN approach")
             print("--dtw-subsample-step <dtw-subsample-step>          subsample steps for DTW")
             print("--dtw-max-warping-window <dtw-max-warping-window>  max warping window for DTW")
             print("--epochs <epochs>                                  number of epochs")
             print("--learning-rate <learning-rate>                    learning rate")
-            print(
-                "--patience <patience>                              number of epochs to wait for improvements before finishing training")
+            print("--patience <patience>                              " +
+                  "number of epochs to wait for improvements before finishing training")
             print("--slice-width <slice-width>                        number of measurements per slice")
             print("--dropout <dropout>                                dropout percentage")
             print("--lstm-hidden-dimension <lstm-hidden-dimension>    hidden dimensions in LSTM")
@@ -173,9 +174,9 @@ def main(argv):
             k_folds = int(arg)
         elif opt in ("-k", "--k-nearest-neighbors"):
             k_nearest_neighbors = int(arg)
-        elif opt in ("--dtw-subsample-step"):
+        elif opt in "--dtw-subsample-step":
             subsample_step = int(arg)
-        elif opt in ("--dtw-max-warping-window"):
+        elif opt in "--dtw-max-warping-window":
             max_warping_window = int(arg)
         elif opt in ("-e", "--epochs"):
             epochs = int(arg)
@@ -192,7 +193,7 @@ def main(argv):
         elif opt in "--lstm-layer-dimension":
             lstm_layer_dimension = int(arg)
 
-    if not model_name in available_model_names:
+    if model_name not in available_model_names:
         raise getopt.GetoptError("invalid model name. valid options are " + str(available_model_names))
 
     # Set paths
@@ -367,6 +368,8 @@ def main(argv):
     #
     # Model Initialization
     #
+
+    model = None
 
     if model_name == "knn-dtw":
 
