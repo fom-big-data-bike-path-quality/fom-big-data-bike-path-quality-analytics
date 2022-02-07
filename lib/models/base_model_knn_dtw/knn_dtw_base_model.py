@@ -237,15 +237,15 @@ class KnnDtwBaseModel:
         validation_cohen_kappa_score, \
         validation_matthew_correlation_coefficient = get_metrics(classifier, validation_data, validation_labels)
 
-        # Plot distance matrix
-        distance_matrix_dataframe = pd.DataFrame(data=classifier.distance_matrix.astype(int))
-        DistanceMatrixPlotter().run(
-            logger=self.logger,
-            results_path=os.path.join(self.log_path_modelling, "fold-" + str(fold_index), "plots"),
-            distance_matrix_dataframe=distance_matrix_dataframe,
-            clean=False,
-            quiet=False
-        )
+        # # Plot distance matrix
+        # distance_matrix_dataframe = pd.DataFrame(data=classifier.distance_matrix.astype(int))
+        # DistanceMatrixPlotter().run(
+        #     logger=self.logger,
+        #     results_path=os.path.join(self.log_path_modelling, "fold-" + str(fold_index), "plots"),
+        #     distance_matrix_dataframe=distance_matrix_dataframe,
+        #     clean=False,
+        #     quiet=False
+        # )
 
         np.save(os.path.join(self.log_path_modelling, "fold-" + str(fold_index), "models", "model"),
                 classifier.distance_matrix)
@@ -306,15 +306,15 @@ class KnnDtwBaseModel:
         test_cohen_kappa_score, \
         test_matthew_correlation_coefficient = get_metrics(classifier, test_data, test_labels)
 
-        # Plot distance matrix
-        distance_matrix_dataframe = pd.DataFrame(data=classifier.distance_matrix.astype(int))
-        DistanceMatrixPlotter().run(
-            logger=self.logger,
-            results_path=self.log_path_modelling,
-            distance_matrix_dataframe=distance_matrix_dataframe,
-            clean=False,
-            quiet=False
-        )
+        # # Plot distance matrix
+        # distance_matrix_dataframe = pd.DataFrame(data=classifier.distance_matrix.astype(int))
+        # DistanceMatrixPlotter().run(
+        #     logger=self.logger,
+        #     results_path=self.log_path_modelling,
+        #     distance_matrix_dataframe=distance_matrix_dataframe,
+        #     clean=False,
+        #     quiet=False
+        # )
 
         np.save(os.path.join(self.log_path_modelling, "model"), classifier.distance_matrix)
 
