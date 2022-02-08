@@ -87,7 +87,7 @@ def main(argv):
 
     measurement_speed_limit = 5.0
 
-    test_size: float = 0.15
+    test_size: float = 0.2
     random_state = 0
 
     gcp_project_id = "bike-path-quality-339900"
