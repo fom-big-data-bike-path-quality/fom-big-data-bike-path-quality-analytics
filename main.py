@@ -36,7 +36,6 @@ from data_loader import DataLoader
 from data_filterer import DataFilterer
 from data_statistics import DataStatistics
 from data_transformer import DataTransformer
-from data_normalizer import DataNormalizer
 from bike_activity_plotter import BikeActivityPlotter
 from bike_activity_surface_type_plotter import BikeActivitySurfaceTypePlotter
 from sliding_window_train_test_data_splitter import SlidingWindowTrainTestDataSplitter
@@ -297,11 +296,15 @@ def main(argv):
         quiet=quiet
     )
 
-    train_dataframes = DataFilterer().run(logger=logger, dataframes=train_dataframes, slice_width=slice_width, measurement_speed_limit=measurement_speed_limit, keep_unflagged_lab_conditions=False, quiet=quiet)
+    train_dataframes = DataFilterer().run(logger=logger, dataframes=train_dataframes, slice_width=slice_width,
+                                          measurement_speed_limit=measurement_speed_limit,
+                                          keep_unflagged_lab_conditions=False, quiet=quiet)
     train_dataframes = DataTransformer().run(logger=logger, dataframes=train_dataframes, quiet=quiet)
     # train_dataframes = DataNormalizer().run(logger=logger, dataframes=train_dataframes, quiet=quiet)
 
-    test_dataframes = DataFilterer().run(logger=logger, dataframes=test_dataframes, slice_width=slice_width, measurement_speed_limit=measurement_speed_limit, keep_unflagged_lab_conditions=False, quiet=quiet)
+    test_dataframes = DataFilterer().run(logger=logger, dataframes=test_dataframes, slice_width=slice_width,
+                                         measurement_speed_limit=measurement_speed_limit,
+                                         keep_unflagged_lab_conditions=False, quiet=quiet)
     test_dataframes = DataTransformer().run(logger=logger, dataframes=test_dataframes, quiet=quiet)
     # test_dataframes = DataNormalizer().run(logger=logger, dataframes=test_dataframes, quiet=quiet)
 
