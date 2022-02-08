@@ -64,6 +64,8 @@ class DataFilterer:
             if not quiet:
                 logger.log_line("✓️ Keeping " + name, console=False, file=True)
 
+        progress_bar.close()
+
         filtered_dataframes_count = len(filtered_dataframes.items())
 
         if not quiet:

@@ -65,6 +65,8 @@ class DataTransformer:
             if "bike_activity_flagged_lab_conditions" in dataframe.columns:
                 dataframe.drop(["bike_activity_flagged_lab_conditions"], axis=1, inplace=True)
 
+        progress_bar.close()
+
         if not quiet:
             class_name = self.__class__.__name__
             function_name = inspect.currentframe().f_code.co_name

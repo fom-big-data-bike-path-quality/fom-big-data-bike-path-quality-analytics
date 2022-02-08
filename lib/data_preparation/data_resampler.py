@@ -75,6 +75,8 @@ class DataResampler:
                 resampled_dataframes[name] = dataframe
                 clustered_dataframes_post_counter[surface_type] += 1
 
+        progress_bar.close()
+
         if not quiet:
             class_name = self.__class__.__name__
             function_name = inspect.currentframe().f_code.co_name
