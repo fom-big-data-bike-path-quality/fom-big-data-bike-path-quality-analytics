@@ -70,6 +70,8 @@ def main(argv):
     limit = None
 
     window_step = 50
+    slice_width = 500
+
     down_sampling_factor = 3.0
 
     model_name = None
@@ -80,7 +82,6 @@ def main(argv):
     epochs = 10_000
     learning_rate: float = 0.001
     patience = 500
-    slice_width = 500
     dropout = 0.5
     lstm_hidden_dimension = 128
     lstm_layer_dimension = 3
@@ -96,21 +97,21 @@ def main(argv):
 
     # Read command line arguments
     try:
-        opts, args = getopt.getopt(argv, "hcqtdw:m:f:k:e:l:p:s:",
+        opts, args = getopt.getopt(argv, "hcqtds:w:m:f:k:e:l:p:",
                                    ["help", "clean", "quiet", "transient", "dry-run", "skip-data-understanding",
-                                    "skip-validation", "window-step=", "down-sampling-factor=", "model=", "k-folds=",
-                                    "k-nearest-neighbors=", "dtw-subsample-step=", "dtw-max-warping-window=", "epochs=",
-                                    "learning-rate=", "patience=", "slice-width=", "dropout=", "lstm-hidden-dimension=",
-                                    "lstm-layer-dimension="])
+                                    "skip-validation", "slice-width=", "window-step=", "down-sampling-factor=",
+                                    "model=", "k-folds=", "k-nearest-neighbors=", "dtw-subsample-step=",
+                                    "dtw-max-warping-window=", "epochs=", "learning-rate=", "patience=", "dropout=",
+                                    "lstm-hidden-dimension=", "lstm-layer-dimension="])
     except getopt.GetoptError as error:
         print(argv)
         print(error)
         print(
             "main.py --help --clean --quiet --transient --dry-run --skip-data-understanding --skip-validation " +
-            "--window-step <window-step> --down-sampling-factor <down-sampling-factor> --model <model> " +
-            "--k-folds <k-folds> --k-nearest-neighbors <k-nearest-neighbors> "
+            "--slice-width <slice-width> --window-step <window-step> --down-sampling-factor <down-sampling-factor> "
+            "--model <model> --k-folds <k-folds> --k-nearest-neighbors <k-nearest-neighbors> "
             "--dtw-subsample-step <dtw-subsample-step> --dtw-max-warping-window <dtw-max-warping-window> "
-            "--epochs <epochs> --learning-rate <learning-rate> --patience <patience> --slice-width <slice-width> "
+            "--epochs <epochs> --learning-rate <learning-rate> --patience <patience> "
             "--dropout <dropout> --lstm-hidden-dimension <lstm-hidden-dimension> "
             "--lstm-layer-dimension <lstm-layer-dimension>")
         sys.exit(2)
@@ -126,6 +127,7 @@ def main(argv):
                   "only run a limited training to make sure syntax is correct")
             print("--skip-data-understanding                          skip data understanding")
             print("--skip-validation                                  skip validation")
+            print("--slice-width <slice-width>                        number of measurements per slice")
             print("--window-step <window-step>                        step size used for sliding window data splitter")
             print("--down-sampling-factor <down-sampling-factor>      " +
                   "factor by which target classes are capped in comparison to smallest class")
@@ -139,7 +141,6 @@ def main(argv):
             print("--learning-rate <learning-rate>                    learning rate")
             print("--patience <patience>                              " +
                   "number of epochs to wait for improvements before finishing training")
-            print("--slice-width <slice-width>                        number of measurements per slice")
             print("--dropout <dropout>                                dropout percentage")
             print("--lstm-hidden-dimension <lstm-hidden-dimension>    hidden dimensions in LSTM")
             print("--lstm-layer-dimension <lstm-layer-dimension>      layer dimensions in LSTM")
@@ -164,6 +165,8 @@ def main(argv):
             skip_data_understanding = True
         elif opt in "--skip-validation":
             skip_validation = True
+        elif opt in ("-s", "--slice-width"):
+            slice_width = int(arg)
         elif opt in ("-w", "--window-step"):
             window_step = int(arg)
         elif opt in "--down-sampling-factor":
@@ -184,8 +187,6 @@ def main(argv):
             learning_rate = float(arg)
         elif opt in ("-p", "--patience"):
             patience = int(arg)
-        elif opt in ("-s", "--slice-width"):
-            slice_width = int(arg)
         elif opt in "--dropout":
             dropout = float(arg)
         elif opt in "--lstm-hidden-dimension":
