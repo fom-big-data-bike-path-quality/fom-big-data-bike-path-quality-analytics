@@ -75,7 +75,7 @@ jobs:
           echo "sudo -u training bash -c \"cd ~; git clone https://github.com/fom-big-data-bike-path-quality/fom-big-data-bike-path-quality-data.git fom-big-data-bike-path-quality-analytics/data\"" >> startup.sh
           echo "sudo -u training bash -c \"gsutil cp gs://bike-path-quality-training-analytics/telegram.config ~/fom-big-data-bike-path-quality-analytics/lib/log/\"" >> startup.sh
           echo "sudo -u training bash -c \"gsutil cp gs://bike-path-quality-training-analytics/bike-path-quality-339900-a8e468a52c18.json ~/fom-big-data-bike-path-quality-analytics/lib/cloud/\"" >> startup.sh
-          echo "sudo -u training bash -c \"cd ~/fom-big-data-bike-path-quality-analytics; rm -rf data/data/measurements/csv\"" >> startup.sh
+          echo "sudo -u training bash -c \"cd ~/fom-big-data-bike-path-quality-analytics; rm -rf data/data/measurements/slices\"" >> startup.sh
           echo "sudo -u training bash -c \"cd ~/fom-big-data-bike-path-quality-analytics; rm -rf data/data/measurements/geojson\"" >> startup.sh
           echo "sudo -u training bash -c \"cd ~/fom-big-data-bike-path-quality-analytics; rm -rf data/data/measurements/json\"" >> startup.sh
           echo "sudo -u training bash -c \"cd ~/fom-big-data-bike-path-quality-analytics; pip3 install flake8==3.9.2 >> log.txt\"" >> startup.sh
