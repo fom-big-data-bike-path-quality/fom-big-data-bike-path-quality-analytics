@@ -5,7 +5,11 @@ on:
       window-step:
         description: 'step size used for sliding window data splitter'
         required: true
-        default: 20
+        default: 50
+      slice-width:
+        description: 'number of measurements per slice'
+        required: true
+        default: 500
       down-sampling-factor:
         description: 'factor by which target classes are capped in comparison to smallest class'
         required: true
@@ -30,10 +34,6 @@ on:
         description: 'learning rate'
         required: true
         default: 0.001
-      slice-width:
-        description: 'number of measurements per slice'
-        required: true
-        default: 500
       lstm-hidden-dimension:
         description: 'hidden dimensions in LSTM'
         required: true
@@ -94,7 +94,7 @@ jobs:
           echo "sudo -u training bash -c \"cd ~/fom-big-data-bike-path-quality-analytics; pip3 install google-cloud-storage==1.42.3 >> log.txt\"" >> startup.sh
           echo "sudo -u training bash -c \"cd ~/fom-big-data-bike-path-quality-analytics; pip3 install dtaidistance==2.3.2 >> log.txt\"" >> startup.sh
           echo "sudo -u training bash -c \"cd ~/fom-big-data-bike-path-quality-analytics; pip3 install scipy==1.7.1 >> log.txt\"" >> startup.sh
-          echo "sudo -u training bash -c \"cd ~/fom-big-data-bike-path-quality-analytics; nohup python3 main.py --clean --window-step=${{ github.event.inputs.window-step }} --down-sampling-factor=${{ github.event.inputs.down-sampling-factor }} --model=${{ github.event.inputs.model }} --k-folds=${{ github.event.inputs.k-folds }} --k-nearest-neighbors=${{ github.event.inputs.k-nearest-neighbors }} --epochs=${{ github.event.inputs.epochs }} --learning-rate=${{ github.event.inputs.learning-rate }} --slice-width=${{ github.event.inputs.slice-width }} --lstm-hidden-dimension=${{ github.event.inputs.lstm-hidden-dimension }} --lstm-layer-dimension=${{ github.event.inputs.lstm-layer-dimension }} 2>&1 >> log.txt &\"" >> startup.sh
+          echo "sudo -u training bash -c \"cd ~/fom-big-data-bike-path-quality-analytics; nohup python3 main.py --clean --window-step=${{ github.event.inputs.window-step }} --slice-width=${{ github.event.inputs.slice-width }} --down-sampling-factor=${{ github.event.inputs.down-sampling-factor }} --model=${{ github.event.inputs.model }} --k-folds=${{ github.event.inputs.k-folds }} --k-nearest-neighbors=${{ github.event.inputs.k-nearest-neighbors }} --epochs=${{ github.event.inputs.epochs }} --learning-rate=${{ github.event.inputs.learning-rate }} --lstm-hidden-dimension=${{ github.event.inputs.lstm-hidden-dimension }} --lstm-layer-dimension=${{ github.event.inputs.lstm-layer-dimension }} 2>&1 >> log.txt &\"" >> startup.sh
       - name: Create compute instance
         id: create-compute-instance
         run: |
