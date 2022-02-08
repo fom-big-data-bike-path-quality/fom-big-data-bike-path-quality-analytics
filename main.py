@@ -76,7 +76,7 @@ def main(argv):
     k_folds = 10
     k_nearest_neighbors = 10
     subsample_step = 1
-    max_warping_window = 10
+    max_warping_window = 500
     epochs = 10_000
     learning_rate: float = 0.001
     patience = 500
