@@ -8,10 +8,10 @@ from label_encoder import LabelEncoder
 
 def get_surface_type(dataframe, run_after_label_encoding):
     if run_after_label_encoding:
-        surface_type_index = dataframe.bike_activity_surface_type[1]
+        surface_type_index = dataframe.bike_activity_surface_type.iloc[0]
         return LabelEncoder().classes[surface_type_index]
     else:
-        return dataframe.bike_activity_surface_type[1]
+        return dataframe.bike_activity_surface_type.iloc[0]
 
 
 #

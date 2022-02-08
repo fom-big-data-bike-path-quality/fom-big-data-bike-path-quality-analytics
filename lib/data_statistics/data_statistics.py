@@ -35,11 +35,13 @@ class DataStatistics:
             "gravel"
         ]
 
+        # Initialize counter
         for surface_type in valid_surface_types:
             surface_types[surface_type] = 0
 
+        # Iterate over data frames
         for dataframe in dataframes.values():
-            bike_activity_surface_type = dataframe["bike_activity_surface_type"][0]
+            bike_activity_surface_type = dataframe["bike_activity_surface_type"].iloc[0]
             bike_activity_surface_type_label = LabelEncoder().index_to_label(index=bike_activity_surface_type)
 
             if bike_activity_surface_type_label in valid_surface_types:

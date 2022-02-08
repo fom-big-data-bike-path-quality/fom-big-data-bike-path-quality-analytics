@@ -8,7 +8,7 @@ from tracking_decorator import TrackingDecorator
 # Main
 #
 
-class TrainTestDataSplitter:
+class SlicingTrainTestDataSplitter:
 
     @TrackingDecorator.track_time
     def run(self, logger, dataframes, test_size=0.15, random_state=0, quiet=False):

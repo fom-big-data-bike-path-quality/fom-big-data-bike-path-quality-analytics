@@ -39,7 +39,7 @@ from data_transformer import DataTransformer
 from data_normalizer import DataNormalizer
 from bike_activity_plotter import BikeActivityPlotter
 from bike_activity_surface_type_plotter import BikeActivitySurfaceTypePlotter
-from train_test_data_splitter import TrainTestDataSplitter
+from sliding_window_train_test_data_splitter import SlidingWindowTrainTestDataSplitter
 from data_resampler import DataResampler
 from cnn_base_model import CnnBaseModel
 from knn_dtw_base_model import KnnDtwBaseModel
@@ -199,6 +199,7 @@ def main(argv):
 
     # Set paths
     data_path = os.path.join(script_path, "data", "data")
+    raw_data_path = os.path.join(data_path, "measurements", "csv")
     slices_path = os.path.join(data_path, "measurements", "slices",
                                "width" + str(slice_width) + "_step" + str(window_step))
 
@@ -253,7 +254,7 @@ def main(argv):
 
     dataframes = DataLoader().run(
         logger=logger,
-        data_path=slices_path,
+        data_path=raw_data_path,
         limit=limit,
         quiet=quiet
     )
@@ -287,20 +288,22 @@ def main(argv):
     # Data Preparation
     #
 
-    dataframes = DataFilterer().run(logger=logger, dataframes=dataframes, slice_width=slice_width,
-                                    measurement_speed_limit=measurement_speed_limit,
-                                    keep_unflagged_lab_conditions=False, quiet=quiet)
-    dataframes = DataTransformer().run(logger=logger, dataframes=dataframes, skip_label_encode_surface_type=False,
-                                       quiet=quiet)
-    dataframes = DataNormalizer().run(logger=logger, dataframes=dataframes, quiet=quiet)
-
-    train_dataframes, test_dataframes = TrainTestDataSplitter().run(
+    train_dataframes, test_dataframes = SlidingWindowTrainTestDataSplitter().run(
         logger=logger,
         dataframes=dataframes,
         test_size=test_size,
-        random_state=random_state,
+        slice_width=slice_width,
+        window_step=window_step,
         quiet=quiet
     )
+
+    train_dataframes = DataFilterer().run(logger=logger, dataframes=train_dataframes, slice_width=slice_width, measurement_speed_limit=measurement_speed_limit, keep_unflagged_lab_conditions=False, quiet=quiet)
+    train_dataframes = DataTransformer().run(logger=logger, dataframes=train_dataframes, quiet=quiet)
+    # train_dataframes = DataNormalizer().run(logger=logger, dataframes=train_dataframes, quiet=quiet)
+
+    test_dataframes = DataFilterer().run(logger=logger, dataframes=test_dataframes, slice_width=slice_width, measurement_speed_limit=measurement_speed_limit, keep_unflagged_lab_conditions=False, quiet=quiet)
+    test_dataframes = DataTransformer().run(logger=logger, dataframes=test_dataframes, quiet=quiet)
+    # test_dataframes = DataNormalizer().run(logger=logger, dataframes=test_dataframes, quiet=quiet)
 
     resampled_train_dataframes = DataResampler().run_down_sampling(
         logger=logger,
