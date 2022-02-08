@@ -78,20 +78,22 @@ jobs:
           echo "sudo -u training bash -c \"cd ~/fom-big-data-bike-path-quality-analytics; rm -rf data/data/measurements/csv\"" >> startup.sh
           echo "sudo -u training bash -c \"cd ~/fom-big-data-bike-path-quality-analytics; rm -rf data/data/measurements/geojson\"" >> startup.sh
           echo "sudo -u training bash -c \"cd ~/fom-big-data-bike-path-quality-analytics; rm -rf data/data/measurements/json\"" >> startup.sh
-          echo "sudo -u training bash -c \"cd ~/fom-big-data-bike-path-quality-analytics; pip3 install flake8 pytest >> log.txt\"" >> startup.sh
-          echo "sudo -u training bash -c \"cd ~/fom-big-data-bike-path-quality-analytics; pip3 install pandas >> log.txt\"" >> startup.sh
-          echo "sudo -u training bash -c \"cd ~/fom-big-data-bike-path-quality-analytics; pip3 install matplotlib >> log.txt\"" >> startup.sh
-          echo "sudo -u training bash -c \"cd ~/fom-big-data-bike-path-quality-analytics; pip3 install sklearn >> log.txt\"" >> startup.sh
-          echo "sudo -u training bash -c \"cd ~/fom-big-data-bike-path-quality-analytics; pip3 install torch >> log.txt\"" >> startup.sh
-          echo "sudo -u training bash -c \"cd ~/fom-big-data-bike-path-quality-analytics; pip3 install tqdm >> log.txt\"" >> startup.sh
-          echo "sudo -u training bash -c \"cd ~/fom-big-data-bike-path-quality-analytics; pip3 install seaborn >> log.txt\"" >> startup.sh
-          echo "sudo -u training bash -c \"cd ~/fom-big-data-bike-path-quality-analytics; pip3 install telegram-send >> log.txt\"" >> startup.sh
-          echo "sudo -u training bash -c \"cd ~/fom-big-data-bike-path-quality-analytics; pip3 install gcloud >> log.txt\"" >> startup.sh
-          echo "sudo -u training bash -c \"cd ~/fom-big-data-bike-path-quality-analytics; pip3 install google-api-core >> log.txt\"" >> startup.sh
-          echo "sudo -u training bash -c \"cd ~/fom-big-data-bike-path-quality-analytics; pip3 install google-auth >> log.txt\"" >> startup.sh
-          echo "sudo -u training bash -c \"cd ~/fom-big-data-bike-path-quality-analytics; pip3 install google-cloud-core >> log.txt\"" >> startup.sh
-          echo "sudo -u training bash -c \"cd ~/fom-big-data-bike-path-quality-analytics; pip3 install google-cloud-storage >> log.txt\"" >> startup.sh
-          echo "sudo -u training bash -c \"cd ~/fom-big-data-bike-path-quality-analytics; pip3 install dtaidistance >> log.txt\"" >> startup.sh
+          echo "sudo -u training bash -c \"cd ~/fom-big-data-bike-path-quality-analytics; pip3 install flake8==3.9.2 >> log.txt\"" >> startup.sh
+          echo "sudo -u training bash -c \"cd ~/fom-big-data-bike-path-quality-analytics; pip3 install pytest==6.2.5 >> log.txt\"" >> startup.sh
+          echo "sudo -u training bash -c \"cd ~/fom-big-data-bike-path-quality-analytics; pip3 install pandas==1.3.3 >> log.txt\"" >> startup.sh
+          echo "sudo -u training bash -c \"cd ~/fom-big-data-bike-path-quality-analytics; pip3 install matplotlib==3.4.3 >> log.txt\"" >> startup.sh
+          echo "sudo -u training bash -c \"cd ~/fom-big-data-bike-path-quality-analytics; pip3 install sklearn==0.0 >> log.txt\"" >> startup.sh
+          echo "sudo -u training bash -c \"cd ~/fom-big-data-bike-path-quality-analytics; pip3 install torch==1.9.1 >> log.txt\"" >> startup.sh
+          echo "sudo -u training bash -c \"cd ~/fom-big-data-bike-path-quality-analytics; pip3 install tqdm==4.62.3 >> log.txt\"" >> startup.sh
+          echo "sudo -u training bash -c \"cd ~/fom-big-data-bike-path-quality-analytics; pip3 install seaborn==0.11.2 >> log.txt\"" >> startup.sh
+          echo "sudo -u training bash -c \"cd ~/fom-big-data-bike-path-quality-analytics; pip3 install telegram-send==0.25 >> log.txt\"" >> startup.sh
+          echo "sudo -u training bash -c \"cd ~/fom-big-data-bike-path-quality-analytics; pip3 install gcloud==0.18.3 >> log.txt\"" >> startup.sh
+          echo "sudo -u training bash -c \"cd ~/fom-big-data-bike-path-quality-analytics; pip3 install google-api-core==2.1.0 >> log.txt\"" >> startup.sh
+          echo "sudo -u training bash -c \"cd ~/fom-big-data-bike-path-quality-analytics; pip3 install google-auth==2.3.0 >> log.txt\"" >> startup.sh
+          echo "sudo -u training bash -c \"cd ~/fom-big-data-bike-path-quality-analytics; pip3 install google-cloud-core==2.1.0 >> log.txt\"" >> startup.sh
+          echo "sudo -u training bash -c \"cd ~/fom-big-data-bike-path-quality-analytics; pip3 install google-cloud-storage==1.42.3 >> log.txt\"" >> startup.sh
+          echo "sudo -u training bash -c \"cd ~/fom-big-data-bike-path-quality-analytics; pip3 install dtaidistance==2.3.2 >> log.txt\"" >> startup.sh
+          echo "sudo -u training bash -c \"cd ~/fom-big-data-bike-path-quality-analytics; pip3 install scipy==1.7.1 >> log.txt\"" >> startup.sh
           echo "sudo -u training bash -c \"cd ~/fom-big-data-bike-path-quality-analytics; nohup python3 main.py --clean --window-step=${{ github.event.inputs.window-step }} --down-sampling-factor=${{ github.event.inputs.down-sampling-factor }} --model=${{ github.event.inputs.model }} --k-folds=${{ github.event.inputs.k-folds }} --k-nearest-neighbors=${{ github.event.inputs.k-nearest-neighbors }} --epochs=${{ github.event.inputs.epochs }} --learning-rate=${{ github.event.inputs.learning-rate }} --slice-width=${{ github.event.inputs.slice-width }} --lstm-hidden-dimension=${{ github.event.inputs.lstm-hidden-dimension }} --lstm-layer-dimension=${{ github.event.inputs.lstm-layer-dimension }} 2>&1 >> log.txt &\"" >> startup.sh
       - name: Create compute instance
         id: create-compute-instance
