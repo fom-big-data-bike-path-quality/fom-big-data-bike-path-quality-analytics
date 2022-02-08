@@ -92,7 +92,7 @@ Examples:
 
 An example to run the kNN model is
 ```
-python main.py --clean --model=knn-dtw --k-nearest-neighbors=10 --dtw-subsample-step=1 --dtw-max-warping-window=10
+python main.py --clean --model=knn-dtw --k-nearest-neighbors=10 --dtw-subsample-step=1 --dtw-max-warping-window=500
 ```
 
 ## Roadmap
