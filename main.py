@@ -154,11 +154,13 @@ def main(argv):
         elif opt in ("-t", "--transient"):
             transient = True
         elif opt in ("-d", "--dry-run"):
-            epochs = 2
             clean = True
             transient = True
             dry_run = True
             limit = 100
+            window_step = 500
+            slice_width = 500
+            epochs = 2
             k_folds = 5
         elif opt in "--skip-data-understanding":
             skip_data_understanding = True
