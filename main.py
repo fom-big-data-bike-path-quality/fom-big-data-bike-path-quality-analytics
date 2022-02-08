@@ -157,7 +157,7 @@ def main(argv):
             clean = True
             transient = True
             dry_run = True
-            limit = 100
+            limit = 10
             window_step = 500
             slice_width = 500
             epochs = 2
