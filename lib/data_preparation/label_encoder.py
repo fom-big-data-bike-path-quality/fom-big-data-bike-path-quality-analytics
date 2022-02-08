@@ -42,8 +42,3 @@ class LabelEncoder:
 
     def index_to_label(self, index: int):
         return self.classes[index]
-
-    def getLabelEncoding(self, row):
-        bike_activity_surface_type = row["bike_activity_surface_type"]
-
-        return self.label_to_index(bike_activity_surface_type)
