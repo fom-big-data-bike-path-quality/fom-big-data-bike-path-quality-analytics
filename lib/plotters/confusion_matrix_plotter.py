@@ -1,6 +1,6 @@
+import glob
 import inspect
 import os
-import glob
 from email.utils import formatdate
 
 import matplotlib.pyplot as plt
@@ -15,9 +15,8 @@ from tracking_decorator import TrackingDecorator
 class ConfusionMatrixPlotter:
 
     @TrackingDecorator.track_time
-    def run(self, logger, results_path, confusion_matrix_dataframe, clean=False, quiet=False):
-
-        file_name = "confusion_matrix"
+    def run(self, logger, results_path, confusion_matrix_dataframe, file_name="confusion_matrix", clean=False,
+            quiet=False):
 
         # Make results path
         os.makedirs(results_path, exist_ok=True)

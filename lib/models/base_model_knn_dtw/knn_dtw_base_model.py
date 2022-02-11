@@ -7,7 +7,6 @@ import numpy as np
 import pandas as pd
 import torch
 from confusion_matrix_plotter import ConfusionMatrixPlotter
-from distance_matrix_plotter import DistanceMatrixPlotter
 from label_encoder import LabelEncoder
 from model_evaluator import ModelEvaluator
 from model_logger import ModelLogger
@@ -38,12 +37,12 @@ num_classes = LabelEncoder().num_classes()
 # Evaluation
 #
 
-def get_confusion_matrix_dataframe(classifier, input, target):
+def get_confusion_matrix_dataframe(classifier, input, target, k):
     targets = []
     predictions = []
     confusion_matrix = np.zeros((num_classes, num_classes))
 
-    prediction, probability = classifier.predict(input)
+    prediction, probability = classifier.predict(input, k)
 
     targets.extend(target.astype(int).tolist())
     predictions.extend(prediction.astype(int).tolist())
@@ -63,11 +62,12 @@ def get_confusion_matrix_dataframe(classifier, input, target):
     return confusion_matrix_dataframe, targets, predictions
 
 
-def get_metrics(classifier, data, labels):
+def get_metrics(classifier, data, labels, k):
     confusion_matrix_dataframe, targets, predictions = get_confusion_matrix_dataframe(
         classifier=classifier,
         input=data,
-        target=labels
+        target=labels,
+        k=k
     )
 
     model_evaluator = ModelEvaluator()
@@ -229,43 +229,66 @@ class KnnDtwBaseModel:
                                       use_pruning=True)
         classifier.fit(train_data, train_labels)
 
-        # Get metrics for validation data
-        validation_accuracy, \
-        validation_precision, \
-        validation_recall, \
-        validation_f1_score, \
-        validation_cohen_kappa_score, \
-        validation_matthew_correlation_coefficient = get_metrics(classifier, validation_data, validation_labels)
+        validation_k_list = []
+        validation_accuracy_list = []
+        validation_precision_list = []
+        validation_recall_list = []
+        validation_f1_score_list = []
+        validation_cohen_kappa_score_list = []
+        validation_matthew_correlation_coefficient_list = []
 
-        # # Plot distance matrix
-        # distance_matrix_dataframe = pd.DataFrame(data=classifier.distance_matrix.astype(int))
-        # DistanceMatrixPlotter().run(
-        #     logger=self.logger,
-        #     results_path=os.path.join(self.log_path_modelling, "fold-" + str(fold_index), "plots"),
-        #     distance_matrix_dataframe=distance_matrix_dataframe,
-        #     clean=False,
-        #     quiet=False
-        # )
+        # Iterate over hyper-parameter configurations
+        for k in range(1, self.k_nearest_neighbors):
+            # Get metrics for validation data
+            validation_accuracy, \
+            validation_precision, \
+            validation_recall, \
+            validation_f1_score, \
+            validation_cohen_kappa_score, \
+            validation_matthew_correlation_coefficient = get_metrics(
+                classifier=classifier,
+                data=validation_data,
+                labels=validation_labels,
+                k=k
+            )
 
-        np.save(os.path.join(self.log_path_modelling, "fold-" + str(fold_index), "models", "model"),
-                classifier.distance_matrix)
+            # # Plot distance matrix
+            # distance_matrix_dataframe = pd.DataFrame(data=classifier.distance_matrix.astype(int))
+            # DistanceMatrixPlotter().run(
+            #     logger=self.logger,
+            #     results_path=os.path.join(self.log_path_modelling, "fold-" + str(fold_index), "plots"),
+            #     distance_matrix_dataframe=distance_matrix_dataframe,
+            #     clean=False,
+            #     quiet=False
+            # )
 
-        self.logger.log_fold(
-            time_elapsed="{}".format(datetime.now() - start_time),
-            k_fold=fold_index,
-            k_folds=k_folds,
-            epochs=None,
-            accuracy=round(validation_accuracy, 2),
-            precision=round(validation_precision, 2),
-            recall=round(validation_recall, 2),
-            f1_score=round(validation_f1_score, 2),
-            cohen_kappa_score=round(validation_cohen_kappa_score, 2),
-            matthew_correlation_coefficient=round(validation_matthew_correlation_coefficient, 2),
-            telegram=not quiet and not dry_run
-        )
+            np.save(os.path.join(self.log_path_modelling, "fold-" + str(fold_index), "models", "model"),
+                    classifier.distance_matrix)
 
-        return validation_accuracy, validation_precision, validation_recall, validation_f1_score, \
-               validation_cohen_kappa_score, validation_matthew_correlation_coefficient
+            self.logger.log_fold(
+                time_elapsed="{}".format(datetime.now() - start_time),
+                k_fold=fold_index,
+                k_folds=k_folds,
+                epochs=None,
+                accuracy=round(validation_accuracy, 2),
+                precision=round(validation_precision, 2),
+                recall=round(validation_recall, 2),
+                f1_score=round(validation_f1_score, 2),
+                cohen_kappa_score=round(validation_cohen_kappa_score, 2),
+                matthew_correlation_coefficient=round(validation_matthew_correlation_coefficient, 2),
+                telegram=not quiet and not dry_run
+            )
+
+            validation_k_list.append(k)
+            validation_accuracy_list.append(validation_accuracy)
+            validation_precision_list.append(validation_precision)
+            validation_recall_list.append(validation_recall)
+            validation_f1_score_list.append(validation_f1_score)
+            validation_cohen_kappa_score_list.append(validation_cohen_kappa_score)
+            validation_matthew_correlation_coefficient_list.append(validation_matthew_correlation_coefficient)
+
+        return validation_accuracy_list, validation_precision_list, validation_recall_list, validation_f1_score_list, \
+               validation_cohen_kappa_score_list, validation_matthew_correlation_coefficient_list
 
     @TrackingDecorator.track_time
     def finalize(self, epochs, quiet=False, dry_run=False):
@@ -283,6 +306,7 @@ class KnnDtwBaseModel:
         start_time = datetime.now()
 
         # Make results path
+        os.makedirs(self.log_path_modelling, exist_ok=True)
         os.makedirs(self.log_path_evaluation, exist_ok=True)
 
         # Split data and labels for train
@@ -298,42 +322,70 @@ class KnnDtwBaseModel:
                                       use_pruning=True)
         classifier.fit(train_data, train_labels)
 
-        # Get metrics for test data
-        test_accuracy, \
-        test_precision, \
-        test_recall, \
-        test_f1_score, \
-        test_cohen_kappa_score, \
-        test_matthew_correlation_coefficient = get_metrics(classifier, test_data, test_labels)
+        test_k_list = []
+        test_accuracy_list = []
+        test_precision_list = []
+        test_recall_list = []
+        test_f1_score_list = []
+        test_cohen_kappa_score_list = []
+        test_matthew_correlation_coefficient_list = []
 
-        # # Plot distance matrix
-        # distance_matrix_dataframe = pd.DataFrame(data=classifier.distance_matrix.astype(int))
-        # DistanceMatrixPlotter().run(
-        #     logger=self.logger,
-        #     results_path=self.log_path_modelling,
-        #     distance_matrix_dataframe=distance_matrix_dataframe,
-        #     clean=False,
-        #     quiet=False
-        # )
+        # Iterate over hyper-parameter configurations
+        for k in range(1, self.k_nearest_neighbors):
+            # Get metrics for test data
+            test_accuracy, \
+            test_precision, \
+            test_recall, \
+            test_f1_score, \
+            test_cohen_kappa_score, \
+            test_matthew_correlation_coefficient = get_metrics(classifier, test_data, test_labels, k)
 
-        np.save(os.path.join(self.log_path_modelling, "model"), classifier.distance_matrix)
+            # # Plot distance matrix
+            # distance_matrix_dataframe = pd.DataFrame(data=classifier.distance_matrix.astype(int))
+            # DistanceMatrixPlotter().run(
+            #     logger=self.logger,
+            #     results_path=self.log_path_modelling,
+            #     distance_matrix_dataframe=distance_matrix_dataframe,
+            #     clean=False,
+            #     quiet=False
+            # )
 
-        # Plot confusion matrix
-        test_confusion_matrix_dataframe, targets, predictions = get_confusion_matrix_dataframe(classifier, test_data,
-                                                                                               test_labels)
-        ConfusionMatrixPlotter().run(self.logger, os.path.join(self.log_path_evaluation, "plots"),
-                                     test_confusion_matrix_dataframe, clean=clean)
+            np.save(os.path.join(self.log_path_modelling, "model"), classifier.distance_matrix)
 
-        self.logger.log_evaluation(
-            time_elapsed="{}".format(datetime.now() - start_time),
-            log_path_evaluation=self.log_path_evaluation,
-            test_accuracy=test_accuracy,
-            test_precision=test_precision,
-            test_recall=test_recall,
-            test_f1_score=test_f1_score,
-            test_cohen_kappa_score=test_cohen_kappa_score,
-            test_matthew_correlation_coefficient=test_matthew_correlation_coefficient,
-            telegram=not quiet and not dry_run
-        )
+            # Plot confusion matrix
+            test_confusion_matrix_dataframe, targets, predictions = get_confusion_matrix_dataframe(
+                classifier=classifier,
+                input=test_data,
+                target=test_labels,
+                k=k
+            )
+            ConfusionMatrixPlotter().run(
+                logger=self.logger,
+                results_path=os.path.join(self.log_path_evaluation, "plots"),
+                confusion_matrix_dataframe=test_confusion_matrix_dataframe,
+                file_name="confusion_matrix_k" + str(k),
+                clean=clean
+            )
 
-        return test_accuracy, test_precision, test_recall, test_f1_score, test_cohen_kappa_score, test_matthew_correlation_coefficient
+            self.logger.log_evaluation(
+                time_elapsed="{}".format(datetime.now() - start_time),
+                log_path_evaluation=self.log_path_evaluation,
+                test_accuracy=test_accuracy,
+                test_precision=test_precision,
+                test_recall=test_recall,
+                test_f1_score=test_f1_score,
+                test_cohen_kappa_score=test_cohen_kappa_score,
+                test_matthew_correlation_coefficient=test_matthew_correlation_coefficient,
+                telegram=not quiet and not dry_run
+            )
+
+            test_k_list.append(k)
+            test_accuracy_list.append(test_accuracy)
+            test_precision_list.append(test_precision)
+            test_recall_list.append(test_recall)
+            test_f1_score_list.append(test_f1_score)
+            test_cohen_kappa_score_list.append(test_cohen_kappa_score)
+            test_matthew_correlation_coefficient_list.append(test_matthew_correlation_coefficient)
+
+        return test_k_list, test_accuracy_list, test_precision_list, test_recall_list, test_f1_score_list, \
+               test_cohen_kappa_score_list, test_matthew_correlation_coefficient_list

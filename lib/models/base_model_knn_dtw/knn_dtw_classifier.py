@@ -41,20 +41,21 @@ class KnnDtwClassifier:
         self.train_data = train_data
         self.train_labels = train_labels
 
-    def predict(self, input_data):
-        self.distance_matrix = build_distance_matrix(
-            train_data=self.train_data,
-            test_data=input_data,
-            subsample_step=self.subsample_step,
-            max_warping_window=self.max_warping_window,
-            use_pruning=self.use_pruning
-        )
+    def predict(self, input_data, k):
+        if self.distance_matrix is None:
+            self.distance_matrix = build_distance_matrix(
+                train_data=self.train_data,
+                test_data=input_data,
+                subsample_step=self.subsample_step,
+                max_warping_window=self.max_warping_window,
+                use_pruning=self.use_pruning
+            )
 
-        knn_indices = self.distance_matrix.argsort()[:, :self.k]
+        knn_indices = self.distance_matrix.argsort()[:, :k]
         knn_labels = self.train_labels[knn_indices]
 
         mode_data = mode(knn_labels, axis=1)
         mode_label = mode_data[0]
-        mode_probability = mode_data[1] / self.k
+        mode_probability = mode_data[1] / k
 
         return mode_label.astype(int).ravel(), mode_probability.ravel()
