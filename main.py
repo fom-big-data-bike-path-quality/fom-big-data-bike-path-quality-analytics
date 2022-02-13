@@ -71,7 +71,7 @@ def main(argv):
     window_step = 50
     slice_width = 500
 
-    down_sampling_factor = 3.0
+    down_sampling_factor = 1.5
 
     model_name = None
     k_folds = 10
