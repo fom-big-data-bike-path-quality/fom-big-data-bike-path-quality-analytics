@@ -137,7 +137,7 @@ class KnnDtwBaseModel:
             fold_labels.append("Fold " + str(fold_index))
 
             # Validate fold
-            validation_accuracy, validation_precision, validation_recall, validation_f1_score, \
+            k, validation_accuracy, validation_precision, validation_recall, validation_f1_score, \
             validation_cohen_kappa_score, validation_matthew_correlation_coefficient = self.validate_fold(
                 fold_index=fold_index,
                 k_folds=k_folds,
@@ -148,6 +148,8 @@ class KnnDtwBaseModel:
                 quiet=quiet,
                 dry_run=dry_run
             )
+
+            self.logger.log_line(f"best validation with k={k} : {validation_matthew_correlation_coefficient}")
 
             # Aggregate fold results
             overall_validation_accuracy_history.append(validation_accuracy)
@@ -238,7 +240,7 @@ class KnnDtwBaseModel:
         validation_matthew_correlation_coefficient_list = []
 
         # Iterate over hyper-parameter configurations
-        for k in range(1, self.k_nearest_neighbors):
+        for k in range(1, self.k_nearest_neighbors + 1):
             # Get metrics for validation data
             validation_accuracy, \
             validation_precision, \
@@ -287,8 +289,15 @@ class KnnDtwBaseModel:
             validation_cohen_kappa_score_list.append(validation_cohen_kappa_score)
             validation_matthew_correlation_coefficient_list.append(validation_matthew_correlation_coefficient)
 
-        return validation_accuracy_list, validation_precision_list, validation_recall_list, validation_f1_score_list, \
-               validation_cohen_kappa_score_list, validation_matthew_correlation_coefficient_list
+        # Determine with which k the best result has been created
+        index_best = validation_matthew_correlation_coefficient_list.index(
+            max(validation_matthew_correlation_coefficient_list))
+        k_best = index_best + 1
+
+        return k_best, validation_accuracy_list[index_best], validation_precision_list[index_best], \
+               validation_recall_list[index_best], validation_f1_score_list[index_best], \
+               validation_cohen_kappa_score_list[index_best], validation_matthew_correlation_coefficient_list[
+                   index_best]
 
     @TrackingDecorator.track_time
     def finalize(self, epochs, quiet=False, dry_run=False):

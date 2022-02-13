@@ -32,7 +32,7 @@ class TrainingResultPlotterBar:
             for f in files:
                 os.remove(f)
 
-        y_pos = np.arange(len(labels))
+        y_pos = list(range(0, len(labels)))
 
         plt.bar(y_pos, data, align='center', alpha=0.5, color=color)
         plt.xticks(y_pos, labels)
