@@ -6,9 +6,9 @@ from file_logger import FileLogger
 from telegram_logger import TelegramLogger
 
 
-def get_fold_emoji(fold_index):
+def get_split_emoji(split_index):
     emojis = ["🍙", "🧄", "🧅", "🌽", "🫑", "🥦", "🍆", "🌶️", "🧆", "🥙"]
-    return emojis[fold_index % len(emojis)]
+    return emojis[split_index % len(emojis)]
 
 
 class LoggerFacade:
@@ -78,11 +78,11 @@ class LoggerFacade:
 
         self.log_line(message=message, telegram=telegram)
 
-    def log_fold(self, time_elapsed, k_fold, k_folds, epochs, accuracy, precision, recall, f1_score,
-                 cohen_kappa_score, matthews_correlation_coefficient, telegram=None):
+    def log_split(self, time_elapsed, k_split, k_folds, epochs, accuracy, precision, recall, f1_score,
+                  cohen_kappa_score, matthews_correlation_coefficient, telegram=None):
 
         if epochs is None:
-            message = get_fold_emoji(k_fold) + " Fold " + str(k_fold) + "/" + str(k_folds) + \
+            message = get_split_emoji(k_split) + " Split " + str(k_split) + "/" + str(k_folds) + \
                   " finished in " + time_elapsed + " with validation metrics" + \
                   "\n* accuracy " + str(accuracy) + \
                   "\n* precision " + str(precision) + \
@@ -91,7 +91,7 @@ class LoggerFacade:
                   "\n* cohen's kappa score " + str(cohen_kappa_score) + \
                   "\n* matthews correlation coefficient " + str(matthews_correlation_coefficient)
         else:
-            message = get_fold_emoji(k_fold) + " Fold " + str(k_fold) + "/" + str(k_folds) + \
+            message = get_split_emoji(k_split) + " Split " + str(k_split) + "/" + str(k_folds) + \
                       " finished after " + str(epochs) + " epochs in " + time_elapsed + " with validation metrics" + \
                       "\n* accuracy " + str(accuracy) + \
                       "\n* precision " + str(precision) + \

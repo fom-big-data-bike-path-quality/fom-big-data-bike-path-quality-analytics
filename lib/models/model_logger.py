@@ -3,10 +3,10 @@ import numpy as np
 
 class ModelLogger:
 
-    def log_fold_results(self, logger, overall_validation_accuracy_history, overall_validation_precision_history,
-                         overall_validation_recall_history, overall_validation_f1_score_history,
-                         overall_validation_cohen_kappa_score_history,
-                         overall_validation_matthews_correlation_coefficient_history, quiet):
+    def log_split_results(self, logger, overall_validation_accuracy_history, overall_validation_precision_history,
+                          overall_validation_recall_history, overall_validation_f1_score_history,
+                          overall_validation_cohen_kappa_score_history,
+                          overall_validation_matthews_correlation_coefficient_history, quiet):
         if not quiet:
             try:
                 logger.log_line("Cross-validation metrics")

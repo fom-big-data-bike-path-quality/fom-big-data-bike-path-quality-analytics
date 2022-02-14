@@ -7,14 +7,14 @@ from training_result_plotter_bar import TrainingResultPlotterBar
 
 class ModelPlotter:
 
-    def plot_fold_results(self, logger, log_path, fold_labels, overall_validation_accuracy_history,
+    def plot_split_results(self, logger, log_path, split_labels, overall_validation_accuracy_history,
                           overall_validation_precision_history, overall_validation_recall_history,
                           overall_validation_f1_score_history, overall_validation_cohen_kappa_score_history,
                           overall_validation_matthews_correlation_coefficient_history, quiet):
         TrainingResultPlotter().run(
             logger=logger,
             data=overall_validation_accuracy_history,
-            labels=fold_labels,
+            labels=split_labels,
             results_path=os.path.join(log_path, "plots"),
             file_name="overall-accuracy",
             title="Accuracy history",
@@ -28,7 +28,7 @@ class ModelPlotter:
         TrainingResultPlotter().run(
             logger=logger,
             data=overall_validation_precision_history,
-            labels=fold_labels,
+            labels=split_labels,
             results_path=os.path.join(log_path, "plots"),
             file_name="overall-precision",
             title="Precision history",
@@ -42,7 +42,7 @@ class ModelPlotter:
         TrainingResultPlotter().run(
             logger=logger,
             data=overall_validation_recall_history,
-            labels=fold_labels,
+            labels=split_labels,
             results_path=os.path.join(log_path, "plots"),
             file_name="overall-recall",
             title="Recall history",
@@ -56,7 +56,7 @@ class ModelPlotter:
         TrainingResultPlotter().run(
             logger=logger,
             data=overall_validation_f1_score_history,
-            labels=fold_labels,
+            labels=split_labels,
             results_path=os.path.join(log_path, "plots"),
             file_name="overall-f1-score",
             title="F1 score history",
@@ -69,7 +69,7 @@ class ModelPlotter:
         TrainingResultPlotter().run(
             logger=logger,
             data=overall_validation_cohen_kappa_score_history,
-            labels=fold_labels,
+            labels=split_labels,
             results_path=os.path.join(log_path, "plots"),
             file_name="overall-cohen-kappa-score",
             title="Cohen's kappa score history",
@@ -83,7 +83,7 @@ class ModelPlotter:
         TrainingResultPlotter().run(
             logger=logger,
             data=overall_validation_matthews_correlation_coefficient_history,
-            labels=fold_labels,
+            labels=split_labels,
             results_path=os.path.join(log_path, "plots"),
             file_name="overall-matthew-correlation-coefficient-score",
             title="Matthews correlation coefficient score history",
@@ -94,19 +94,19 @@ class ModelPlotter:
             quiet=quiet
         )
 
-    def plot_fold_results_hist(self, logger, log_path, fold_labels, overall_validation_accuracy_history,
+    def plot_split_results_hist(self, logger, log_path, split_labels, overall_validation_accuracy_history,
                                overall_validation_precision_history, overall_validation_recall_history,
                                overall_validation_f1_score_history, overall_validation_cohen_kappa_score_history,
                                overall_validation_matthews_correlation_coefficient_history, quiet):
         TrainingResultPlotterBar().run(
             logger=logger,
             data=overall_validation_accuracy_history,
-            labels=fold_labels,
+            labels=split_labels,
             results_path=log_path,
             file_name="overall-accuracy",
             title="Accuracy history",
             description="Accuracy history",
-            xlabel="Fold",
+            xlabel="Split",
             ylabel="Value",
             clean=True,
             quiet=quiet
@@ -115,12 +115,12 @@ class ModelPlotter:
         TrainingResultPlotterBar().run(
             logger=logger,
             data=overall_validation_precision_history,
-            labels=fold_labels,
+            labels=split_labels,
             results_path=log_path,
             file_name="overall-precision",
             title="Precision history",
             description="Precision history",
-            xlabel="Fold",
+            xlabel="Split",
             ylabel="Value",
             clean=True,
             quiet=quiet
@@ -129,12 +129,12 @@ class ModelPlotter:
         TrainingResultPlotterBar().run(
             logger=logger,
             data=overall_validation_recall_history,
-            labels=fold_labels,
+            labels=split_labels,
             results_path=log_path,
             file_name="overall-recall",
             title="Recall history",
             description="Recall history",
-            xlabel="Fold",
+            xlabel="Split",
             ylabel="Value",
             clean=True,
             quiet=quiet
@@ -143,12 +143,12 @@ class ModelPlotter:
         TrainingResultPlotterBar().run(
             logger=logger,
             data=overall_validation_f1_score_history,
-            labels=fold_labels,
+            labels=split_labels,
             results_path=log_path,
             file_name="overall-f1-score",
             title="F1 score history",
             description="F1 score history",
-            xlabel="Fold",
+            xlabel="Split",
             ylabel="Value",
             clean=True,
             quiet=quiet)
@@ -156,12 +156,12 @@ class ModelPlotter:
         TrainingResultPlotterBar().run(
             logger=logger,
             data=overall_validation_cohen_kappa_score_history,
-            labels=fold_labels,
+            labels=split_labels,
             results_path=log_path,
             file_name="overall-cohen-kappa-score",
             title="Cohen's kappa score history",
             description="Cohen's kappa score history",
-            xlabel="Fold",
+            xlabel="Split",
             ylabel="Value",
             clean=True,
             quiet=quiet
@@ -170,18 +170,18 @@ class ModelPlotter:
         TrainingResultPlotterBar().run(
             logger=logger,
             data=overall_validation_matthews_correlation_coefficient_history,
-            labels=fold_labels,
+            labels=split_labels,
             results_path=log_path,
             file_name="overall-matthew-correlation-coefficient-score",
             title="Matthews correlation coefficient score history",
             description="Matthews correlation coefficient score history",
-            xlabel="Fold",
+            xlabel="Split",
             ylabel="Value",
             clean=True,
             quiet=quiet
         )
 
-    def plot_fold_distribution(self, logger, log_path, train_dataframes, validation_dataframes, fold_index, slice_width,
+    def plot_split_distribution(self, logger, log_path, train_dataframes, validation_dataframes, split_index, slice_width,
                                quiet):
         BikeActivitySurfaceTypePlotter().run(
             logger=logger,
@@ -213,12 +213,12 @@ class ModelPlotter:
                               train_accuracy_history, validation_accuracy_history, validation_precision_history,
                               validation_recall_history, validation_f1_score_history,
                               validation_cohen_kappa_score_history, validation_matthews_correlation_coefficient_history,
-                              fold_index, quiet):
+                              split_index, quiet):
         TrainingResultPlotter().run(
             logger=logger,
             data=[train_loss_history, validation_loss_history],
             labels=["Train", "Validation"],
-            results_path=os.path.join(log_path, "fold-" + str(fold_index), "plots"),
+            results_path=os.path.join(log_path, "split-" + str(split_index), "plots"),
             file_name="loss",
             title="Loss history",
             description="Loss history",
@@ -232,7 +232,7 @@ class ModelPlotter:
             logger=logger,
             data=[train_accuracy_history, validation_accuracy_history],
             labels=["Train", "Validation"],
-            results_path=os.path.join(log_path, "fold-" + str(fold_index), "plots"),
+            results_path=os.path.join(log_path, "split-" + str(split_index), "plots"),
             file_name="accuracy",
             title="Accuracy history",
             description="Accuracy history",
@@ -249,7 +249,7 @@ class ModelPlotter:
                   validation_matthews_correlation_coefficient_history],
             labels=["Accuracy", "Precision", "Recall", "F1 Score", "Cohen's Kappa Score",
                     "Matthew's Correlation Coefficient"],
-            results_path=os.path.join(log_path, "fold-" + str(fold_index), "plots"),
+            results_path=os.path.join(log_path, "split-" + str(split_index), "plots"),
             file_name="metrics",
             title="Metrics history",
             description="Metrics history",

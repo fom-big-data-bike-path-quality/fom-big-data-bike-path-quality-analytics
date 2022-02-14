@@ -123,8 +123,8 @@ class CnnBaseModel:
         os.makedirs(self.log_path_modelling, exist_ok=True)
 
         kf = KFold(n_splits=k_folds, shuffle=True, random_state=random_state)
-        fold_index = 0
-        fold_labels = []
+        split_index = 0
+        split_labels = []
 
         overall_validation_accuracy_history = []
         overall_validation_precision_history = []
@@ -137,15 +137,15 @@ class CnnBaseModel:
         ids = sorted(list(self.train_dataframes.keys()))
 
         for train_ids, validation_ids in kf.split(ids):
-            # Increment fold index
-            fold_index += 1
-            fold_labels.append("Fold " + str(fold_index))
+            # Increment split index
+            split_index += 1
+            split_labels.append("Split " + str(split_index))
 
-            # Validate fold
+            # Validate split
             validation_accuracy_history, validation_precision_history, validation_recall_history, \
             validation_f1_score_history, validation_cohen_kappa_score_history, \
-            validation_matthews_correlation_coefficient_history, epoch = self.validate_fold(
-                fold_index=fold_index,
+            validation_matthews_correlation_coefficient_history, epoch = self.validate_split(
+                split_index=split_index,
                 k_folds=k_folds,
                 dataframes=self.train_dataframes,
                 epochs=self.epochs,
@@ -159,7 +159,7 @@ class CnnBaseModel:
                 dry_run=dry_run
             )
 
-            # Aggregate fold results
+            # Aggregate split results
             overall_validation_accuracy_history.append(validation_accuracy_history)
             overall_validation_precision_history.append(validation_precision_history)
             overall_validation_recall_history.append(validation_recall_history)
@@ -169,10 +169,10 @@ class CnnBaseModel:
                 validation_matthews_correlation_coefficient_history)
             overall_epochs.append(epoch)
 
-        self.model_plotter.plot_fold_results(
+        self.model_plotter.plot_split_results(
             logger=self.logger,
             log_path=self.log_path_modelling,
-            fold_labels=fold_labels,
+            split_labels=split_labels,
             overall_validation_accuracy_history=overall_validation_accuracy_history,
             overall_validation_precision_history=overall_validation_precision_history,
             overall_validation_recall_history=overall_validation_recall_history,
@@ -182,7 +182,7 @@ class CnnBaseModel:
             quiet=quiet
         )
 
-        self.model_logger.log_fold_results(
+        self.model_logger.log_split_results(
             logger=self.logger,
             overall_validation_accuracy_history=overall_validation_accuracy_history,
             overall_validation_precision_history=overall_validation_precision_history,
@@ -201,18 +201,18 @@ class CnnBaseModel:
         return int(np.mean(overall_epochs))
 
     @TrackingDecorator.track_time
-    def validate_fold(self, fold_index, k_folds, train_ids, validation_ids, dataframes, epochs,
-                      learning_rate, patience, slice_width, dropout=0.5, quiet=False, dry_run=False):
+    def validate_split(self, split_index, k_folds, train_ids, validation_ids, dataframes, epochs,
+                       learning_rate, patience, slice_width, dropout=0.5, quiet=False, dry_run=False):
         """
-        Validates a single fold
+        Validates a single split
         """
 
         start_time = datetime.now()
 
         # Make results path
-        os.makedirs(os.path.join(self.log_path_modelling, "fold-" + str(fold_index), "models"), exist_ok=True)
+        os.makedirs(os.path.join(self.log_path_modelling, "split-" + str(split_index), "models"), exist_ok=True)
 
-        self.logger.log_line("\n Fold # " + str(fold_index) + "/" + str(k_folds))
+        self.logger.log_line("\n Split # " + str(split_index) + "/" + str(k_folds))
 
         train_dataframes = {id: list(dataframes.values())[id] for id in train_ids}
         validation_dataframes = {id: list(dataframes.values())[id] for id in validation_ids}
@@ -228,12 +228,12 @@ class CnnBaseModel:
         validation_data_loader = self.model_preparator.create_loader(validation_dataset, shuffle=False)
 
         # Plot target variable distribution
-        self.model_plotter.plot_fold_distribution(
+        self.model_plotter.plot_split_distribution(
             logger=self.logger,
-            log_path=os.path.join(self.log_path_modelling, "fold-" + str(fold_index), "plots"),
+            log_path=os.path.join(self.log_path_modelling, "split-" + str(split_index), "plots"),
             train_dataframes=train_dataframes,
             validation_dataframes=validation_dataframes,
-            fold_index=fold_index,
+            split_index=split_index,
             slice_width=slice_width,
             quiet=quiet
         )
@@ -341,7 +341,7 @@ class CnnBaseModel:
             validation_matthews_correlation_coefficient_history.append(validation_matthews_correlation_coefficient)
 
             if not quiet:
-                self.logger.log_line("Fold " + str(fold_index) + " " +
+                self.logger.log_line("Split " + str(split_index) + " " +
                                      "epoch " + str(epoch) + " " +
                                      "loss " + str(round(train_epoch_loss, 4)).ljust(4, '0') + ", " +
                                      "accuracy " + str(round(validation_accuracy, 2)) + ", " +
@@ -363,7 +363,7 @@ class CnnBaseModel:
                 validation_cohen_kappa_score_max = validation_cohen_kappa_score
                 validation_matthews_correlation_coefficient_max = validation_matthews_correlation_coefficient
                 torch.save(classifier.state_dict(),
-                           os.path.join(self.log_path_modelling, "fold-" + str(fold_index), "models", "model.pickle"))
+                           os.path.join(self.log_path_modelling, "split-" + str(split_index), "models", "model.pickle"))
             else:
                 trials += 1
                 if trials >= patience and not quiet:
@@ -388,13 +388,13 @@ class CnnBaseModel:
             validation_f1_score_history=validation_f1_score_history,
             validation_cohen_kappa_score_history=validation_cohen_kappa_score_history,
             validation_matthews_correlation_coefficient_history=validation_matthews_correlation_coefficient_history,
-            fold_index=fold_index,
+            split_index=split_index,
             quiet=quiet
         )
 
-        self.logger.log_fold(
+        self.logger.log_split(
             time_elapsed="{}".format(datetime.now() - start_time),
-            k_fold=fold_index,
+            k_split=split_index,
             k_folds=k_folds,
             epochs=epoch,
             accuracy=round(validation_accuracy_max, 2),
