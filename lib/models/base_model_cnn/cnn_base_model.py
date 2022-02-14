@@ -80,9 +80,9 @@ def get_metrics(classifier, data_loader):
     recall = model_evaluator.get_recall(confusion_matrix_dataframe)
     f1_score = model_evaluator.get_f1_score(confusion_matrix_dataframe)
     cohen_kappa_score = model_evaluator.get_cohen_kappa_score(targets, predictions)
-    matthew_correlation_coefficient = model_evaluator.get_matthews_corrcoef_score(targets, predictions)
+    matthews_correlation_coefficient = model_evaluator.get_matthews_corrcoef_score(targets, predictions)
 
-    return accuracy, precision, recall, f1_score, cohen_kappa_score, matthew_correlation_coefficient
+    return accuracy, precision, recall, f1_score, cohen_kappa_score, matthews_correlation_coefficient
 
 
 #
@@ -131,7 +131,7 @@ class CnnBaseModel:
         overall_validation_recall_history = []
         overall_validation_f1_score_history = []
         overall_validation_cohen_kappa_score_history = []
-        overall_validation_matthew_correlation_coefficient_history = []
+        overall_validation_matthews_correlation_coefficient_history = []
         overall_epochs = []
 
         ids = sorted(list(self.train_dataframes.keys()))
@@ -144,7 +144,7 @@ class CnnBaseModel:
             # Validate fold
             validation_accuracy_history, validation_precision_history, validation_recall_history, \
             validation_f1_score_history, validation_cohen_kappa_score_history, \
-            validation_matthew_correlation_coefficient_history, epoch = self.validate_fold(
+            validation_matthews_correlation_coefficient_history, epoch = self.validate_fold(
                 fold_index=fold_index,
                 k_folds=k_folds,
                 dataframes=self.train_dataframes,
@@ -165,8 +165,8 @@ class CnnBaseModel:
             overall_validation_recall_history.append(validation_recall_history)
             overall_validation_f1_score_history.append(validation_f1_score_history)
             overall_validation_cohen_kappa_score_history.append(validation_cohen_kappa_score_history)
-            overall_validation_matthew_correlation_coefficient_history.append(
-                validation_matthew_correlation_coefficient_history)
+            overall_validation_matthews_correlation_coefficient_history.append(
+                validation_matthews_correlation_coefficient_history)
             overall_epochs.append(epoch)
 
         self.model_plotter.plot_fold_results(
@@ -178,7 +178,7 @@ class CnnBaseModel:
             overall_validation_recall_history=overall_validation_recall_history,
             overall_validation_f1_score_history=overall_validation_f1_score_history,
             overall_validation_cohen_kappa_score_history=overall_validation_cohen_kappa_score_history,
-            overall_validation_matthew_correlation_coefficient_history=overall_validation_matthew_correlation_coefficient_history,
+            overall_validation_matthews_correlation_coefficient_history=overall_validation_matthews_correlation_coefficient_history,
             quiet=quiet
         )
 
@@ -189,7 +189,7 @@ class CnnBaseModel:
             overall_validation_recall_history=overall_validation_recall_history,
             overall_validation_f1_score_history=overall_validation_f1_score_history,
             overall_validation_cohen_kappa_score_history=overall_validation_cohen_kappa_score_history,
-            overall_validation_matthew_correlation_coefficient_history=overall_validation_matthew_correlation_coefficient_history,
+            overall_validation_matthews_correlation_coefficient_history=overall_validation_matthews_correlation_coefficient_history,
             quiet=quiet)
 
         self.logger.log_validation(
@@ -252,7 +252,7 @@ class CnnBaseModel:
         validation_recall_max = 0
         validation_f1_score_max = 0
         validation_cohen_kappa_score_max = 0
-        validation_matthew_correlation_coefficient_max = 0
+        validation_matthews_correlation_coefficient_max = 0
         trials = 0
 
         train_loss_history = []
@@ -261,7 +261,7 @@ class CnnBaseModel:
         train_recall_history = []
         train_f1_score_history = []
         train_cohen_kappa_score_history = []
-        train_matthew_correlation_coefficient_history = []
+        train_matthews_correlation_coefficient_history = []
 
         validation_loss_history = []
         validation_accuracy_history = []
@@ -269,7 +269,7 @@ class CnnBaseModel:
         validation_recall_history = []
         validation_f1_score_history = []
         validation_cohen_kappa_score_history = []
-        validation_matthew_correlation_coefficient_history = []
+        validation_matthews_correlation_coefficient_history = []
 
         # Run training loop
         progress_bar = tqdm(iterable=range(1, epochs + 1), unit="epoch", desc="Train model")
@@ -316,14 +316,14 @@ class CnnBaseModel:
             train_recall, \
             train_f1_score, \
             train_cohen_kappa_score, \
-            train_matthew_correlation_coefficient = get_metrics(classifier, train_data_loader)
+            train_matthews_correlation_coefficient = get_metrics(classifier, train_data_loader)
 
             train_accuracy_history.append(train_accuracy)
             train_precision_history.append(train_precision)
             train_recall_history.append(train_recall)
             train_f1_score_history.append(train_f1_score)
             train_cohen_kappa_score_history.append(train_cohen_kappa_score)
-            train_matthew_correlation_coefficient_history.append(train_matthew_correlation_coefficient)
+            train_matthews_correlation_coefficient_history.append(train_matthews_correlation_coefficient)
 
             # Get metrics for validation data
             validation_accuracy, \
@@ -331,14 +331,14 @@ class CnnBaseModel:
             validation_recall, \
             validation_f1_score, \
             validation_cohen_kappa_score, \
-            validation_matthew_correlation_coefficient = get_metrics(classifier, validation_data_loader)
+            validation_matthews_correlation_coefficient = get_metrics(classifier, validation_data_loader)
 
             validation_accuracy_history.append(validation_accuracy)
             validation_precision_history.append(validation_precision)
             validation_recall_history.append(validation_recall)
             validation_f1_score_history.append(validation_f1_score)
             validation_cohen_kappa_score_history.append(validation_cohen_kappa_score)
-            validation_matthew_correlation_coefficient_history.append(validation_matthew_correlation_coefficient)
+            validation_matthews_correlation_coefficient_history.append(validation_matthews_correlation_coefficient)
 
             if not quiet:
                 self.logger.log_line("Fold " + str(fold_index) + " " +
@@ -350,7 +350,7 @@ class CnnBaseModel:
                                      "f1 score " + str(round(validation_f1_score, 2)) + ", " +
                                      "cohen kappa score " + str(round(validation_cohen_kappa_score, 2)) + ", " +
                                      "matthew correlation coefficient " + str(
-                    round(validation_matthew_correlation_coefficient, 2)),
+                    round(validation_matthews_correlation_coefficient, 2)),
                                      console=False, file=True)
 
             # Check if f1 score increased
@@ -361,7 +361,7 @@ class CnnBaseModel:
                 validation_recall_max = validation_recall
                 validation_f1_score_max = validation_f1_score
                 validation_cohen_kappa_score_max = validation_cohen_kappa_score
-                validation_matthew_correlation_coefficient_max = validation_matthew_correlation_coefficient
+                validation_matthews_correlation_coefficient_max = validation_matthews_correlation_coefficient
                 torch.save(classifier.state_dict(),
                            os.path.join(self.log_path_modelling, "fold-" + str(fold_index), "models", "model.pickle"))
             else:
@@ -387,7 +387,7 @@ class CnnBaseModel:
             validation_recall_history=validation_recall_history,
             validation_f1_score_history=validation_f1_score_history,
             validation_cohen_kappa_score_history=validation_cohen_kappa_score_history,
-            validation_matthew_correlation_coefficient_history=validation_matthew_correlation_coefficient_history,
+            validation_matthews_correlation_coefficient_history=validation_matthews_correlation_coefficient_history,
             fold_index=fold_index,
             quiet=quiet
         )
@@ -402,13 +402,13 @@ class CnnBaseModel:
             recall=round(validation_recall_max, 2),
             f1_score=round(validation_f1_score_max, 2),
             cohen_kappa_score=round(validation_cohen_kappa_score_max, 2),
-            matthew_correlation_coefficient=round(validation_matthew_correlation_coefficient_max, 2),
+            matthews_correlation_coefficient=round(validation_matthews_correlation_coefficient_max, 2),
             telegram=not quiet and not dry_run
         )
 
         return validation_accuracy_history, validation_precision_history, validation_recall_history, \
                validation_f1_score_history, validation_cohen_kappa_score_history, \
-               validation_matthew_correlation_coefficient_history, epoch
+               validation_matthews_correlation_coefficient_history, epoch
 
     @TrackingDecorator.track_time
     def finalize(self, epochs, quiet=False, dry_run=False):
@@ -498,7 +498,7 @@ class CnnBaseModel:
         test_recall, \
         test_f1_score, \
         test_cohen_kappa_score, \
-        test_matthew_correlation_coefficient = get_metrics(classifier, test_data_loader)
+        test_matthews_correlation_coefficient = get_metrics(classifier, test_data_loader)
 
         # Plot confusion matrix
         test_confusion_matrix_dataframe, targets, predictions = get_confusion_matrix_dataframe(classifier,
@@ -514,8 +514,8 @@ class CnnBaseModel:
             test_recall=test_recall,
             test_f1_score=test_f1_score,
             test_cohen_kappa_score=test_cohen_kappa_score,
-            test_matthew_correlation_coefficient=test_matthew_correlation_coefficient,
+            test_matthews_correlation_coefficient=test_matthews_correlation_coefficient,
             telegram=not quiet and not dry_run
         )
 
-        return test_accuracy, test_precision, test_recall, test_f1_score, test_cohen_kappa_score, test_matthew_correlation_coefficient
+        return test_accuracy, test_precision, test_recall, test_f1_score, test_cohen_kappa_score, test_matthews_correlation_coefficient

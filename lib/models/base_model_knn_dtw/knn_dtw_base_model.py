@@ -77,9 +77,9 @@ def get_metrics(classifier, data, labels, k):
     recall = model_evaluator.get_recall(confusion_matrix_dataframe)
     f1_score = model_evaluator.get_f1_score(confusion_matrix_dataframe)
     cohen_kappa_score = model_evaluator.get_cohen_kappa_score(targets, predictions)
-    matthew_correlation_coefficient = model_evaluator.get_matthews_corrcoef_score(targets, predictions)
+    matthews_correlation_coefficient = model_evaluator.get_matthews_corrcoef_score(targets, predictions)
 
-    return accuracy, precision, recall, f1_score, cohen_kappa_score, matthew_correlation_coefficient
+    return accuracy, precision, recall, f1_score, cohen_kappa_score, matthews_correlation_coefficient
 
 
 #
@@ -127,7 +127,7 @@ class KnnDtwBaseModel:
         overall_validation_recall_history = []
         overall_validation_f1_score_history = []
         overall_validation_cohen_kappa_score_history = []
-        overall_validation_matthew_correlation_coefficient_history = []
+        overall_validation_matthews_correlation_coefficient_history = []
 
         ids = sorted(list(self.train_dataframes.keys()))
 
@@ -138,7 +138,7 @@ class KnnDtwBaseModel:
 
             # Validate fold
             k, validation_accuracy, validation_precision, validation_recall, validation_f1_score, \
-            validation_cohen_kappa_score, validation_matthew_correlation_coefficient = self.validate_fold(
+            validation_cohen_kappa_score, validation_matthews_correlation_coefficient = self.validate_fold(
                 fold_index=fold_index,
                 k_folds=k_folds,
                 dataframes=self.train_dataframes,
@@ -149,7 +149,7 @@ class KnnDtwBaseModel:
                 dry_run=dry_run
             )
 
-            self.logger.log_line(f"best validation with k={k} : {validation_matthew_correlation_coefficient}")
+            self.logger.log_line(f"best validation with k={k} : {validation_matthews_correlation_coefficient}")
 
             # Aggregate fold results
             overall_validation_accuracy_history.append(validation_accuracy)
@@ -157,8 +157,8 @@ class KnnDtwBaseModel:
             overall_validation_recall_history.append(validation_recall)
             overall_validation_f1_score_history.append(validation_f1_score)
             overall_validation_cohen_kappa_score_history.append(validation_cohen_kappa_score)
-            overall_validation_matthew_correlation_coefficient_history.append(
-                validation_matthew_correlation_coefficient)
+            overall_validation_matthews_correlation_coefficient_history.append(
+                validation_matthews_correlation_coefficient)
 
         self.model_plotter.plot_fold_results_hist(
             logger=self.logger,
@@ -169,7 +169,7 @@ class KnnDtwBaseModel:
             overall_validation_recall_history=overall_validation_recall_history,
             overall_validation_f1_score_history=overall_validation_f1_score_history,
             overall_validation_cohen_kappa_score_history=overall_validation_cohen_kappa_score_history,
-            overall_validation_matthew_correlation_coefficient_history=overall_validation_matthew_correlation_coefficient_history,
+            overall_validation_matthews_correlation_coefficient_history=overall_validation_matthews_correlation_coefficient_history,
             quiet=quiet
         )
 
@@ -180,7 +180,7 @@ class KnnDtwBaseModel:
             overall_validation_recall_history=overall_validation_recall_history,
             overall_validation_f1_score_history=overall_validation_f1_score_history,
             overall_validation_cohen_kappa_score_history=overall_validation_cohen_kappa_score_history,
-            overall_validation_matthew_correlation_coefficient_history=overall_validation_matthew_correlation_coefficient_history,
+            overall_validation_matthews_correlation_coefficient_history=overall_validation_matthews_correlation_coefficient_history,
             quiet=quiet)
 
         self.logger.log_validation(
@@ -237,7 +237,7 @@ class KnnDtwBaseModel:
         validation_recall_list = []
         validation_f1_score_list = []
         validation_cohen_kappa_score_list = []
-        validation_matthew_correlation_coefficient_list = []
+        validation_matthews_correlation_coefficient_list = []
 
         # Iterate over hyper-parameter configurations
         for k in range(1, self.k_nearest_neighbors + 1):
@@ -247,7 +247,7 @@ class KnnDtwBaseModel:
             validation_recall, \
             validation_f1_score, \
             validation_cohen_kappa_score, \
-            validation_matthew_correlation_coefficient = get_metrics(
+            validation_matthews_correlation_coefficient = get_metrics(
                 classifier=classifier,
                 data=validation_data,
                 labels=validation_labels,
@@ -277,7 +277,7 @@ class KnnDtwBaseModel:
                 recall=round(validation_recall, 2),
                 f1_score=round(validation_f1_score, 2),
                 cohen_kappa_score=round(validation_cohen_kappa_score, 2),
-                matthew_correlation_coefficient=round(validation_matthew_correlation_coefficient, 2),
+                matthews_correlation_coefficient=round(validation_matthews_correlation_coefficient, 2),
                 telegram=not quiet and not dry_run
             )
 
@@ -287,16 +287,16 @@ class KnnDtwBaseModel:
             validation_recall_list.append(validation_recall)
             validation_f1_score_list.append(validation_f1_score)
             validation_cohen_kappa_score_list.append(validation_cohen_kappa_score)
-            validation_matthew_correlation_coefficient_list.append(validation_matthew_correlation_coefficient)
+            validation_matthews_correlation_coefficient_list.append(validation_matthews_correlation_coefficient)
 
         # Determine with which k the best result has been created
-        index_best = validation_matthew_correlation_coefficient_list.index(
-            max(validation_matthew_correlation_coefficient_list))
+        index_best = validation_matthews_correlation_coefficient_list.index(
+            max(validation_matthews_correlation_coefficient_list))
         k_best = index_best + 1
 
         return k_best, validation_accuracy_list[index_best], validation_precision_list[index_best], \
                validation_recall_list[index_best], validation_f1_score_list[index_best], \
-               validation_cohen_kappa_score_list[index_best], validation_matthew_correlation_coefficient_list[
+               validation_cohen_kappa_score_list[index_best], validation_matthews_correlation_coefficient_list[
                    index_best]
 
     @TrackingDecorator.track_time
@@ -337,7 +337,7 @@ class KnnDtwBaseModel:
         test_recall_list = []
         test_f1_score_list = []
         test_cohen_kappa_score_list = []
-        test_matthew_correlation_coefficient_list = []
+        test_matthews_correlation_coefficient_list = []
 
         # Iterate over hyper-parameter configurations
         for k in range(1, self.k_nearest_neighbors):
@@ -347,7 +347,7 @@ class KnnDtwBaseModel:
             test_recall, \
             test_f1_score, \
             test_cohen_kappa_score, \
-            test_matthew_correlation_coefficient = get_metrics(classifier, test_data, test_labels, k)
+            test_matthews_correlation_coefficient = get_metrics(classifier, test_data, test_labels, k)
 
             # # Plot distance matrix
             # distance_matrix_dataframe = pd.DataFrame(data=classifier.distance_matrix.astype(int))
@@ -384,7 +384,7 @@ class KnnDtwBaseModel:
                 test_recall=test_recall,
                 test_f1_score=test_f1_score,
                 test_cohen_kappa_score=test_cohen_kappa_score,
-                test_matthew_correlation_coefficient=test_matthew_correlation_coefficient,
+                test_matthews_correlation_coefficient=test_matthews_correlation_coefficient,
                 telegram=not quiet and not dry_run
             )
 
@@ -394,7 +394,7 @@ class KnnDtwBaseModel:
             test_recall_list.append(test_recall)
             test_f1_score_list.append(test_f1_score)
             test_cohen_kappa_score_list.append(test_cohen_kappa_score)
-            test_matthew_correlation_coefficient_list.append(test_matthew_correlation_coefficient)
+            test_matthews_correlation_coefficient_list.append(test_matthews_correlation_coefficient)
 
         return test_k_list, test_accuracy_list, test_precision_list, test_recall_list, test_f1_score_list, \
-               test_cohen_kappa_score_list, test_matthew_correlation_coefficient_list
+               test_cohen_kappa_score_list, test_matthews_correlation_coefficient_list

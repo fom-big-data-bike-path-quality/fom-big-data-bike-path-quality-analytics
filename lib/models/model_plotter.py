@@ -10,7 +10,7 @@ class ModelPlotter:
     def plot_fold_results(self, logger, log_path, fold_labels, overall_validation_accuracy_history,
                           overall_validation_precision_history, overall_validation_recall_history,
                           overall_validation_f1_score_history, overall_validation_cohen_kappa_score_history,
-                          overall_validation_matthew_correlation_coefficient_history, quiet):
+                          overall_validation_matthews_correlation_coefficient_history, quiet):
         TrainingResultPlotter().run(
             logger=logger,
             data=overall_validation_accuracy_history,
@@ -82,12 +82,12 @@ class ModelPlotter:
 
         TrainingResultPlotter().run(
             logger=logger,
-            data=overall_validation_matthew_correlation_coefficient_history,
+            data=overall_validation_matthews_correlation_coefficient_history,
             labels=fold_labels,
             results_path=os.path.join(log_path, "plots"),
             file_name="overall-matthew-correlation-coefficient-score",
-            title="Matthews's correlation coefficient score history",
-            description="Matthews's correlation coefficient score history",
+            title="Matthews correlation coefficient score history",
+            description="Matthews correlation coefficient score history",
             xlabel="Epoch",
             ylabel="Value",
             clean=True,
@@ -97,7 +97,7 @@ class ModelPlotter:
     def plot_fold_results_hist(self, logger, log_path, fold_labels, overall_validation_accuracy_history,
                                overall_validation_precision_history, overall_validation_recall_history,
                                overall_validation_f1_score_history, overall_validation_cohen_kappa_score_history,
-                               overall_validation_matthew_correlation_coefficient_history, quiet):
+                               overall_validation_matthews_correlation_coefficient_history, quiet):
         TrainingResultPlotterBar().run(
             logger=logger,
             data=overall_validation_accuracy_history,
@@ -169,12 +169,12 @@ class ModelPlotter:
 
         TrainingResultPlotterBar().run(
             logger=logger,
-            data=overall_validation_matthew_correlation_coefficient_history,
+            data=overall_validation_matthews_correlation_coefficient_history,
             labels=fold_labels,
             results_path=log_path,
             file_name="overall-matthew-correlation-coefficient-score",
-            title="Matthews's correlation coefficient score history",
-            description="Matthews's correlation coefficient score history",
+            title="Matthews correlation coefficient score history",
+            description="Matthews correlation coefficient score history",
             xlabel="Fold",
             ylabel="Value",
             clean=True,
@@ -212,7 +212,7 @@ class ModelPlotter:
     def plot_training_results(self, logger, log_path, train_loss_history, validation_loss_history,
                               train_accuracy_history, validation_accuracy_history, validation_precision_history,
                               validation_recall_history, validation_f1_score_history,
-                              validation_cohen_kappa_score_history, validation_matthew_correlation_coefficient_history,
+                              validation_cohen_kappa_score_history, validation_matthews_correlation_coefficient_history,
                               fold_index, quiet):
         TrainingResultPlotter().run(
             logger=logger,
@@ -246,7 +246,7 @@ class ModelPlotter:
             logger=logger,
             data=[validation_accuracy_history, validation_precision_history, validation_recall_history,
                   validation_f1_score_history, validation_cohen_kappa_score_history,
-                  validation_matthew_correlation_coefficient_history],
+                  validation_matthews_correlation_coefficient_history],
             labels=["Accuracy", "Precision", "Recall", "F1 Score", "Cohen's Kappa Score",
                     "Matthew's Correlation Coefficient"],
             results_path=os.path.join(log_path, "fold-" + str(fold_index), "plots"),

@@ -79,7 +79,7 @@ class LoggerFacade:
         self.log_line(message=message, telegram=telegram)
 
     def log_fold(self, time_elapsed, k_fold, k_folds, epochs, accuracy, precision, recall, f1_score,
-                 cohen_kappa_score, matthew_correlation_coefficient, telegram=None):
+                 cohen_kappa_score, matthews_correlation_coefficient, telegram=None):
 
         if epochs is None:
             message = get_fold_emoji(k_fold) + " Fold " + str(k_fold) + "/" + str(k_folds) + \
@@ -89,7 +89,7 @@ class LoggerFacade:
                   "\n* recall " + str(recall) + \
                   "\n* f1 score " + str(f1_score) + \
                   "\n* cohen's kappa score " + str(cohen_kappa_score) + \
-                  "\n* matthew's correlation coefficient " + str(matthew_correlation_coefficient)
+                  "\n* matthews correlation coefficient " + str(matthews_correlation_coefficient)
         else:
             message = get_fold_emoji(k_fold) + " Fold " + str(k_fold) + "/" + str(k_folds) + \
                       " finished after " + str(epochs) + " epochs in " + time_elapsed + " with validation metrics" + \
@@ -98,7 +98,7 @@ class LoggerFacade:
                       "\n* recall " + str(recall) + \
                       "\n* f1 score " + str(f1_score) + \
                       "\n* cohen's kappa score " + str(cohen_kappa_score) + \
-                      "\n* matthew's correlation coefficient " + str(matthew_correlation_coefficient)
+                      "\n* matthews correlation coefficient " + str(matthews_correlation_coefficient)
 
         self.log_line(message=message, telegram=telegram)
 
@@ -121,7 +121,7 @@ class LoggerFacade:
         self.log_line(message=message, telegram=telegram)
 
     def log_evaluation(self, time_elapsed, log_path_evaluation, test_accuracy, test_precision, test_recall,
-                       test_f1_score, test_cohen_kappa_score, test_matthew_correlation_coefficient, telegram=None):
+                       test_f1_score, test_cohen_kappa_score, test_matthews_correlation_coefficient, telegram=None):
 
         message = "Evaluation finished after in " + time_elapsed + " with" + \
                   "\n* accuracy " + str(round(test_accuracy, 2)) + \
@@ -129,7 +129,7 @@ class LoggerFacade:
                   "\n* recall " + str(round(test_recall, 2)) + \
                   "\n* f1 score " + str(round(test_f1_score, 2)) + \
                   "\n* cohen's kappa score " + str(round(test_cohen_kappa_score, 2)) + \
-                  "\n* matthew's correlation coefficient " + str(round(test_matthew_correlation_coefficient, 2))
+                  "\n* matthews correlation coefficient " + str(round(test_matthews_correlation_coefficient, 2))
 
         file_path = os.path.join(log_path_evaluation, "plots", "confusion_matrix.png")
         if os.path.exists(file_path):
