@@ -357,8 +357,8 @@ class LstmBaseModel:
                     round(validation_matthews_correlation_coefficient, 2)),
                                      console=False, file=True)
 
-            # Check if f1 score increased
-            if validation_f1_score > validation_f1_score_max:
+            # Check if Matthews correlation coefficient score increased
+            if validation_matthews_correlation_coefficient > validation_matthews_correlation_coefficient_max:
                 trials = 0
                 validation_accuracy_max = validation_accuracy
                 validation_precision_max = validation_precision
