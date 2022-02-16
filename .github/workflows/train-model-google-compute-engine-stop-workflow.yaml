@@ -1,0 +1,26 @@
+name: Google Compute Engine Stop
+on:
+  workflow_dispatch:
+env:
+  PROJECT_ID: "bike-path-quality-339900"
+  GCE_INSTANCE: "bike-path-quality-analytics"
+  GCE_INSTANCE_ZONE: "europe-west2-a"
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: [3.7]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2.3.3
+      - name: Login to Google Cloud
+        uses: 'google-github-actions/auth@v0'
+        with:
+          credentials_json: ${{ secrets.GOOGLE_CLOUD_TOKEN }}
+      - name: Set up Cloud SDK
+        uses: 'google-github-actions/setup-gcloud@v0'
+      - name: Stop compute instance
+        id: stop-compute-instance
+        run: |
+          gcloud compute instances stop "$GCE_INSTANCE"
