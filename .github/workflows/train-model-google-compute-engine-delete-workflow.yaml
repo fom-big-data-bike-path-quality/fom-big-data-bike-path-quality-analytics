@@ -14,14 +14,12 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v2.3.3
-      - name: Set up Cloud SDK
-        uses: google-github-actions/setup-gcloud@master
+      - name: Login to Google Cloud
+        uses: 'google-github-actions/auth@v0'
         with:
-          project_id: "bike-path-quality"
-          service_account_key: ${{ secrets.GOOGLE_CLOUD_TOKEN }}
-          export_default_credentials: true
-        env:
-          GOOGLE_CLOUD_TOKEN: ${{ secrets.GOOGLE_CLOUD_TOKEN }}
+          credentials_json: ${{ secrets.GOOGLE_CLOUD_TOKEN }}
+      - name: Set up Cloud SDK
+        uses: 'google-github-actions/setup-gcloud@v0'
       - name: Delete compute instance
         id: delete-compute-instance
         run: |
