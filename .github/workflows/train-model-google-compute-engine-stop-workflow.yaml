@@ -23,4 +23,5 @@ jobs:
       - name: Stop compute instance
         id: stop-compute-instance
         run: |
-          gcloud compute instances stop "$GCE_INSTANCE"
+          gcloud compute instances stop "$GCE_INSTANCE" \
+            --zone="$GCE_INSTANCE_ZONE"
