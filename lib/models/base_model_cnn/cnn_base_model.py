@@ -411,7 +411,7 @@ class CnnBaseModel:
                validation_matthews_correlation_coefficient_history, epoch
 
     @TrackingDecorator.track_time
-    def finalize(self, epochs, quiet=False, dry_run=False):
+    def finalize(self, epochs, average_epochs, quiet=False, dry_run=False):
         """
         Trains a final model by using all train dataframes
         """
@@ -453,6 +453,16 @@ class CnnBaseModel:
 
             classifier.eval()
 
+            if epoch == average_epochs:
+                torch.save(classifier.state_dict(),
+                           os.path.join(self.log_path_modelling, "model-intermediate.pickle"))
+
+                self.logger.log_intermediate(
+                    time_elapsed="{}".format(datetime.now() - start_time),
+                    epochs=epoch,
+                    telegram=not quiet and not dry_run
+                )
+
             if not quiet:
                 self.logger.log_line("Epoch " + str(epoch) + " loss " + str(round(train_epoch_loss, 4)).ljust(4, '0'),
                                      console=False, file=True)
@@ -483,28 +493,31 @@ class CnnBaseModel:
         test_dataset = self.model_preparator.create_dataset(test_array)
         test_data_loader = self.model_preparator.create_loader(test_dataset, shuffle=False)
 
-        # Determine number of linear channels based on slice width
-        linear_channels = self.model_preparator.get_linear_channels(self.slice_width)
+        test_accuracy, test_precision, test_recall, test_f1_score, test_cohen_kappa_score, test_matthews_correlation_coefficient = self.evaluate_confusion_matrix(
+            test_data_loader=test_data_loader,
+            model_name="model-intermediate.pickle",
+            confusion_matrix_name="confusion_matrix_intermediate",
+            clean=clean
+        )
 
-        # Define classifier
-        classifier = CnnClassifier(input_channels=1, num_classes=num_classes, linear_channels=linear_channels).to(
-            device)
-        classifier.load_state_dict(torch.load(os.path.join(self.log_path_modelling, "model.pickle")))
-        classifier.eval()
+        self.logger.log_evaluation_intermediate(
+            time_elapsed="{}".format(datetime.now() - start_time),
+            log_path_evaluation=self.log_path_evaluation,
+            test_accuracy=test_accuracy,
+            test_precision=test_precision,
+            test_recall=test_recall,
+            test_f1_score=test_f1_score,
+            test_cohen_kappa_score=test_cohen_kappa_score,
+            test_matthews_correlation_coefficient=test_matthews_correlation_coefficient,
+            telegram=not quiet and not dry_run
+        )
 
-        # Evaluate with test dataloader
-        test_accuracy, \
-        test_precision, \
-        test_recall, \
-        test_f1_score, \
-        test_cohen_kappa_score, \
-        test_matthews_correlation_coefficient = get_metrics(classifier, test_data_loader)
-
-        # Plot confusion matrix
-        test_confusion_matrix_dataframe, targets, predictions = get_confusion_matrix_dataframe(classifier,
-                                                                                               test_data_loader)
-        ConfusionMatrixPlotter().run(self.logger, os.path.join(self.log_path_evaluation),
-                                     test_confusion_matrix_dataframe, clean=clean)
+        test_accuracy, test_precision, test_recall, test_f1_score, test_cohen_kappa_score, test_matthews_correlation_coefficient = self.evaluate_confusion_matrix(
+            test_data_loader=test_data_loader,
+            model_name="model.pickle",
+            confusion_matrix_name="confusion_matrix",
+            clean=clean
+        )
 
         self.logger.log_evaluation(
             time_elapsed="{}".format(datetime.now() - start_time),
@@ -519,3 +532,27 @@ class CnnBaseModel:
         )
 
         return test_accuracy, test_precision, test_recall, test_f1_score, test_cohen_kappa_score, test_matthews_correlation_coefficient
+
+    def evaluate_confusion_matrix(self, test_data_loader, model_name, confusion_matrix_name, clean):
+
+        # Determine number of linear channels based on slice width
+        linear_channels = self.model_preparator.get_linear_channels(self.slice_width)
+
+        # Define classifier
+        classifier = CnnClassifier(input_channels=1, num_classes=num_classes, linear_channels=linear_channels).to(
+            device)
+        classifier.load_state_dict(torch.load(os.path.join(self.log_path_modelling, "model.pickle")))
+        classifier.eval()
+
+        # Plot confusion matrix
+        test_confusion_matrix_dataframe, _, _ = get_confusion_matrix_dataframe(classifier, test_data_loader)
+        ConfusionMatrixPlotter().run(
+            logger=self.logger,
+            results_path=os.path.join(self.log_path_evaluation),
+            confusion_matrix_dataframe=test_confusion_matrix_dataframe,
+            file_name=confusion_matrix_name,
+            clean=clean
+        )
+
+        # Evaluate with test dataloader
+        return get_metrics(classifier, test_data_loader)

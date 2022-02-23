@@ -434,7 +434,7 @@ def main(argv):
     #
 
     if not skip_validation:
-        finalize_epochs = model.validate(
+        average_epochs = model.validate(
             k_folds=k_folds,
 
             random_state=random_state,
@@ -442,10 +442,11 @@ def main(argv):
             dry_run=dry_run
         )
     else:
-        finalize_epochs = epochs
+        average_epochs = epochs
 
     model.finalize(
-        epochs=finalize_epochs,
+        epochs=epochs,
+        average_epochs=average_epochs,
         quiet=quiet,
         dry_run=dry_run
     )

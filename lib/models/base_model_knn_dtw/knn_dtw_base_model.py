@@ -300,7 +300,7 @@ class KnnDtwBaseModel:
                    index_best]
 
     @TrackingDecorator.track_time
-    def finalize(self, epochs, quiet=False, dry_run=False):
+    def finalize(self, epochs, average_epochs, quiet=False, dry_run=False):
         """
         Trains a final model by using all train dataframes (not necessary since kNN is instance based)
         """

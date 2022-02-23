@@ -125,6 +125,15 @@ class LoggerFacade:
             with open(file_path, "rb") as f1_score_file:
                 self.log_line(message=message, images=[f1_score_file], telegram=telegram)
 
+    def log_intermediate(self, time_elapsed, epochs, telegram=None):
+
+        if epochs is None:
+            message = "Finalization intermediate reached in " + time_elapsed
+        else:
+            message = "Finalization intermediate reached after " + str(epochs) + " epochs in " + time_elapsed
+
+        self.log_line(message=message, telegram=telegram)
+
     def log_finalization(self, time_elapsed, epochs, telegram=None):
 
         if epochs is None:
@@ -134,10 +143,26 @@ class LoggerFacade:
 
         self.log_line(message=message, telegram=telegram)
 
+    def log_evaluation_intermediate(self, time_elapsed, log_path_evaluation, test_accuracy, test_precision, test_recall,
+                       test_f1_score, test_cohen_kappa_score, test_matthews_correlation_coefficient, telegram=None):
+
+        message = f"Evaluation intermediate reached in {time_elapsed} with" + \
+                  f"\n* accuracy {str(round(test_accuracy, 2))}" + \
+                  f"\n* precision {str(round(test_precision, 2))}" + \
+                  f"\n* recall {str(round(test_recall, 2))}" + \
+                  f"\n* f1 score {str(round(test_f1_score, 2))}" + \
+                  f"\n* cohen's kappa score {str(round(test_cohen_kappa_score, 2))}" + \
+                  f"\n* matthews correlation coefficient {str(round(test_matthews_correlation_coefficient, 2))}"
+
+        file_path = os.path.join(log_path_evaluation, "plots", "confusion_matrix.png")
+        if os.path.exists(file_path):
+            with open(file_path, "rb") as confusion_matrix_file:
+                self.log_line(message=message, images=[confusion_matrix_file], telegram=telegram)
+
     def log_evaluation(self, time_elapsed, log_path_evaluation, test_accuracy, test_precision, test_recall,
                        test_f1_score, test_cohen_kappa_score, test_matthews_correlation_coefficient, telegram=None):
 
-        message = f"Evaluation finished after in {time_elapsed} with" + \
+        message = f"Evaluation finished in {time_elapsed} with" + \
                   f"\n* accuracy {str(round(test_accuracy, 2))}" + \
                   f"\n* precision {str(round(test_precision, 2))}" + \
                   f"\n* recall {str(round(test_recall, 2))}" + \
