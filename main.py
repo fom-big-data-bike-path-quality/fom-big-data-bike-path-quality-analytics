@@ -81,9 +81,9 @@ def main(argv):
     k_nearest_neighbors = 10
     subsample_step = 1
     max_warping_window = 500
-    epochs = 5_000
+    epochs = 10_000
+    patience = 1_000
     learning_rate: float = 0.001
-    patience = 500
     dropout = 0.5
     lstm_hidden_dimension = 128
     lstm_layer_dimension = 3
@@ -108,7 +108,7 @@ def main(argv):
             "--slice-width <slice-width> --window-step <window-step> --down-sampling-factor <down-sampling-factor> "
             "--model <model> --k-folds <k-folds> --k-nearest-neighbors <k-nearest-neighbors> "
             "--dtw-subsample-step <dtw-subsample-step> --dtw-max-warping-window <dtw-max-warping-window> "
-            "--epochs <epochs> --learning-rate <learning-rate> --patience <patience> "
+            "--epochs <epochs> --patience <patience> --learning-rate <learning-rate>"
             "--dropout <dropout> --lstm-hidden-dimension <lstm-hidden-dimension> "
             "--lstm-layer-dimension <lstm-layer-dimension>")
         sys.exit(2)
@@ -135,9 +135,9 @@ def main(argv):
             print("--dtw-subsample-step <dtw-subsample-step>          subsample steps for DTW")
             print("--dtw-max-warping-window <dtw-max-warping-window>  max warping window for DTW")
             print("--epochs <epochs>                                  number of epochs")
-            print("--learning-rate <learning-rate>                    learning rate")
             print("--patience <patience>                              " +
                   "number of epochs to wait for improvements before finishing training")
+            print("--learning-rate <learning-rate>                    learning rate")
             print("--dropout <dropout>                                dropout percentage")
             print("--lstm-hidden-dimension <lstm-hidden-dimension>    hidden dimensions in LSTM")
             print("--lstm-layer-dimension <lstm-layer-dimension>      layer dimensions in LSTM")
@@ -182,10 +182,10 @@ def main(argv):
             max_warping_window = int(arg)
         elif opt in ("-e", "--epochs"):
             epochs = int(arg)
-        elif opt in ("-l", "--learning-rate"):
-            learning_rate = float(arg)
         elif opt in ("-p", "--patience"):
             patience = int(arg)
+        elif opt in ("-l", "--learning-rate"):
+            learning_rate = float(arg)
         elif opt in "--dropout":
             dropout = float(arg)
         elif opt in "--lstm-hidden-dimension":
@@ -241,8 +241,8 @@ def main(argv):
         k_folds=k_folds,
         k_nearest_neighbors=k_nearest_neighbors,
         epochs=epochs,
-        learning_rate=learning_rate,
         patience=patience,
+        learning_rate=learning_rate,
 
         dropout=dropout,
         lstm_hidden_dimension=lstm_hidden_dimension,
