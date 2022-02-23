@@ -200,7 +200,7 @@ class KnnDtwBaseModel:
         start_time = datetime.now()
 
         # Make results path
-        os.makedirs(os.path.join(self.log_path_modelling, "split-" + str(split_index), "models"), exist_ok=True)
+        os.makedirs(os.path.join(self.log_path_modelling, "split-" + str(split_index)), exist_ok=True)
 
         self.logger.log_line("\n Split # " + str(split_index) + "/" + str(k_folds))
 
@@ -218,7 +218,7 @@ class KnnDtwBaseModel:
         # Plot target variable distribution
         self.model_plotter.plot_split_distribution(
             logger=self.logger,
-            log_path=os.path.join(self.log_path_modelling, "split-" + str(split_index), "plots"),
+            log_path=os.path.join(self.log_path_modelling, "split-" + str(split_index)),
             train_dataframes=train_dataframes,
             validation_dataframes=validation_dataframes,
             split_index=split_index,
@@ -258,13 +258,13 @@ class KnnDtwBaseModel:
             # distance_matrix_dataframe = pd.DataFrame(data=classifier.distance_matrix.astype(int))
             # DistanceMatrixPlotter().run(
             #     logger=self.logger,
-            #     results_path=os.path.join(self.log_path_modelling, "split-" + str(split_index), "plots"),
+            #     results_path=os.path.join(self.log_path_modelling, "split-" + str(split_index)),
             #     distance_matrix_dataframe=distance_matrix_dataframe,
             #     clean=False,
             #     quiet=False
             # )
 
-            np.save(os.path.join(self.log_path_modelling, "split-" + str(split_index), "models", "model"),
+            np.save(os.path.join(self.log_path_modelling, "split-" + str(split_index), "model"),
                     classifier.distance_matrix)
 
             self.logger.log_split(
@@ -370,7 +370,7 @@ class KnnDtwBaseModel:
             )
             ConfusionMatrixPlotter().run(
                 logger=self.logger,
-                results_path=os.path.join(self.log_path_evaluation, "plots"),
+                results_path=os.path.join(self.log_path_evaluation),
                 confusion_matrix_dataframe=test_confusion_matrix_dataframe,
                 file_name="confusion_matrix_k" + str(k),
                 clean=clean

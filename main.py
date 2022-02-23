@@ -37,6 +37,7 @@ from data_filterer import DataFilterer
 from data_statistics import DataStatistics
 from data_transformer import DataTransformer
 from bike_activity_plotter import BikeActivityPlotter
+from bike_activity_slice_plotter import BikeActivitySlicePlotter
 from bike_activity_surface_type_plotter import BikeActivitySurfaceTypePlotter
 from sliding_window_train_test_data_splitter import SlidingWindowTrainTestDataSplitter
 from data_resampler import DataResampler
@@ -199,6 +200,7 @@ def main(argv):
     # Set paths
     data_path = os.path.join(script_path, "data", "data")
     raw_data_path = os.path.join(data_path, "measurements", "csv")
+    # slices_path = os.path.join(data_path, "measurements", "slices")
 
     # Set device name
     device_name = "cuda" if torch.cuda.is_available() else "cpu"

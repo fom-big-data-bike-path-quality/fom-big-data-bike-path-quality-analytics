@@ -217,7 +217,7 @@ class LstmBaseModel:
         start_time = datetime.now()
 
         # Make results path
-        os.makedirs(os.path.join(self.log_path_modelling, "split-" + str(split_index), "models"), exist_ok=True)
+        os.makedirs(os.path.join(self.log_path_modelling, "split-" + str(split_index)), exist_ok=True)
 
         self.logger.log_line("\n Split # " + str(split_index) + "/" + str(k_folds))
 
@@ -237,7 +237,7 @@ class LstmBaseModel:
         # Plot target variable distribution
         self.model_plotter.plot_split_distribution(
             logger=self.logger,
-            log_path=os.path.join(self.log_path_modelling, "split-" + str(split_index), "plots"),
+            log_path=os.path.join(self.log_path_modelling, "split-" + str(split_index)),
             train_dataframes=train_dataframes,
             validation_dataframes=validation_dataframes,
             split_index=split_index,
@@ -367,7 +367,7 @@ class LstmBaseModel:
                 validation_cohen_kappa_score_max = validation_cohen_kappa_score
                 validation_matthews_correlation_coefficient_max = validation_matthews_correlation_coefficient
                 torch.save(classifier.state_dict(),
-                           os.path.join(self.log_path_modelling, "split-" + str(split_index), "models", "model.pickle"))
+                           os.path.join(self.log_path_modelling, "split-" + str(split_index), "model.pickle"))
             else:
                 trials += 1
                 if trials >= patience and not quiet:
@@ -507,7 +507,7 @@ class LstmBaseModel:
         # Plot confusion matrix
         test_confusion_matrix_dataframe, targets, predictions = get_confusion_matrix_dataframe(classifier,
                                                                                                test_data_loader)
-        ConfusionMatrixPlotter().run(self.logger, os.path.join(self.log_path_evaluation, "plots"),
+        ConfusionMatrixPlotter().run(self.logger, os.path.join(self.log_path_evaluation),
                                      test_confusion_matrix_dataframe, clean=clean)
 
         self.logger.log_evaluation(
