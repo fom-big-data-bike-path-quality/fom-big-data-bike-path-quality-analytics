@@ -29,35 +29,49 @@ class LoggerFacade:
         if telegram or (telegram is None and self.telegram):
             TelegramLogger().log_line(self, message, images)
 
-    def log_training_start(self, device_name, training_start_time_string, clean, quiet, transient, dry_run,
+    def log_training_start(self, opts, device_name, training_start_time_string, clean, quiet, transient, dry_run,
                            skip_data_understanding, skip_validation, window_step, down_sampling_factor, model_name,
                            k_folds, k_nearest_neighbors, epochs, learning_rate, patience, slice_width, dropout,
                            lstm_hidden_dimension, lstm_layer_dimension, measurement_speed_limit, test_size,
                            random_state, telegram=None):
-        message = "Training started with parameters " + \
-                  "\n* device name " + str(device_name) + \
-                  "\n* start time " + str(training_start_time_string) + \
-                  "\n* clean " + str(clean) + \
-                  "\n* quiet " + str(quiet) + \
-                  "\n* transient " + str(transient) + \
-                  "\n* dry-run " + str(dry_run) + \
-                  "\n* skip data understanding " + str(skip_data_understanding) + \
-                  "\n* skip validation " + str(skip_validation) + \
-                  "\n* window step " + str(window_step) + \
-                  "\n* down-sampling factor " + str(down_sampling_factor) + \
-                  "\n* model name " + model_name + \
-                  "\n* k-folds " + str(k_folds) + \
-                  "\n* k-nearest-neighbors " + str(k_nearest_neighbors) + \
-                  "\n* epochs " + str(epochs) + \
-                  "\n* learning rate " + str(learning_rate) + \
-                  "\n* patience " + str(patience) + \
-                  "\n* slice width " + str(slice_width) + \
-                  "\n* dropout " + str(dropout) + \
-                  "\n* lstm-hidden-dimension " + str(lstm_hidden_dimension) + \
-                  "\n* lstm-layer-dimension " + str(lstm_layer_dimension) + \
-                  "\n* measurement speed limit " + str(measurement_speed_limit) + \
-                  "\n* test size " + str(test_size) + \
-                  "\n* random state " + str(random_state)
+        message = f"Training started with parameters " + \
+                  f"\n* device name {str(device_name)}" + \
+                  f"\n* start time {str(training_start_time_string)}" + \
+                  f"\n* clean {str(clean)}" + \
+                  f"\n* quiet {str(quiet)}" + \
+                  f"\n* transient {str(transient)}" + \
+                  f"\n* dry-run {str(dry_run)}" + \
+                  f"\n* skip data understanding {str(skip_data_understanding)}" + \
+                  f"\n* skip validation {str(skip_validation)}" + \
+                  f"\n* slice width {str(slice_width)}" + \
+                  f"\n* window step {str(window_step)}" + \
+                  f"\n* down-sampling factor {str(down_sampling_factor)}" + \
+                  f"\n* measurement speed limit {str(measurement_speed_limit)}" + \
+                  f"\n* test size {str(test_size)}" + \
+                  f"\n* random state {str(random_state)}"
+
+        if model_name == "knn-dtw":
+            message += f"\n* model name {model_name}" + \
+                       f"\n* k-folds {str(k_folds)}" + \
+                       f"\n* k-nearest-neighbors {str(k_nearest_neighbors)}"
+        if model_name == "lstm":
+            message += f"\n* model name {model_name}" + \
+                       f"\n* epochs {str(epochs)}" + \
+                       f"\n* learning rate {str(learning_rate)}" + \
+                       f"\n* patience {str(patience)}" + \
+                       f"\n* dropout {str(dropout)}" + \
+                       f"\n* lstm-hidden-dimension {str(lstm_hidden_dimension)}" + \
+                       f"\n* lstm-layer-dimension {str(lstm_layer_dimension)}"
+        if model_name == "cnn":
+            message += f"\n* model name {model_name}" + \
+                       f"\n* epochs {str(epochs)}" + \
+                       f"\n* learning rate {str(learning_rate)}" + \
+                       f"\n* patience {str(patience)}" + \
+                       f"\n* dropout {str(dropout)}"
+
+        message += "\n\npython main.py"
+        for opt, arg in opts:
+            message += f" {opt} {arg}"
 
         self.log_line(message=message, telegram=telegram)
 
@@ -67,14 +81,14 @@ class LoggerFacade:
         percentage = round(len(resampled_train_dataframes) / len(train_dataframes), 2) * 100
 
         if len(train_dataframes) == len(resampled_train_dataframes):
-            message = "Modelling started with " + model_name + \
-                      "\n* train dataframes " + str(len(train_dataframes)) + \
-                      "\n* test dataframes " + str(len(test_dataframes))
+            message = f"Modelling started with {model_name}" + \
+                      f"\n* train dataframes {str(len(train_dataframes))}" + \
+                      f"\n* test dataframes {str(len(test_dataframes))}"
         else:
-            message = "Modelling started with " + model_name + \
-                      "\n* train dataframes " + str(len(train_dataframes)) + " down-sampled to " + \
-                      str(len(resampled_train_dataframes)) + " (" + str(percentage) + "%)" + \
-                      "\n* test dataframes " + str(len(test_dataframes))
+            message = f"Modelling started with {model_name}" + \
+                      f"\n* train dataframes {str(len(train_dataframes))} down-sampled to " + \
+                      f"{str(len(resampled_train_dataframes))} (" + str(percentage) + "%)" + \
+                      f"\n* test dataframes {str(len(test_dataframes))}"
 
         self.log_line(message=message, telegram=telegram)
 
@@ -82,29 +96,29 @@ class LoggerFacade:
                   cohen_kappa_score, matthews_correlation_coefficient, telegram=None):
 
         if epochs is None:
-            message = get_split_emoji(k_split) + " Split " + str(k_split) + "/" + str(k_folds) + \
-                  " finished in " + time_elapsed + " with validation metrics" + \
-                  "\n* accuracy " + str(accuracy) + \
-                  "\n* precision " + str(precision) + \
-                  "\n* recall " + str(recall) + \
-                  "\n* f1 score " + str(f1_score) + \
-                  "\n* cohen's kappa score " + str(cohen_kappa_score) + \
-                  "\n* matthews correlation coefficient " + str(matthews_correlation_coefficient)
+            message = f"{get_split_emoji(k_split)} Split {str(k_split)}/{str(k_folds)}" + \
+                      f" finished in {time_elapsed} with validation metrics" + \
+                      f"\n* accuracy {str(accuracy)}" + \
+                      f"\n* precision {str(precision)}" + \
+                      f"\n* recall {str(recall)}" + \
+                      f"\n* f1 score {str(f1_score)}" + \
+                      f"\n* cohen's kappa score {str(cohen_kappa_score)}" + \
+                      f"\n* matthews correlation coefficient {str(matthews_correlation_coefficient)}"
         else:
-            message = get_split_emoji(k_split) + " Split " + str(k_split) + "/" + str(k_folds) + \
-                      " finished after " + str(epochs) + " epochs in " + time_elapsed + " with validation metrics" + \
-                      "\n* accuracy " + str(accuracy) + \
-                      "\n* precision " + str(precision) + \
-                      "\n* recall " + str(recall) + \
-                      "\n* f1 score " + str(f1_score) + \
-                      "\n* cohen's kappa score " + str(cohen_kappa_score) + \
-                      "\n* matthews correlation coefficient " + str(matthews_correlation_coefficient)
+            message = f"{get_split_emoji(k_split)} Split {str(k_split)}/{str(k_folds)}" + \
+                      f" finished after {str(epochs)} epochs in {time_elapsed} with validation metrics" + \
+                      f"\n* accuracy {str(accuracy)}" + \
+                      f"\n* precision {str(precision)}" + \
+                      f"\n* recall {str(recall)}" + \
+                      f"\n* f1 score {str(f1_score)}" + \
+                      f"\n* cohen's kappa score {str(cohen_kappa_score)}" + \
+                      f"\n* matthews correlation coefficient {str(matthews_correlation_coefficient)}"
 
         self.log_line(message=message, telegram=telegram)
 
     def log_validation(self, time_elapsed, log_path_modelling, telegram=None):
 
-        message = "🍱 Validation finished in " + time_elapsed
+        message = f"🍱 Validation finished in {time_elapsed}"
 
         file_path = os.path.join(log_path_modelling, "plots", "overall-f1-score.png")
         if os.path.exists(file_path):
@@ -123,13 +137,13 @@ class LoggerFacade:
     def log_evaluation(self, time_elapsed, log_path_evaluation, test_accuracy, test_precision, test_recall,
                        test_f1_score, test_cohen_kappa_score, test_matthews_correlation_coefficient, telegram=None):
 
-        message = "Evaluation finished after in " + time_elapsed + " with" + \
-                  "\n* accuracy " + str(round(test_accuracy, 2)) + \
-                  "\n* precision " + str(round(test_precision, 2)) + \
-                  "\n* recall " + str(round(test_recall, 2)) + \
-                  "\n* f1 score " + str(round(test_f1_score, 2)) + \
-                  "\n* cohen's kappa score " + str(round(test_cohen_kappa_score, 2)) + \
-                  "\n* matthews correlation coefficient " + str(round(test_matthews_correlation_coefficient, 2))
+        message = f"Evaluation finished after in {time_elapsed} with" + \
+                  f"\n* accuracy {str(round(test_accuracy, 2))}" + \
+                  f"\n* precision {str(round(test_precision, 2))}" + \
+                  f"\n* recall {str(round(test_recall, 2))}" + \
+                  f"\n* f1 score {str(round(test_f1_score, 2))}" + \
+                  f"\n* cohen's kappa score {str(round(test_cohen_kappa_score, 2))}" + \
+                  f"\n* matthews correlation coefficient {str(round(test_matthews_correlation_coefficient, 2))}"
 
         file_path = os.path.join(log_path_evaluation, "plots", "confusion_matrix.png")
         if os.path.exists(file_path):
@@ -138,6 +152,6 @@ class LoggerFacade:
 
     def log_training_end(self, time_elapsed, telegram=None):
 
-        message = "Training finished in " + time_elapsed
+        message = f"Training finished in {time_elapsed}"
 
         self.log_line(message=message, telegram=telegram)

@@ -68,27 +68,25 @@ def main(argv):
 
     limit = None
 
-    window_step = 50
     slice_width = 500
+    window_step = 50
 
+    measurement_speed_limit = 5.0
     down_sampling_factor = 1.5
+    test_size: float = 0.2
+    random_state = 0
 
     model_name = None
     k_folds = 10
     k_nearest_neighbors = 10
     subsample_step = 1
     max_warping_window = 500
-    epochs = 10_000
+    epochs = 5_000
     learning_rate: float = 0.001
     patience = 500
     dropout = 0.5
     lstm_hidden_dimension = 128
     lstm_layer_dimension = 3
-
-    measurement_speed_limit = 5.0
-
-    test_size: float = 0.2
-    random_state = 0
 
     gcp_project_id = "bike-path-quality-339900"
     gcp_bucket_name = "bike-path-quality-training-results"
@@ -201,8 +199,6 @@ def main(argv):
     # Set paths
     data_path = os.path.join(script_path, "data", "data")
     raw_data_path = os.path.join(data_path, "measurements", "csv")
-    slices_path = os.path.join(data_path, "measurements", "slices",
-                               "width" + str(slice_width) + "_step" + str(window_step))
 
     # Set device name
     device_name = "cuda" if torch.cuda.is_available() else "cpu"
@@ -223,6 +219,7 @@ def main(argv):
     logger = LoggerFacade(log_path, console=True, file=True)
 
     logger.log_training_start(
+        opts=opts,
         device_name=device_name,
         training_start_time_string=training_start_time_string,
         clean=clean,
@@ -232,8 +229,13 @@ def main(argv):
         skip_data_understanding=skip_data_understanding,
         skip_validation=skip_validation,
 
+        slice_width=slice_width,
         window_step=window_step,
+
         down_sampling_factor=down_sampling_factor,
+        measurement_speed_limit=measurement_speed_limit,
+        test_size=test_size,
+        random_state=random_state,
 
         model_name=model_name,
         k_folds=k_folds,
@@ -241,14 +243,10 @@ def main(argv):
         epochs=epochs,
         learning_rate=learning_rate,
         patience=patience,
-        slice_width=slice_width,
+
         dropout=dropout,
         lstm_hidden_dimension=lstm_hidden_dimension,
         lstm_layer_dimension=lstm_layer_dimension,
-
-        measurement_speed_limit=measurement_speed_limit,
-        test_size=test_size,
-        random_state=random_state,
 
         telegram=not quiet and not dry_run
     )
