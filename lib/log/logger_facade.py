@@ -120,7 +120,7 @@ class LoggerFacade:
 
         message = f"🍱 Validation finished in {time_elapsed}"
 
-        file_path = os.path.join(log_path_modelling, "plots", "overall-f1-score.png")
+        file_path = os.path.join(log_path_modelling, "overall-f1-score.png")
         if os.path.exists(file_path):
             with open(file_path, "rb") as f1_score_file:
                 self.log_line(message=message, images=[f1_score_file], telegram=telegram)
@@ -154,7 +154,7 @@ class LoggerFacade:
                   f"\n* cohen's kappa score {str(round(test_cohen_kappa_score, 2))}" + \
                   f"\n* matthews correlation coefficient {str(round(test_matthews_correlation_coefficient, 2))}"
 
-        file_path = os.path.join(log_path_evaluation, "plots", "confusion_matrix.png")
+        file_path = os.path.join(log_path_evaluation, "confusion_matrix.png")
         if os.path.exists(file_path):
             with open(file_path, "rb") as confusion_matrix_file:
                 self.log_line(message=message, images=[confusion_matrix_file], telegram=telegram)
@@ -170,7 +170,7 @@ class LoggerFacade:
                   f"\n* cohen's kappa score {str(round(test_cohen_kappa_score, 2))}" + \
                   f"\n* matthews correlation coefficient {str(round(test_matthews_correlation_coefficient, 2))}"
 
-        file_path = os.path.join(log_path_evaluation, "plots", "confusion_matrix.png")
+        file_path = os.path.join(log_path_evaluation, "confusion_matrix.png")
         if os.path.exists(file_path):
             with open(file_path, "rb") as confusion_matrix_file:
                 self.log_line(message=message, images=[confusion_matrix_file], telegram=telegram)

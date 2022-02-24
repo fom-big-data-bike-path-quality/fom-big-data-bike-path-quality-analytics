@@ -268,7 +268,7 @@ def main(argv):
         BikeActivityPlotter().run(
             logger=logger,
             data_path=os.path.join(data_path, "measurements", "csv"),
-            results_path=os.path.join(log_path_data_understanding, "plots", "bike-activity"),
+            results_path=os.path.join(log_path_data_understanding, "bike-activity"),
             xlabel="time",
             ylabel="acceleration [m/sˆ2]/ speed [km/h]",
             clean=clean,
@@ -278,7 +278,7 @@ def main(argv):
         # BikeActivitySlicePlotter().run(
         #     logger=logger,
         #     data_path=slices_path,
-        #     results_path=os.path.join(log_path_data_understanding, "plots", "bike-activity-sample"),
+        #     results_path=os.path.join(log_path_data_understanding, "bike-activity-sample"),
         #     xlabel="time",
         #     ylabel="acceleration [m/sˆ2]/ speed [km/h]",
         #     clean=clean,
