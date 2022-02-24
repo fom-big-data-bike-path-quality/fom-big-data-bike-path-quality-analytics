@@ -541,7 +541,7 @@ class CnnBaseModel:
         # Define classifier
         classifier = CnnClassifier(input_channels=1, num_classes=num_classes, linear_channels=linear_channels).to(
             device)
-        classifier.load_state_dict(torch.load(os.path.join(self.log_path_modelling, "model.pickle")))
+        classifier.load_state_dict(torch.load(os.path.join(self.log_path_modelling, model_name)))
         classifier.eval()
 
         # Plot confusion matrix
