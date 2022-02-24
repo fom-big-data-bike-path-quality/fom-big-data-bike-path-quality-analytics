@@ -120,10 +120,10 @@ class LoggerFacade:
 
         message = f"🍱 Validation finished in {time_elapsed}"
 
-        file_path = os.path.join(log_path_modelling, "overall-f1-score.png")
+        file_path = os.path.join(log_path_modelling, "overall-matthew-correlation-coefficient-score.png")
         if os.path.exists(file_path):
-            with open(file_path, "rb") as f1_score_file:
-                self.log_line(message=message, images=[f1_score_file], telegram=telegram)
+            with open(file_path, "rb") as mcc_score_file:
+                self.log_line(message=message, images=[mcc_score_file], telegram=telegram)
 
     def log_intermediate(self, time_elapsed, epochs, telegram=None):
 
