@@ -41,12 +41,28 @@ class ModelPreparator:
             num_workers=num_workers
         )
 
-    def get_linear_channels(self, slice_width):
+    def get_kernel_size(self, slice_width):
         if slice_width <= 250:
+            return 6
+        else:
+            return 8
+
+    def get_linear_channels(self, slice_width):
+        if slice_width == 100:
+            return 256
+        elif slice_width == 200:
+            return 512
+        elif slice_width == 250:
             return 256
         elif slice_width == 300:
             return 512
-        elif slice_width >= 350:
+        elif slice_width == 350:
+            return 768
+        elif slice_width == 375:
+            return 512
+        elif slice_width == 400:
+            return 768
+        elif slice_width == 500:
             return 768
         else:
             return 256

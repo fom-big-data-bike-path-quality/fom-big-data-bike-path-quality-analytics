@@ -238,12 +238,15 @@ class CnnBaseModel:
             quiet=quiet
         )
 
+        # Determine kernel size based on slice width
+        kernel_size = self.model_preparator.get_kernel_size(slice_width)
+
         # Determine number of linear channels based on slice width
         linear_channels = self.model_preparator.get_linear_channels(slice_width)
 
         # Define classifier
-        classifier = CnnClassifier(input_channels=1, num_classes=num_classes, linear_channels=linear_channels,
-                                   dropout=dropout).to(device)
+        classifier = CnnClassifier(input_channels=1, kernel_size=kernel_size, num_classes=num_classes,
+                                   linear_channels=linear_channels, dropout=dropout).to(device)
         criterion = nn.CrossEntropyLoss(reduction='sum')
         optimizer = optim.Adam(classifier.parameters(), lr=learning_rate)
 

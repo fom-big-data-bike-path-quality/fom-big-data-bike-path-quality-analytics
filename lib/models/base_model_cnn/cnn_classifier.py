@@ -4,14 +4,14 @@ from torch import nn
 
 
 class CnnClassifier(nn.Module):
-    def __init__(self, input_channels, num_classes, linear_channels, dropout=0.5):
+    def __init__(self, input_channels, kernel_size, num_classes, linear_channels, dropout=0.5):
         super().__init__()
 
         self.layers = nn.Sequential(
-            SeparatorConv1d(input_channels, 32, 8, 2, 3, dropout=dropout),
-            SeparatorConv1d(32, 64, 8, 4, 2, dropout=dropout),
-            SeparatorConv1d(64, 128, 8, 4, 2, dropout=dropout),
-            SeparatorConv1d(128, 256, 8, 4, 2),
+            SeparatorConv1d(input_channels, 32, kernel_size, 2, 3, dropout=dropout),
+            SeparatorConv1d(32, 64, kernel_size, 4, 2, dropout=dropout),
+            SeparatorConv1d(64, 128, kernel_size, 4, 2, dropout=dropout),
+            SeparatorConv1d(128, 256, kernel_size, 4, 2),
 
             Flatten(),
             nn.Dropout(dropout),
