@@ -200,7 +200,7 @@ def main(argv):
     # Set paths
     data_path = os.path.join(script_path, "data", "data")
     raw_data_path = os.path.join(data_path, "measurements", "csv")
-    # slices_path = os.path.join(data_path, "measurements", "slices")
+    slices_path = os.path.join(data_path, "measurements", "slices")
 
     # Set device name
     device_name = "cuda" if torch.cuda.is_available() else "cpu"
@@ -275,15 +275,15 @@ def main(argv):
             quiet=quiet
         )
 
-        # BikeActivitySlicePlotter().run(
-        #     logger=logger,
-        #     data_path=slices_path,
-        #     results_path=os.path.join(log_path_data_understanding, "bike-activity-sample"),
-        #     xlabel="time",
-        #     ylabel="acceleration [m/sˆ2]/ speed [km/h]",
-        #     clean=clean,
-        #     quiet=quiet
-        # )
+        BikeActivitySlicePlotter().run(
+            logger=logger,
+            data_path=slices_path,
+            results_path=os.path.join(log_path_data_understanding, "bike-activity-sample"),
+            xlabel="time",
+            ylabel="acceleration [m/sˆ2]/ speed [km/h]",
+            clean=clean,
+            quiet=quiet
+        )
 
     #
     # Data Preparation

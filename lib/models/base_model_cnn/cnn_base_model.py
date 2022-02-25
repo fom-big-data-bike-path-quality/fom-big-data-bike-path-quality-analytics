@@ -429,12 +429,15 @@ class CnnBaseModel:
         train_dataset = self.model_preparator.create_dataset(train_array)
         train_data_loader = self.model_preparator.create_loader(train_dataset, shuffle=False)
 
+        # Determine kernel size based on slice width
+        kernel_size = self.model_preparator.get_kernel_size(self.slice_width)
+
         # Determine number of linear channels based on slice width
         linear_channels = self.model_preparator.get_linear_channels(self.slice_width)
 
         # Define classifier
-        classifier = CnnClassifier(input_channels=1, num_classes=num_classes, linear_channels=linear_channels,
-                                   dropout=self.dropout).to(device)
+        classifier = CnnClassifier(input_channels=1, kernel_size=kernel_size, num_classes=num_classes,
+                                   linear_channels=linear_channels, dropout=self.dropout).to(device)
         criterion = nn.CrossEntropyLoss(reduction='sum')
         optimizer = optim.Adam(classifier.parameters(), lr=self.learning_rate)
 
@@ -538,12 +541,15 @@ class CnnBaseModel:
 
     def evaluate_confusion_matrix(self, test_data_loader, model_name, confusion_matrix_name, clean):
 
+        # Determine kernel size based on slice width
+        kernel_size = self.model_preparator.get_kernel_size(self.slice_width)
+
         # Determine number of linear channels based on slice width
         linear_channels = self.model_preparator.get_linear_channels(self.slice_width)
 
         # Define classifier
-        classifier = CnnClassifier(input_channels=1, num_classes=num_classes, linear_channels=linear_channels).to(
-            device)
+        classifier = CnnClassifier(input_channels=1, kernel_size=kernel_size, num_classes=num_classes,
+                                   linear_channels=linear_channels, dropout=self.dropout).to(device)
         classifier.load_state_dict(torch.load(os.path.join(self.log_path_modelling, model_name)))
         classifier.eval()
 
