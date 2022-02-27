@@ -278,7 +278,7 @@ class KnnDtwBaseModel:
                 f1_score=round(validation_f1_score, 2),
                 cohen_kappa_score=round(validation_cohen_kappa_score, 2),
                 matthews_correlation_coefficient=round(validation_matthews_correlation_coefficient, 2),
-                telegram=not quiet and not dry_run
+                telegram=not quiet and not dry_run and k == 1
             )
 
             validation_k_list.append(k)
@@ -385,7 +385,7 @@ class KnnDtwBaseModel:
                 test_f1_score=test_f1_score,
                 test_cohen_kappa_score=test_cohen_kappa_score,
                 test_matthews_correlation_coefficient=test_matthews_correlation_coefficient,
-                telegram=not quiet and not dry_run,
+                telegram=not quiet and not dry_run and k == 1,
                 confusion_matrix_file_name=f"confusion_matrix_k{str(k)}",
             )
 
