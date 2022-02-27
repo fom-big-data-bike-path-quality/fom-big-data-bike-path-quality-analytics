@@ -117,34 +117,40 @@ def main(argv):
         if opt in ("-h", "--help"):
             print("python main.py [OPTION]...")
             print("")
-            print("--help                                             show this help")
-            print("--clean                                            clean intermediate results before start")
-            print("--quiet                                            do not log outputs")
-            print("--transient                                        do not store results")
-            print("--dry-run                                          " +
+            print("-h, --help                                         show this help")
+            print("-c, --clean                                        clean intermediate results before start")
+            print("-q, --quiet                                        do not log outputs")
+            print("-t, --transient                                    do not store results")
+            print("-d, --dry-run                                      " +
                   "only run a limited training to make sure syntax is correct")
+            print("")
             print("--skip-data-understanding                          skip data understanding")
             print("--skip-validation                                  skip validation")
-            print("--slice-width <slice-width>                        number of measurements per slice")
-            print("--window-step <window-step>                        step size used for sliding window data splitter")
+            print("")
+            print("-s, --slice-width <slice-width>                    number of measurements per slice")
+            print("-w, --window-step <window-step>                    step size used for sliding window data splitter")
             print("--down-sampling-factor <down-sampling-factor>      " +
                   "factor by which target classes are capped in comparison to smallest class")
-            print("--model <model>                                    name of the model to use for training")
-            print("--k-folds <k-folds>                                number of k-folds")
-            print("--k-nearest-neighbors <k-nearest-neighbors>        " +
+            print("-m, --model <model>                                name of the model to use for training")
+            print("-f, --k-folds <k-folds>                            number of k-folds")
+            print("")
+            print("-k, --k-nearest-neighbors <k-nearest-neighbors>    " +
                   "number of nearest neighbors to consider in kNN approach")
             print("--dtw-subsample-step <dtw-subsample-step>          subsample steps for DTW")
             print("--dtw-max-warping-window <dtw-max-warping-window>  max warping window for DTW")
-            print("--epochs <epochs>                                  number of epochs")
-            print("--patience <patience>                              " +
+            print("")
+            print("-e, --epochs <epochs>                              number of epochs")
+            print("-p, --patience <patience>                          " +
                   "number of epochs to wait for improvements before finishing training")
-            print("--learning-rate <learning-rate>                    learning rate")
+            print("-l, --learning-rate <learning-rate>                learning rate")
             print("--dropout <dropout>                                dropout percentage")
             print("--lstm-hidden-dimension <lstm-hidden-dimension>    hidden dimensions in LSTM")
             print("--lstm-layer-dimension <lstm-layer-dimension>      layer dimensions in LSTM")
             print("")
             print("Examples:")
-            print("  python main.py -c -m cnn -e 3000 -l 0.001")
+            print("  python main.py -c -m knn-dtw -k 10")
+            print("  python main.py -c -m lstm -s 500 -w 500 --lstm-hidden-dimension 128 --lstm-layer-dimension 3")
+            print("  python main.py -c -m cnn -s 500 -w 500 ")
             sys.exit()
         elif opt in ("-c", "--clean"):
             clean = True

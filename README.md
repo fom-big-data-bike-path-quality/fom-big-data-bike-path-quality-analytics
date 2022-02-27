@@ -60,39 +60,36 @@ Run this command to start the main script.
 ```shell script
 python main.py [OPTION]...
 
---help                                             show this help
---clean                                            clean intermediate results before start
---quiet                                            do not log outputs
---transient                                        do not store results
---dry-run                                          only run a limited training to make sure syntax is correct
+-h, --help                                         show this help
+-c, --clean                                        clean intermediate results before start
+-q, --quiet                                        do not log outputs
+-t, --transient                                    do not store results
+-d, --dry-run                                      only run a limited training to make sure syntax is correct
 
 --skip-data-understanding                          skip data understanding
 --skip-validation                                  skip validation
 
---window-step <window-step>                        step size used for sliding window data splitter
+-s, --slice-width <slice-width>                    number of measurements per slice
+-w, --window-step <window-step>                    step size used for sliding window data splitter
 --down-sampling-factor <down-sampling-factor>      factor by which target classes are capped in comparison to smallest class
---model <model>                                    name of the model to use for training
---k-folds <k-folds>                                number of k-folds
+-m, --model <model>                                name of the model to use for training
+-f, --k-folds <k-folds>                            number of k-folds
 
---k-nearest-neighbors <k-nearest-neighbors>        number of nearest neighbors to consider in kNN approach
+-k, --k-nearest-neighbors <k-nearest-neighbors>    number of nearest neighbors to consider in kNN approach
 --dtw-subsample-step <dtw-subsample-step>          subsample steps for DTW
 --dtw-max-warping-window <dtw-max-warping-window>  max warping window for DTW
 
---epochs <epochs>                                  number of epochs
---learning-rate <learning-rate>                    learning rate
---patience <patience>                              number of epochs to wait for improvements before finishing training
---slice-width <slice-width>                        number of measurements per slice
+-e, --epochs <epochs>                              number of epochs
+-p, --patience <patience>                          number of epochs to wait for improvements before finishing training
+-l, --learning-rate <learning-rate>                learning rate
 --dropout <dropout>                                dropout percentage
 --lstm-hidden-dimension <lstm-hidden-dimension>    hidden dimensions in LSTM
 --lstm-layer-dimension <lstm-layer-dimension>      layer dimensions in LSTM
 
 Examples:
-  python main.py -c -m cnn -e 3000 -l 0.001 
-```
-
-An example to run the kNN model is
-```
-python main.py --clean --model=knn-dtw --k-nearest-neighbors=10 --dtw-subsample-step=1 --dtw-max-warping-window=500
+  python main.py -c -m knn-dtw -k 10 --dtw-subsample-step=1 --dtw-max-warping-window=500
+  python main.py -c -m lstm -s 500 -w 500 --lstm-hidden-dimension 128 --lstm-layer-dimension 3
+  python main.py -c -m cnn -s 500 -w 500
 ```
 
 ## Roadmap
