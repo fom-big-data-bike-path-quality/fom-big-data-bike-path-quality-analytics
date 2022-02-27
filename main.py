@@ -70,7 +70,7 @@ def main(argv):
     limit = None
 
     slice_width = 500
-    window_step = 50
+    window_step = 500
 
     measurement_speed_limit = 5.0
     down_sampling_factor = 1.5
