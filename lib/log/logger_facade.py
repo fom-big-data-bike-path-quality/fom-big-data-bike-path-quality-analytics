@@ -160,7 +160,8 @@ class LoggerFacade:
                 self.log_line(message=message, images=[confusion_matrix_file], telegram=telegram)
 
     def log_evaluation(self, time_elapsed, log_path_evaluation, test_accuracy, test_precision, test_recall,
-                       test_f1_score, test_cohen_kappa_score, test_matthews_correlation_coefficient, telegram=None):
+                       test_f1_score, test_cohen_kappa_score, test_matthews_correlation_coefficient, telegram=None,
+                       confusion_matrix_file_name="confusion_matrix"):
 
         message = f"Evaluation finished in {time_elapsed} with" + \
                   f"\n* accuracy {str(round(test_accuracy, 2))}" + \
@@ -170,7 +171,7 @@ class LoggerFacade:
                   f"\n* cohen's kappa score {str(round(test_cohen_kappa_score, 2))}" + \
                   f"\n* matthews correlation coefficient {str(round(test_matthews_correlation_coefficient, 2))}"
 
-        file_path = os.path.join(log_path_evaluation, "confusion_matrix.png")
+        file_path = os.path.join(log_path_evaluation, f"{confusion_matrix_file_name}.png")
         if os.path.exists(file_path):
             with open(file_path, "rb") as confusion_matrix_file:
                 self.log_line(message=message, images=[confusion_matrix_file], telegram=telegram)

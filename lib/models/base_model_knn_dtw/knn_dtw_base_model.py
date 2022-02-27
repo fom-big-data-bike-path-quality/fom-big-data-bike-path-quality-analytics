@@ -372,7 +372,7 @@ class KnnDtwBaseModel:
                 logger=self.logger,
                 results_path=os.path.join(self.log_path_evaluation),
                 confusion_matrix_dataframe=test_confusion_matrix_dataframe,
-                file_name="confusion_matrix_k" + str(k),
+                file_name=f"confusion_matrix_k{str(k)}",
                 clean=clean
             )
 
@@ -385,7 +385,8 @@ class KnnDtwBaseModel:
                 test_f1_score=test_f1_score,
                 test_cohen_kappa_score=test_cohen_kappa_score,
                 test_matthews_correlation_coefficient=test_matthews_correlation_coefficient,
-                telegram=not quiet and not dry_run
+                telegram=not quiet and not dry_run,
+                confusion_matrix_file_name=f"confusion_matrix_k{str(k)}",
             )
 
             test_k_list.append(k)
