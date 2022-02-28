@@ -1,12 +1,14 @@
 import inspect
 import math
-from tqdm import tqdm
+
 import pandas as pd
-from label_encoder import LabelEncoder
+from tqdm import tqdm
 from tracking_decorator import TrackingDecorator
 
+from label_encoder import LabelEncoder
 
-def getAccelerometer(row):
+
+def get_accelerometer(row):
     """
     Calculates root mean square of accelerometer value components
     """
@@ -24,8 +26,10 @@ def label_encoding(row):
 
     return LabelEncoder().label_to_index(bike_activity_surface_type)
 
+
 def reverse_label_encoding(index):
     return LabelEncoder().classes[index]
+
 
 #
 # Main
@@ -41,7 +45,8 @@ class DataTransformer:
         progress_bar = tqdm(iterable=copied_dataframes.items(), unit="dataframe", desc="Transform dataframes")
         for name, dataframe in progress_bar:
 
-            dataframe["bike_activity_measurement_accelerometer"] = pd.to_numeric(dataframe.apply(lambda row: getAccelerometer(row), axis=1))
+            dataframe["bike_activity_measurement_accelerometer"] = \
+                pd.to_numeric(dataframe.apply(lambda row: get_accelerometer(row), axis=1))
 
             if not skip_label_encode_surface_type:
                 dataframe["bike_activity_surface_type"] = dataframe.apply(lambda row: label_encoding(row), axis=1)

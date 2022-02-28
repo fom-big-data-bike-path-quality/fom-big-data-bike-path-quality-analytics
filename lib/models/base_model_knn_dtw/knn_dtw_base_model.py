@@ -169,7 +169,8 @@ class KnnDtwBaseModel:
             overall_validation_recall_history=overall_validation_recall_history,
             overall_validation_f1_score_history=overall_validation_f1_score_history,
             overall_validation_cohen_kappa_score_history=overall_validation_cohen_kappa_score_history,
-            overall_validation_matthews_correlation_coefficient_history=overall_validation_matthews_correlation_coefficient_history,
+            overall_validation_matthews_correlation_coefficient_history=
+            overall_validation_matthews_correlation_coefficient_history,
             quiet=quiet
         )
 
@@ -180,7 +181,8 @@ class KnnDtwBaseModel:
             overall_validation_recall_history=overall_validation_recall_history,
             overall_validation_f1_score_history=overall_validation_f1_score_history,
             overall_validation_cohen_kappa_score_history=overall_validation_cohen_kappa_score_history,
-            overall_validation_matthews_correlation_coefficient_history=overall_validation_matthews_correlation_coefficient_history,
+            overall_validation_matthews_correlation_coefficient_history=
+            overall_validation_matthews_correlation_coefficient_history,
             quiet=quiet)
 
         self.logger.log_validation(
@@ -221,7 +223,6 @@ class KnnDtwBaseModel:
             log_path=os.path.join(self.log_path_modelling, f"split-{str(split_index)}"),
             train_dataframes=train_dataframes,
             validation_dataframes=validation_dataframes,
-            split_index=split_index,
             slice_width=slice_width,
             quiet=quiet
         )

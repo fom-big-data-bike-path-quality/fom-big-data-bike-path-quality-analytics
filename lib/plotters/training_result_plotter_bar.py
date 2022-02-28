@@ -23,6 +23,7 @@ class TrainingResultPlotterBar:
     @TrackingDecorator.track_time
     def run(self, logger, data, labels, results_path, file_name, title, description, xlabel, ylabel, color="#3A6FB0",
             clean=False, quiet=False):
+
         # Make results path
         os.makedirs(results_path, exist_ok=True)
 

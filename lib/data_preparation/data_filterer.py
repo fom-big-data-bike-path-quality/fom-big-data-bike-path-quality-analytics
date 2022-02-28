@@ -24,7 +24,7 @@ class DataFilterer:
 
             # Exclude dataframes which are not tracked under lab conditions
             if not keep_unflagged_lab_conditions and (
-                    not "bike_activity_flagged_lab_conditions" in list(
+                    "bike_activity_flagged_lab_conditions" not in list(
                         dataframe.columns) or False in dataframe.bike_activity_flagged_lab_conditions.values):
                 if not quiet:
                     logger.log_line(f"✗️ Filtering out {name} (not tracked under lab conditions)", console=False,

@@ -18,7 +18,11 @@ from tracking_decorator import TrackingDecorator
 class BikeActivityPlotter:
 
     @TrackingDecorator.track_time
-    def run(self, logger, data_path, results_path, xlabel, ylabel, colors=["#3A6FB0", "#79ABD1"], clean=False, quiet=False):
+    def run(self, logger, data_path, results_path, xlabel, ylabel, colors=None, clean=False,
+            quiet=False):
+
+        if colors is None:
+            colors = ["#3A6FB0", "#79ABD1"]
 
         # Make results path
         os.makedirs(results_path, exist_ok=True)
@@ -53,12 +57,16 @@ class BikeActivityPlotter:
                     data_speed = []
 
                     for row in csv_reader:
-                        bike_activity_measurement_accelerometer_x = float(row["bike_activity_measurement_accelerometer_x"])
-                        bike_activity_measurement_accelerometer_y = float(row["bike_activity_measurement_accelerometer_y"])
-                        bike_activity_measurement_accelerometer_z = float(row["bike_activity_measurement_accelerometer_z"])
-                        bike_activity_measurement_accelerometer = math.sqrt((bike_activity_measurement_accelerometer_x ** 2
-                                                                             + bike_activity_measurement_accelerometer_y ** 2
-                                                                             + bike_activity_measurement_accelerometer_z ** 2) / 3)
+                        bike_activity_measurement_accelerometer_x = \
+                            float(row["bike_activity_measurement_accelerometer_x"])
+                        bike_activity_measurement_accelerometer_y = \
+                            float(row["bike_activity_measurement_accelerometer_y"])
+                        bike_activity_measurement_accelerometer_z = \
+                            float(row["bike_activity_measurement_accelerometer_z"])
+                        bike_activity_measurement_accelerometer = \
+                            math.sqrt((bike_activity_measurement_accelerometer_x ** 2
+                                       + bike_activity_measurement_accelerometer_y ** 2
+                                       + bike_activity_measurement_accelerometer_z ** 2) / 3)
                         bike_activity_measurement_speed = float(row["bike_activity_measurement_speed"])
 
                         data_accelerometer_x.append(bike_activity_measurement_accelerometer_x)

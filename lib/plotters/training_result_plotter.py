@@ -22,8 +22,11 @@ class TrainingResultPlotter:
 
     @TrackingDecorator.track_time
     def run(self, logger, data, labels, results_path, file_name, title, description, xlabel, ylabel,
-            colors=["#152F67", "#234F95", "#3A6FB0", "#5790C1", "#79ABD1", "#A5C8DD", "#C9DAEC"], clean=False,
+            colors=None, clean=False,
             quiet=False):
+
+        if colors is None:
+            colors = ["#152F67", "#234F95", "#3A6FB0", "#5790C1", "#79ABD1", "#A5C8DD", "#C9DAEC"]
 
         # Make results path
         os.makedirs(results_path, exist_ok=True)

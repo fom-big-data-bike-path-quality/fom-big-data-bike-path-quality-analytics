@@ -18,8 +18,11 @@ from tracking_decorator import TrackingDecorator
 class BikeActivitySlicePlotter:
 
     @TrackingDecorator.track_time
-    def run(self, logger, data_path, results_path, xlabel, ylabel, colors=["#3A6FB0", "#79ABD1"], clean=False,
+    def run(self, logger, data_path, results_path, xlabel, ylabel, colors=None, clean=False,
             quiet=False):
+
+        if colors is None:
+            colors = ["#3A6FB0", "#79ABD1"]
 
         # Make results path
         os.makedirs(results_path, exist_ok=True)
@@ -89,7 +92,8 @@ class BikeActivitySlicePlotter:
                 plt.plot(data_speed, label="speed", color=colors[1])
                 plt.legend()
 
-                plt.savefig(fname=os.path.join(results_path, bike_activity_surface_type,  f"{file_base_name}-with-speed.png"),
+                plt.savefig(fname=os.path.join(results_path, bike_activity_surface_type,
+                                               f"{file_base_name}-with-speed.png"),
                             format="png",
                             metadata={
                                 "Title": f"Bike activity sample {file_base_name}",

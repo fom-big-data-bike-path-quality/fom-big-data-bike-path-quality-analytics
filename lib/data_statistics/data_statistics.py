@@ -1,5 +1,6 @@
-from tracking_decorator import TrackingDecorator
 from label_encoder import LabelEncoder
+from tracking_decorator import TrackingDecorator
+
 
 def get_bike_activity_measurement_speed_min(slice):
     bike_activity_measurement_speed_min = None
@@ -7,7 +8,8 @@ def get_bike_activity_measurement_speed_min(slice):
     for row in slice:
         bike_activity_measurement_speed = float(row["bike_activity_measurement_speed"])
 
-        if bike_activity_measurement_speed_min == None or bike_activity_measurement_speed < bike_activity_measurement_speed_min:
+        if bike_activity_measurement_speed_min is None \
+                or bike_activity_measurement_speed < bike_activity_measurement_speed_min:
             bike_activity_measurement_speed_min = bike_activity_measurement_speed
 
     return bike_activity_measurement_speed_min

@@ -42,7 +42,8 @@ class BikeActivitySurfaceTypePlotter:
     def run(self, logger, dataframes, slice_width, results_path, file_name, title, description, xlabel,
             color="#3A6FB0", run_after_label_encoding=False, clean=False, quiet=False):
         if len(dataframes) == 0:
-            logger.log_line(f"✗️ Not plotting {file_name} because there are no dataframes to plot", console=False, file=True)
+            logger.log_line(f"✗️ Not plotting {file_name} because there are no dataframes to plot", console=False,
+                            file=True)
         else:
             # Make results path
             os.makedirs(results_path, exist_ok=True)
@@ -63,14 +64,14 @@ class BikeActivitySurfaceTypePlotter:
             if run_after_label_encoding:
                 data = list(map(get_label, data))
 
-            plt.figure(2, figsize=(14,6))
+            plt.figure(2, figsize=(14, 6))
             plt.clf()
             plt.title(title)
             plt.xlabel(xlabel)
             plt.ylabel("amount")
             plt.hist(data, rwidth=0.8)
             plt.savefig(
-                fname=os.path.join(results_path,  f"{file_name}_absolute.png"),
+                fname=os.path.join(results_path, f"{file_name}_absolute.png"),
                 format="png",
                 metadata={
                     "Title": title,
@@ -81,7 +82,7 @@ class BikeActivitySurfaceTypePlotter:
             )
             plt.close()
 
-            plt.figure(2, figsize=(14,6))
+            plt.figure(2, figsize=(14, 6))
             plt.clf()
             plt.title(title)
             plt.xlabel(xlabel)
@@ -109,9 +110,9 @@ class BikeActivitySurfaceTypePlotter:
             if not quiet:
                 logger.log_line(f"{class_name}.{function_name} plotted surface types")
 
-
     @TrackingDecorator.track_time
-    def run_bar(self, logger, data, results_path, file_name, title, description, xlabel, color="#3A6FB0", clean=False, quiet=False):
+    def run_bar(self, logger, data, results_path, file_name, title, description, xlabel, color="#3A6FB0", clean=False,
+                quiet=False):
         # Make results path
         os.makedirs(results_path, exist_ok=True)
 
@@ -121,7 +122,7 @@ class BikeActivitySurfaceTypePlotter:
             for f in files:
                 os.remove(f)
 
-        plt.figure(2, figsize=(14,6))
+        plt.figure(2, figsize=(14, 6))
         plt.clf()
         plt.title(title)
         plt.xlabel(xlabel)
@@ -139,7 +140,7 @@ class BikeActivitySurfaceTypePlotter:
         )
         plt.close()
 
-        plt.figure(2, figsize=(14,6))
+        plt.figure(2, figsize=(14, 6))
         plt.clf()
         plt.title(title)
         plt.xlabel(xlabel)

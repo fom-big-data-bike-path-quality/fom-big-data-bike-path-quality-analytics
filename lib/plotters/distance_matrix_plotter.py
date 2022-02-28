@@ -1,6 +1,6 @@
+import glob
 import inspect
 import os
-import glob
 from email.utils import formatdate
 
 import matplotlib.pyplot as plt

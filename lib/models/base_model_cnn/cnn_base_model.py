@@ -236,7 +236,6 @@ class CnnBaseModel:
             log_path=os.path.join(self.log_path_modelling, f"split-{str(split_index)}"),
             train_dataframes=train_dataframes,
             validation_dataframes=validation_dataframes,
-            split_index=split_index,
             slice_width=slice_width,
             quiet=quiet
         )
@@ -279,6 +278,7 @@ class CnnBaseModel:
 
         # Run training loop
         progress_bar = tqdm(iterable=range(1, epochs + 1), unit="epoch", desc="Train model")
+        epoch = 0
         for epoch in progress_bar:
 
             # Train model
@@ -355,7 +355,8 @@ class CnnBaseModel:
                                      f"recall {str(round(validation_recall, 2))}, "
                                      f"f1 score {str(round(validation_f1_score, 2))}, "
                                      f"cohen kappa score {str(round(validation_cohen_kappa_score, 2))}, "
-                                     f"matthew correlation coefficient {str(round(validation_matthews_correlation_coefficient, 2))}",
+                                     f"matthew correlation coefficient "
+                                     f"{str(round(validation_matthews_correlation_coefficient, 2))}",
                                      console=False, file=True)
 
             # Check if Matthews correlation coefficient score increased
@@ -542,7 +543,8 @@ class CnnBaseModel:
             telegram=not quiet and not dry_run
         )
 
-        return test_accuracy, test_precision, test_recall, test_f1_score, test_cohen_kappa_score, test_matthews_correlation_coefficient
+        return test_accuracy, test_precision, test_recall, test_f1_score, test_cohen_kappa_score, \
+               test_matthews_correlation_coefficient
 
     def evaluate_confusion_matrix(self, test_data_loader, model_name, confusion_matrix_name, clean):
 

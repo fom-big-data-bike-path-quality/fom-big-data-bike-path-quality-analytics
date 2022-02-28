@@ -68,7 +68,7 @@ class ModelPreparator:
             return 256
 
     def split_data_and_labels(self, array):
-        return array[:,1,:], array[:,0,0]
+        return array[:, 1, :], array[:, 0, 0]
 
     def create_tensor(self, dataframes, device, batch_size=128):
         array = self.create_array(dataframes)

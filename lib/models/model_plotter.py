@@ -8,9 +8,9 @@ from training_result_plotter_bar import TrainingResultPlotterBar
 class ModelPlotter:
 
     def plot_split_results(self, logger, log_path, split_labels, overall_validation_accuracy_history,
-                          overall_validation_precision_history, overall_validation_recall_history,
-                          overall_validation_f1_score_history, overall_validation_cohen_kappa_score_history,
-                          overall_validation_matthews_correlation_coefficient_history, quiet):
+                           overall_validation_precision_history, overall_validation_recall_history,
+                           overall_validation_f1_score_history, overall_validation_cohen_kappa_score_history,
+                           overall_validation_matthews_correlation_coefficient_history, quiet):
         TrainingResultPlotter().run(
             logger=logger,
             data=overall_validation_accuracy_history,
@@ -95,9 +95,9 @@ class ModelPlotter:
         )
 
     def plot_split_results_hist(self, logger, log_path, split_labels, overall_validation_accuracy_history,
-                               overall_validation_precision_history, overall_validation_recall_history,
-                               overall_validation_f1_score_history, overall_validation_cohen_kappa_score_history,
-                               overall_validation_matthews_correlation_coefficient_history, quiet):
+                                overall_validation_precision_history, overall_validation_recall_history,
+                                overall_validation_f1_score_history, overall_validation_cohen_kappa_score_history,
+                                overall_validation_matthews_correlation_coefficient_history, quiet):
         TrainingResultPlotterBar().run(
             logger=logger,
             data=overall_validation_accuracy_history,
@@ -181,8 +181,7 @@ class ModelPlotter:
             quiet=quiet
         )
 
-    def plot_split_distribution(self, logger, log_path, train_dataframes, validation_dataframes, split_index, slice_width,
-                               quiet):
+    def plot_split_distribution(self, logger, log_path, train_dataframes, validation_dataframes, slice_width, quiet):
         BikeActivitySurfaceTypePlotter().run(
             logger=logger,
             dataframes=train_dataframes,
@@ -224,7 +223,7 @@ class ModelPlotter:
             description="Loss history",
             xlabel="Epoch",
             ylabel="Loss",
-            colors = ["#3A6FB0", "#79ABD1"],
+            colors=["#3A6FB0", "#79ABD1"],
             clean=True,
             quiet=quiet
         )
@@ -239,7 +238,7 @@ class ModelPlotter:
             description="Accuracy history",
             xlabel="Epoch",
             ylabel="Accuracy",
-            colors = ["#3A6FB0", "#79ABD1"],
+            colors=["#3A6FB0", "#79ABD1"],
             clean=True,
             quiet=quiet
         )
