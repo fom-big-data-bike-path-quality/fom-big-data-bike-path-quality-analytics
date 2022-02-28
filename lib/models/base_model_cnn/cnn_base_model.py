@@ -140,7 +140,7 @@ class CnnBaseModel:
         for train_ids, validation_ids in kf.split(ids):
             # Increment split index
             split_index += 1
-            split_labels.append("Split " + str(split_index))
+            split_labels.append(f"Split {str(split_index)}")
 
             # Validate split
             validation_accuracy_history, validation_precision_history, validation_recall_history, \
@@ -211,9 +211,9 @@ class CnnBaseModel:
         start_time = datetime.now()
 
         # Make results path
-        os.makedirs(os.path.join(self.log_path_modelling, "split-" + str(split_index)), exist_ok=True)
+        os.makedirs(os.path.join(self.log_path_modelling, f"split-{str(split_index)}"), exist_ok=True)
 
-        self.logger.log_line("\n Split # " + str(split_index) + "/" + str(k_folds))
+        self.logger.log_line(f"\n Split # {str(split_index)}/{str(k_folds)}")
 
         train_dataframes = {id: list(dataframes.values())[id] for id in train_ids}
         validation_dataframes = {id: list(dataframes.values())[id] for id in validation_ids}
@@ -233,7 +233,7 @@ class CnnBaseModel:
         # Plot target variable distribution
         self.model_plotter.plot_split_distribution(
             logger=self.logger,
-            log_path=os.path.join(self.log_path_modelling, "split-" + str(split_index)),
+            log_path=os.path.join(self.log_path_modelling, f"split-{str(split_index)}"),
             train_dataframes=train_dataframes,
             validation_dataframes=validation_dataframes,
             split_index=split_index,
@@ -347,16 +347,15 @@ class CnnBaseModel:
             validation_matthews_correlation_coefficient_history.append(validation_matthews_correlation_coefficient)
 
             if not quiet:
-                self.logger.log_line("Split " + str(split_index) + " " +
-                                     "epoch " + str(epoch) + " " +
-                                     "loss " + str(round(train_epoch_loss, 4)).ljust(4, '0') + ", " +
-                                     "accuracy " + str(round(validation_accuracy, 2)) + ", " +
-                                     "precision " + str(round(validation_precision, 2)) + ", " +
-                                     "recall " + str(round(validation_recall, 2)) + ", " +
-                                     "f1 score " + str(round(validation_f1_score, 2)) + ", " +
-                                     "cohen kappa score " + str(round(validation_cohen_kappa_score, 2)) + ", " +
-                                     "matthew correlation coefficient " + str(
-                    round(validation_matthews_correlation_coefficient, 2)),
+                self.logger.log_line(f"Split {str(split_index)} "
+                                     f"epoch {str(epoch)}, "
+                                     f"loss {str(round(train_epoch_loss, 4)).ljust(4, '0')}, "
+                                     f"accuracy {str(round(validation_accuracy, 2))}, "
+                                     f"precision {str(round(validation_precision, 2))}, "
+                                     f"recall {str(round(validation_recall, 2))}, "
+                                     f"f1 score {str(round(validation_f1_score, 2))}, "
+                                     f"cohen kappa score {str(round(validation_cohen_kappa_score, 2))}, "
+                                     f"matthew correlation coefficient {str(round(validation_matthews_correlation_coefficient, 2))}",
                                      console=False, file=True)
 
             # Check if Matthews correlation coefficient score increased
@@ -369,15 +368,15 @@ class CnnBaseModel:
                 validation_cohen_kappa_score_max = validation_cohen_kappa_score
                 validation_matthews_correlation_coefficient_max = validation_matthews_correlation_coefficient
                 torch.save(classifier.state_dict(),
-                           os.path.join(self.log_path_modelling, "split-" + str(split_index), "model.pickle"))
+                           os.path.join(self.log_path_modelling, f"split-{str(split_index)}", "model.pickle"))
             else:
                 trials += 1
                 if trials >= patience and not quiet:
-                    self.logger.log_line("\nNo further improvement after epoch " + str(epoch))
+                    self.logger.log_line(f"\nNo further improvement after epoch {str(epoch)}")
                     break
 
             if epoch >= epochs:
-                self.logger.log_line("\nLast epoch reached")
+                self.logger.log_line(f"\nLast epoch reached")
                 break
 
         progress_bar.close()
@@ -474,7 +473,7 @@ class CnnBaseModel:
                 )
 
             if not quiet:
-                self.logger.log_line("Epoch " + str(epoch) + " loss " + str(round(train_epoch_loss, 4)).ljust(4, '0'),
+                self.logger.log_line(f"Epoch {str(epoch)} loss {str(round(train_epoch_loss, 4)).ljust(4, '0')}",
                                      console=False, file=True)
 
         progress_bar.close()

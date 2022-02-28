@@ -134,7 +134,7 @@ class KnnDtwBaseModel:
         for train_ids, validation_ids in kf.split(ids):
             # Increment split index
             split_index += 1
-            split_labels.append("Split " + str(split_index))
+            split_labels.append(f"Split {str(split_index)}")
 
             # Validate split
             k, validation_accuracy, validation_precision, validation_recall, validation_f1_score, \
@@ -200,9 +200,9 @@ class KnnDtwBaseModel:
         start_time = datetime.now()
 
         # Make results path
-        os.makedirs(os.path.join(self.log_path_modelling, "split-" + str(split_index)), exist_ok=True)
+        os.makedirs(os.path.join(self.log_path_modelling, f"split-{str(split_index)}"), exist_ok=True)
 
-        self.logger.log_line("\n Split # " + str(split_index) + "/" + str(k_folds))
+        self.logger.log_line(f"\n Split # {str(split_index)}/{str(k_folds)}")
 
         train_dataframes = {id: list(dataframes.values())[id] for id in train_ids}
         validation_dataframes = {id: list(dataframes.values())[id] for id in validation_ids}
@@ -218,7 +218,7 @@ class KnnDtwBaseModel:
         # Plot target variable distribution
         self.model_plotter.plot_split_distribution(
             logger=self.logger,
-            log_path=os.path.join(self.log_path_modelling, "split-" + str(split_index)),
+            log_path=os.path.join(self.log_path_modelling, f"split-{str(split_index)}"),
             train_dataframes=train_dataframes,
             validation_dataframes=validation_dataframes,
             split_index=split_index,
@@ -258,13 +258,13 @@ class KnnDtwBaseModel:
             # distance_matrix_dataframe = pd.DataFrame(data=classifier.distance_matrix.astype(int))
             # DistanceMatrixPlotter().run(
             #     logger=self.logger,
-            #     results_path=os.path.join(self.log_path_modelling, "split-" + str(split_index)),
+            #     results_path=os.path.join(self.log_path_modelling, f"split-{str(split_index)}"),
             #     distance_matrix_dataframe=distance_matrix_dataframe,
             #     clean=False,
             #     quiet=False
             # )
 
-            np.save(os.path.join(self.log_path_modelling, "split-" + str(split_index), "model"),
+            np.save(os.path.join(self.log_path_modelling, f"split-{str(split_index)}", "model"),
                     classifier.distance_matrix)
 
             self.logger.log_split(

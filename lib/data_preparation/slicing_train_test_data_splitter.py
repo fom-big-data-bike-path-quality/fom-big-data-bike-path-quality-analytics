@@ -23,8 +23,8 @@ class SlicingTrainTestDataSplitter:
             class_name = self.__class__.__name__
             function_name = inspect.currentframe().f_code.co_name
 
-            logger.log_line(class_name + "." + function_name + " splitted "
-                            + "train: " + str(len(train_dataframes)) + ", "
-                            + "test:" + str(len(test_dataframes)))
+            logger.log_line(
+                f"{class_name}.{function_name} splitted train: {str(len(train_dataframes))}, "
+                f"test: {str(len(test_dataframes))}")
 
         return train_dataframes, test_dataframes

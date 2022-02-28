@@ -42,14 +42,14 @@ class BikeActivitySurfaceTypePlotter:
     def run(self, logger, dataframes, slice_width, results_path, file_name, title, description, xlabel,
             color="#3A6FB0", run_after_label_encoding=False, clean=False, quiet=False):
         if len(dataframes) == 0:
-            logger.log_line("✗️ Not plotting " + file_name + " because there are no dataframes to plot", console=False, file=True)
+            logger.log_line(f"✗️ Not plotting {file_name} because there are no dataframes to plot", console=False, file=True)
         else:
             # Make results path
             os.makedirs(results_path, exist_ok=True)
 
             # Clean results path
             if clean:
-                files = glob.glob(os.path.join(results_path, file_name + ".png"))
+                files = glob.glob(os.path.join(results_path, f"{file_name}.png"))
                 for f in files:
                     os.remove(f)
 
@@ -70,7 +70,7 @@ class BikeActivitySurfaceTypePlotter:
             plt.ylabel("amount")
             plt.hist(data, rwidth=0.8)
             plt.savefig(
-                fname=os.path.join(results_path, file_name + "_absolute.png"),
+                fname=os.path.join(results_path,  f"{file_name}_absolute.png"),
                 format="png",
                 metadata={
                     "Title": title,
@@ -89,7 +89,7 @@ class BikeActivitySurfaceTypePlotter:
             plt.hist(data, rwidth=0.8, weights=np.ones(len(data)) / len(data), align="left", color=color)
             plt.gca().yaxis.set_major_formatter(PercentFormatter(1))
             plt.savefig(
-                fname=os.path.join(results_path, file_name + "_relative.png"),
+                fname=os.path.join(results_path, f"{file_name}_relative.png"),
                 format="png",
                 metadata={
                     "Title": title,
@@ -101,13 +101,13 @@ class BikeActivitySurfaceTypePlotter:
             plt.close()
 
             if not quiet:
-                logger.log_line("✓️ Plotting " + file_name, console=False, file=True)
+                logger.log_line(f"✓️ Plotting {file_name}", console=False, file=True)
 
             class_name = self.__class__.__name__
             function_name = inspect.currentframe().f_code.co_name
 
             if not quiet:
-                logger.log_line(class_name + "." + function_name + " plotted surface types")
+                logger.log_line(f"{class_name}.{function_name} plotted surface types")
 
 
     @TrackingDecorator.track_time
@@ -117,7 +117,7 @@ class BikeActivitySurfaceTypePlotter:
 
         # Clean results path
         if clean:
-            files = glob.glob(os.path.join(results_path, file_name + ".png"))
+            files = glob.glob(os.path.join(results_path, f"{file_name}.png"))
             for f in files:
                 os.remove(f)
 
@@ -128,7 +128,7 @@ class BikeActivitySurfaceTypePlotter:
         plt.ylabel("amount")
         plt.bar(data.keys(), list(data.values()), color=color)
         plt.savefig(
-            fname=os.path.join(results_path, file_name + "_absolute_bar.png"),
+            fname=os.path.join(results_path, f"{file_name}_absolute_bar.png"),
             format="png",
             metadata={
                 "Title": title,
@@ -147,7 +147,7 @@ class BikeActivitySurfaceTypePlotter:
         plt.bar(data.keys(), list(map(lambda x: x / sum(list(data.values())), list(data.values()))), color=color)
         plt.gca().yaxis.set_major_formatter(PercentFormatter(1))
         plt.savefig(
-            fname=os.path.join(results_path, file_name + "_relative_bar.png"),
+            fname=os.path.join(results_path, f"{file_name}_relative_bar.png"),
             format="png",
             metadata={
                 "Title": title,
@@ -159,10 +159,10 @@ class BikeActivitySurfaceTypePlotter:
         plt.close()
 
         if not quiet:
-            logger.log_line("✓️ Plotting " + file_name, console=False, file=True)
+            logger.log_line(f"✓️ Plotting {file_name}", console=False, file=True)
 
         class_name = self.__class__.__name__
         function_name = inspect.currentframe().f_code.co_name
 
         if not quiet:
-            logger.log_line(class_name + "." + function_name + " plotted surface types")
+            logger.log_line(f"{class_name}.{function_name} plotted surface types")

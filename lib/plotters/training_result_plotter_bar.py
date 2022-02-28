@@ -39,7 +39,7 @@ class TrainingResultPlotterBar:
         plt.ylabel(ylabel)
         plt.title(description)
         plt.savefig(
-            fname=os.path.join(results_path, file_name + ".png"),
+            fname=os.path.join(results_path, f"{file_name}.png"),
             format="png",
             metadata={
                 "Title": title,
@@ -51,9 +51,9 @@ class TrainingResultPlotterBar:
         plt.close()
 
         if not quiet:
-            logger.log_line("✓️ Plotting " + file_name, console=False, file=True)
+            logger.log_line(f"✓️ Plotting {file_name}", console=False, file=True)
 
             class_name = self.__class__.__name__
             function_name = inspect.currentframe().f_code.co_name
 
-            logger.log_line(class_name + "." + function_name + " plotted training result")
+            logger.log_line(f"{class_name}.{function_name} plotted training result")

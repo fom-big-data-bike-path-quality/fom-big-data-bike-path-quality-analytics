@@ -89,13 +89,13 @@ class BikeActivitySlicePlotter:
                 plt.plot(data_speed, label="speed", color=colors[1])
                 plt.legend()
 
-                plt.savefig(fname=os.path.join(results_path, bike_activity_surface_type, file_base_name + "-with-speed.png"),
+                plt.savefig(fname=os.path.join(results_path, bike_activity_surface_type,  f"{file_base_name}-with-speed.png"),
                             format="png",
                             metadata={
-                                "Title": "Bike activity sample " + file_base_name,
+                                "Title": f"Bike activity sample {file_base_name}",
                                 "Author": "Florian Schwanz",
                                 "Creation Time": formatdate(timeval=None, localtime=False, usegmt=True),
-                                "Description": "Plot of bike activity sample " + file_base_name
+                                "Description": f"Plot of bike activity sample {file_base_name}"
                             })
 
                 plt.close()
@@ -119,13 +119,13 @@ class BikeActivitySlicePlotter:
                 plt.plot(data_accelerometer, label="accelerometer", color=colors[0])
                 plt.legend()
 
-                plt.savefig(fname=os.path.join(results_path, bike_activity_surface_type, file_base_name + ".png"),
+                plt.savefig(fname=os.path.join(results_path, bike_activity_surface_type, f"{file_base_name}.png"),
                             format="png",
                             metadata={
-                                "Title": "Bike activity sample " + file_base_name,
+                                "Title": f"Bike activity sample {file_base_name}",
                                 "Author": "Florian Schwanz",
                                 "Creation Time": formatdate(timeval=None, localtime=False, usegmt=True),
-                                "Description": "Plot of bike activity sample " + file_base_name
+                                "Description": f"Plot of bike activity sample {file_base_name}"
                             })
 
                 plt.close()
@@ -133,11 +133,10 @@ class BikeActivitySlicePlotter:
             bike_activity_slices_plotted_count += 1
 
             if not quiet:
-                logger.log_line("✓️ Plotting " + file_name, console=False, file=True)
+                logger.log_line(f"✓️ Plotting {file_name}", console=False, file=True)
 
         if not quiet:
             class_name = self.__class__.__name__
             function_name = inspect.currentframe().f_code.co_name
 
-            logger.log_line(
-                class_name + "." + function_name + " plotted " + str(bike_activity_slices_plotted_count) + " slices")
+            logger.log_line(f"{class_name}.{function_name} plotted {str(bike_activity_slices_plotted_count)} slices")

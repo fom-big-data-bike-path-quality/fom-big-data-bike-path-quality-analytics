@@ -13,7 +13,7 @@ class TelegramLogger:
 
         # Check for config file
         if not Path(os.path.join(script_path, "telegram.config")).exists():
-            logger.log_line("✗️ Telegram config not found " + os.path.join(script_path, "telegram.config"))
+            logger.log_line(f"✗️ Telegram config not found {os.path.join(script_path, 'telegram.config')}")
             return
 
         # Send line to telegram

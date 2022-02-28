@@ -1,5 +1,6 @@
 from datetime import datetime
 
+
 class TrackingDecorator(object):
 
     def track_time(func):
@@ -13,18 +14,18 @@ class TrackingDecorator(object):
             start_time = datetime.now()
 
             if logger is not None:
-                logger.log_line("\n" + func.__qualname__ + " started")
+                logger.log_line(f"\n{func.__qualname__} started")
             else:
-                print("\n" + func.__qualname__ + " started")
+                print(f"\n{func.__qualname__} started")
 
             result = func(self, *args, **kwargs)
 
             time_elapsed = datetime.now() - start_time
 
             if logger is not None:
-                logger.log_line(func.__qualname__ + " finished in {}".format(time_elapsed))
+                logger.log_line(f"{func.__qualname__} finished in {time_elapsed}")
             else:
-                print(func.__qualname__ + " finished in {}".format(time_elapsed))
+                print(f"{func.__qualname__} finished in {time_elapsed}")
 
             return result
 

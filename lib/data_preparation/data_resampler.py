@@ -61,8 +61,8 @@ class DataResampler:
         target_class_size = int(min_class_size * down_sampling_factor)
 
         if not quiet:
-            logger.log_line("smallest class is " + min_class_name + " with " + str(min_class_size) + " samples")
-            logger.log_line("target class size is " + str(target_class_size))
+            logger.log_line(f"smallest class is {min_class_name} with {str(min_class_size)} samples")
+            logger.log_line(f"target class size is {str(target_class_size)}")
 
         # Re-sample dataframes
         resampled_dataframes = {}
@@ -83,9 +83,7 @@ class DataResampler:
 
             percentage = round(len(resampled_dataframes) / len(copied_dataframes), 2) * 100
 
-            logger.log_line(
-                class_name + "." + function_name + " kept " + str(len(resampled_dataframes)) + " of " +
-                str(len(copied_dataframes)) + " dataframes after down-sampling (" + str(percentage) + "%)"
-            )
+            logger.log_line(f"{class_name}.{function_name} kept {str(len(resampled_dataframes))} of "
+                            f"{str(len(copied_dataframes))} dataframes after down-sampling ({str(percentage)}%)")
 
         return resampled_dataframes

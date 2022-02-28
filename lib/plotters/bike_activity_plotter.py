@@ -38,7 +38,7 @@ class BikeActivityPlotter:
             file_name = os.path.basename(file_path.name)
             file_base_name = file_name.replace(".csv", "")
 
-            results_file = os.path.join(results_path, file_base_name + ".png")
+            results_file = os.path.join(results_path, f"{file_base_name}.png")
 
             if not Path(results_file).exists() or clean:
 
@@ -69,7 +69,7 @@ class BikeActivityPlotter:
 
                     plt.figure(2)
                     plt.clf()
-                    plt.title("Bike activity " + file_name)
+                    plt.title(f"Bike activity {file_name}")
                     plt.xlabel(xlabel)
                     plt.ylabel(ylabel)
                     # plt.plot(data_accelerometer_x, label="accelerometer x")
@@ -82,10 +82,10 @@ class BikeActivityPlotter:
                     plt.savefig(fname=results_file,
                                 format="png",
                                 metadata={
-                                    "Title": "Bike activity " + file_base_name,
+                                    "Title": f"Bike activity {file_base_name}",
                                     "Author": "Florian Schwanz",
                                     "Creation Time": formatdate(timeval=None, localtime=False, usegmt=True),
-                                    "Description": "Plot of bike activity sample " + file_base_name
+                                    "Description": f"Plot of bike activity sample {file_base_name}"
                                 })
 
                     plt.close()
@@ -93,10 +93,10 @@ class BikeActivityPlotter:
                 bike_activities_plotted_count += 1
 
                 if not quiet:
-                    logger.log_line("✓️ Plotting " + file_name, console=False, file=True)
+                    logger.log_line(f"✓️ Plotting {file_name}", console=False, file=True)
 
         if not quiet:
             class_name = self.__class__.__name__
             function_name = inspect.currentframe().f_code.co_name
 
-            logger.log_line(class_name + "." + function_name + " plotted " + str(bike_activities_plotted_count) + " activities")
+            logger.log_line(f"{class_name}.{function_name} plotted {str(bike_activities_plotted_count)} activities")

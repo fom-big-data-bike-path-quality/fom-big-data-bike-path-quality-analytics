@@ -24,7 +24,7 @@ class GoogleCloudPlatformBucketUploader:
 
         # Check for config file
         if not Path(config_file_path).exists():
-            logger.log_line("✗️ Google Cloud config not found " + config_file_path)
+            logger.log_line(f"✗️ Google Cloud config not found {config_file_path}")
             return
 
         # Define storage client
@@ -61,7 +61,7 @@ class GoogleCloudPlatformBucketUploader:
 
         # Check for config file
         if not Path(config_file_path).exists():
-            logger.log_line("✗️ Google Cloud config not found " + config_file_path)
+            logger.log_line(f"✗️ Google Cloud config not found {config_file_path}")
             return
 
         # Define storage client
@@ -91,7 +91,7 @@ class GoogleCloudPlatformBucketUploader:
 
         # Check for config file
         if not Path(config_file_path).exists():
-            logger.log_line("✗️ Google Cloud config not found " + config_file_path)
+            logger.log_line(f"✗️ Google Cloud config not found {config_file_path}")
             return
 
         # Define storage client
@@ -104,12 +104,12 @@ class GoogleCloudPlatformBucketUploader:
 
         csv_count_total = 0
 
-        for file_path in glob.iglob(data_path + "/*.csv"):
+        for file_path in glob.iglob(f"{data_path}/*.csv"):
             blob = bucket.blob(os.path.basename(file_path))
             blob.upload_from_filename(file_path)
 
             if not quiet:
-                logger.log_line("✓️ Uploading " + os.path.basename(file_path))
+                logger.log_line(f"✓️ Uploading {os.path.basename(file_path)}")
 
             csv_count_total += 1
 
@@ -117,7 +117,7 @@ class GoogleCloudPlatformBucketUploader:
         function_name = inspect.currentframe().f_code.co_name
 
         if not quiet:
-            logger.log_line(class_name + "." + function_name + " uploaded " + str(csv_count_total) + " csv slices")
+            logger.log_line(f"{class_name}.{function_name} uploaded {str(csv_count_total)} csv slices")
 
     @TrackingDecorator.track_time
     def upload_file(self, logger, gcp_token_file, upload_file_path, project_id, bucket_name, quiet=False):
@@ -132,7 +132,7 @@ class GoogleCloudPlatformBucketUploader:
 
         # Check for config file
         if not Path(config_file_path).exists():
-            logger.log_line("✗️ Google Cloud config not found " + config_file_path)
+            logger.log_line(f"✗️ Google Cloud config not found {config_file_path}")
             return
 
         # Define storage client
@@ -147,10 +147,10 @@ class GoogleCloudPlatformBucketUploader:
         blob.upload_from_filename(upload_file_path)
 
         if not quiet:
-            logger.log_line("✓️ Uploading " + os.path.basename(upload_file_path))
+            logger.log_line(f"✓️ Uploading {os.path.basename(upload_file_path)}")
 
         class_name = self.__class__.__name__
         function_name = inspect.currentframe().f_code.co_name
 
         if not quiet:
-            logger.log_line(class_name + "." + function_name + " uploaded " + os.path.basename(upload_file_path))
+            logger.log_line(f"{class_name}.{function_name} uploaded {os.path.basename(upload_file_path)}")

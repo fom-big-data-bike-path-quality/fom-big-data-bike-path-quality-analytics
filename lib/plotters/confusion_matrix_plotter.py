@@ -23,7 +23,7 @@ class ConfusionMatrixPlotter:
 
         # Clean results path
         if clean:
-            files = glob.glob(os.path.join(results_path, file_name + ".png"))
+            files = glob.glob(os.path.join(results_path, f"{file_name}.png"))
             for f in files:
                 os.remove(f)
 
@@ -39,7 +39,7 @@ class ConfusionMatrixPlotter:
         plt.title("Confusion matrix")
         plt.xlabel("Prediction")
         plt.ylabel("Target")
-        plt.savefig(fname=os.path.join(results_path, file_name + ".png"),
+        plt.savefig(fname=os.path.join(results_path, f"{file_name}.png"),
                     format="png",
                     metadata={
                         "Title": "Confusion matrix",
@@ -54,4 +54,4 @@ class ConfusionMatrixPlotter:
         function_name = inspect.currentframe().f_code.co_name
 
         if not quiet:
-            logger.log_line(class_name + "." + function_name + " plotted confusion matrix")
+            logger.log_line(f"{class_name}.{function_name} plotted confusion matrix")

@@ -24,7 +24,7 @@ class DistanceMatrixPlotter:
 
         # Clean results path
         if clean:
-            files = glob.glob(os.path.join(results_path, file_name + ".png"))
+            files = glob.glob(os.path.join(results_path, f"{file_name}.png"))
             for f in files:
                 os.remove(f)
 
@@ -38,7 +38,7 @@ class DistanceMatrixPlotter:
         heatmap.set_ylim(bottom + 0.5, top - 0.5)
 
         plt.title("Distance matrix")
-        plt.savefig(fname=os.path.join(results_path, file_name + ".png"),
+        plt.savefig(fname=os.path.join(results_path, f"{file_name}.png"),
                     format="png",
                     metadata={
                         "Title": "Distance matrix",
@@ -53,4 +53,4 @@ class DistanceMatrixPlotter:
         function_name = inspect.currentframe().f_code.co_name
 
         if not quiet:
-            logger.log_line(class_name + "." + function_name + " plotted distance matrix")
+            logger.log_line(f"{class_name}.{function_name} plotted distance matrix")

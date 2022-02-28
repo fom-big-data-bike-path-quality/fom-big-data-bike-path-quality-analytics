@@ -71,7 +71,7 @@ class DataTransformer:
             class_name = self.__class__.__name__
             function_name = inspect.currentframe().f_code.co_name
 
-            logger.log_line(class_name + "." + function_name + " transformed " + str(len(copied_dataframes)) + " dataframes")
+            logger.log_line(f"{class_name}.{function_name} transformed {str(len(copied_dataframes))} dataframes")
 
         return copied_dataframes
 

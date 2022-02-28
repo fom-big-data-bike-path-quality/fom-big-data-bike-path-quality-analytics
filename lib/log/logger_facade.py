@@ -89,7 +89,7 @@ class LoggerFacade:
         else:
             message = f"Modelling started with {model_name}" + \
                       f"\n* train dataframes {str(len(train_dataframes))} down-sampled to " + \
-                      f"{str(len(resampled_train_dataframes))} (" + str(percentage) + "%)" + \
+                      f"{str(len(resampled_train_dataframes))} ({str(percentage)}%)" + \
                       f"\n* test dataframes {str(len(test_dataframes))}"
 
         self.log_line(message=message, telegram=telegram)
@@ -130,18 +130,18 @@ class LoggerFacade:
     def log_intermediate(self, time_elapsed, epochs, telegram=None):
 
         if epochs is None:
-            message = "Finalization intermediate reached in " + time_elapsed
+            message = f"Finalization intermediate reached in {time_elapsed}"
         else:
-            message = "Finalization intermediate reached after " + str(epochs) + " epochs in " + time_elapsed
+            message = f"Finalization intermediate reached after {str(epochs)} epochs in {time_elapsed}"
 
         self.log_line(message=message, telegram=telegram)
 
     def log_finalization(self, time_elapsed, epochs, telegram=None):
 
         if epochs is None:
-            message = "Finalization finished in " + time_elapsed
+            message = f"Finalization finished in {time_elapsed}"
         else:
-            message = "Finalization finished after " + str(epochs) + " epochs in " + time_elapsed
+            message = f"Finalization finished after {str(epochs)} epochs in {time_elapsed}"
 
         self.log_line(message=message, telegram=telegram)
 

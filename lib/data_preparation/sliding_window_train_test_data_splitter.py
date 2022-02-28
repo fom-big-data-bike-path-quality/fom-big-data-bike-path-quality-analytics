@@ -15,7 +15,7 @@ def slice_dataframe(name, dataframe, slice_width, window_step):
 
     # Iterate over data frame until
     while end_index < dataframe_size:
-        slices[name + "-" + str(slice_index).rjust(5, '0')] = dataframe.iloc[start_index:end_index]
+        slices[f"{name}-{str(slice_index).rjust(5, '0')}"] = dataframe.iloc[start_index:end_index]
         slice_index += 1
         start_index += window_step
         end_index += window_step
@@ -61,8 +61,7 @@ class SlidingWindowTrainTestDataSplitter:
             class_name = self.__class__.__name__
             function_name = inspect.currentframe().f_code.co_name
 
-            logger.log_line(class_name + "." + function_name + " splitted "
-                            + "train: " + str(len(train_dataframes)) + ", "
-                            + "test:" + str(len(test_dataframes)))
+            logger.log_line(f"{class_name}.{function_name} splitted train:{str(len(train_dataframes))}, "
+                            f"test: {str(len(test_dataframes))}")
 
         return train_dataframes, test_dataframes

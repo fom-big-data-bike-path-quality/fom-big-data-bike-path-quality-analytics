@@ -53,6 +53,6 @@ class DataLoader:
         function_name = inspect.currentframe().f_code.co_name
 
         if not quiet:
-            logger.log_line(class_name + "." + function_name + " loaded " + str(len(dataframes)) + " dataframes")
+            logger.log_line(f"{class_name}.{function_name} loaded {str(len(dataframes))} dataframes")
 
         return dataframes
