@@ -99,7 +99,13 @@ See the [open issues](https://github.com/fom-big-data-bike-path-quality/fom-big-
  
 ## Metrics
 
-<img src="https://raw.githubusercontent.com/fom-big-data-bike-path-quality/fom-big-data-bike-path-quality-results/main/results/cnn/latest/05-evaluation/plots/confusion_matrix.png" alt="Confusion Matrix" width="300">  |  <img src="https://raw.githubusercontent.com/fom-big-data-bike-path-quality/fom-big-data-bike-path-quality-results/main/results/lstm/latest/05-evaluation/plots/confusion_matrix.png" alt="Confusion Matrix" width="300">  |  <img src="https://raw.githubusercontent.com/fom-big-data-bike-path-quality/fom-big-data-bike-path-quality-results/main/results/knn-dtw/latest/05-evaluation/plots/confusion_matrix_k1.png" alt="Confusion Matrix" width="300">
+### Configuration 1
+
+* with slice width 500
+* step size 500
+* overlap 0%
+
+<img src="https://raw.githubusercontent.com/fom-big-data-bike-path-quality/fom-big-data-bike-path-quality-results/main/results/cnn/2022-02-24-12:07:23/05-evaluation/confusion_matrix.png" alt="Confusion Matrix" width="300">  |  <img src="https://raw.githubusercontent.com/fom-big-data-bike-path-quality/fom-big-data-bike-path-quality-results/main/results/lstm/2022-02-25-08:43:39/05-evaluation/confusion_matrix.png" alt="Confusion Matrix" width="300">  |  <img src="https://raw.githubusercontent.com/fom-big-data-bike-path-quality/fom-big-data-bike-path-quality-results/main/results/knn-dtw/2022-02-27-22:02:55/05-evaluation/confusion_matrix_k1.png" alt="Confusion Matrix" width="300">
 :-------------------------:|:-------------------------:|:-------------------------:
 Confusion matrix CNN | Confusion matrix LSTM | Confusion matrix kNN-DTW with k=1
 
