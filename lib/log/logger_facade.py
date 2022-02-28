@@ -31,8 +31,8 @@ class LoggerFacade:
 
     def log_training_start(self, opts, device_name, training_start_time_string, clean, quiet, transient, dry_run,
                            skip_data_understanding, skip_validation, window_step, down_sampling_factor, model_name,
-                           k_folds, k_nearest_neighbors, epochs, patience, learning_rate, slice_width, dropout,
-                           lstm_hidden_dimension, lstm_layer_dimension, measurement_speed_limit, test_size,
+                           k_folds, k_nearest_neighbors, epochs, batch_size, patience, learning_rate, slice_width,
+                           dropout, lstm_hidden_dimension, lstm_layer_dimension, measurement_speed_limit, test_size,
                            random_state, telegram=None):
         message = f"Training started with parameters " + \
                   f"\n* device name {str(device_name)}" + \
@@ -57,6 +57,7 @@ class LoggerFacade:
         if model_name == "lstm":
             message += f"\n* model name {model_name}" + \
                        f"\n* epochs {str(epochs)}" + \
+                       f"\n* batch size {str(batch_size)}" + \
                        f"\n* patience {str(patience)}" + \
                        f"\n* learning rate {str(learning_rate)}" + \
                        f"\n* dropout {str(dropout)}" + \
@@ -65,6 +66,7 @@ class LoggerFacade:
         if model_name == "cnn":
             message += f"\n* model name {model_name}" + \
                        f"\n* epochs {str(epochs)}" + \
+                       f"\n* batch size {str(batch_size)}" + \
                        f"\n* patience {str(patience)}" + \
                        f"\n* learning rate {str(learning_rate)}" + \
                        f"\n* dropout {str(dropout)}"

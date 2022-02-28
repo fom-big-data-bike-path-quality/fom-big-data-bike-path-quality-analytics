@@ -75,6 +75,7 @@ def main(argv):
     measurement_speed_limit = 5.0
     down_sampling_factor = 1.5
     test_size: float = 0.2
+
     random_state = 0
 
     model_name = None
@@ -83,6 +84,7 @@ def main(argv):
     subsample_step = 1
     max_warping_window = 500
     epochs = 10_000
+    batch_size = 128
     patience = 1_000
     learning_rate: float = 0.001
     dropout = 0.5
@@ -95,21 +97,21 @@ def main(argv):
 
     # Read command line arguments
     try:
-        opts, args = getopt.getopt(argv, "hcqtds:w:m:f:k:e:l:p:",
+        opts, args = getopt.getopt(argv, "hcqtds:w:m:f:k:e:b:l:p:",
                                    ["help", "clean", "quiet", "transient", "dry-run", "skip-data-understanding",
                                     "skip-validation", "slice-width=", "window-step=", "down-sampling-factor=",
                                     "model=", "k-folds=", "k-nearest-neighbors=", "dtw-subsample-step=",
-                                    "dtw-max-warping-window=", "epochs=", "learning-rate=", "patience=", "dropout=",
-                                    "lstm-hidden-dimension=", "lstm-layer-dimension="])
+                                    "dtw-max-warping-window=", "epochs=",  "batch-size=", "learning-rate=", "patience=",
+                                    "dropout=", "lstm-hidden-dimension=", "lstm-layer-dimension="])
     except getopt.GetoptError as error:
         print(argv)
         print(error)
         print(
-            "main.py --help --clean --quiet --transient --dry-run --skip-data-understanding --skip-validation " +
+            "main.py --help --clean --quiet --transient --dry-run --skip-data-understanding --skip-validation "
             "--slice-width <slice-width> --window-step <window-step> --down-sampling-factor <down-sampling-factor> "
             "--model <model> --k-folds <k-folds> --k-nearest-neighbors <k-nearest-neighbors> "
             "--dtw-subsample-step <dtw-subsample-step> --dtw-max-warping-window <dtw-max-warping-window> "
-            "--epochs <epochs> --patience <patience> --learning-rate <learning-rate>"
+            "--epochs <epochs> --batch_size <batch_size> --patience <patience> --learning-rate <learning-rate>"
             "--dropout <dropout> --lstm-hidden-dimension <lstm-hidden-dimension> "
             "--lstm-layer-dimension <lstm-layer-dimension>")
         sys.exit(2)
@@ -140,6 +142,7 @@ def main(argv):
             print("--dtw-max-warping-window <dtw-max-warping-window>  max warping window for DTW")
             print("")
             print("-e, --epochs <epochs>                              number of epochs")
+            print("-b, --batch-size <batch-size>                      batch size")
             print("-p, --patience <patience>                          " +
                   "number of epochs to wait for improvements before finishing training")
             print("-l, --learning-rate <learning-rate>                learning rate")
@@ -189,6 +192,8 @@ def main(argv):
             max_warping_window = int(arg)
         elif opt in ("-e", "--epochs"):
             epochs = int(arg)
+        elif opt in ("-b", "--batch-size"):
+            batch_size = int(arg)
         elif opt in ("-p", "--patience"):
             patience = int(arg)
         elif opt in ("-l", "--learning-rate"):
@@ -249,6 +254,7 @@ def main(argv):
         k_folds=k_folds,
         k_nearest_neighbors=k_nearest_neighbors,
         epochs=epochs,
+        batch_size=batch_size,
         patience=patience,
         learning_rate=learning_rate,
 
@@ -410,6 +416,7 @@ def main(argv):
             test_dataframes=test_dataframes,
 
             epochs=epochs,
+            batch_size=batch_size,
             learning_rate=learning_rate,
             patience=patience,
             dropout=dropout,
@@ -426,6 +433,7 @@ def main(argv):
             test_dataframes=test_dataframes,
 
             epochs=epochs,
+            batch_size=batch_size,
             learning_rate=learning_rate,
             patience=patience,
             dropout=dropout,

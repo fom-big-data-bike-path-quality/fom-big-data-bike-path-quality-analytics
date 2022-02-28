@@ -70,10 +70,10 @@ class ModelPreparator:
     def split_data_and_labels(self, array):
         return array[:,1,:], array[:,0,0]
 
-    def create_tensor(self, dataframes, device):
+    def create_tensor(self, dataframes, device, batch_size=128):
         array = self.create_array(dataframes)
         dataset = self.create_dataset(array)
-        data_loader = self.create_loader(dataset, shuffle=False)
+        data_loader = self.create_loader(dataset, batch_size=batch_size, shuffle=False)
 
         for i, batch in enumerate(data_loader):
             x_raw, y_batch = [t.to(device) for t in batch]

@@ -92,7 +92,7 @@ def get_metrics(classifier, data_loader):
 class CnnBaseModel:
 
     def __init__(self, logger, log_path_modelling, log_path_evaluation, train_dataframes, test_dataframes,
-                 epochs, learning_rate, patience, dropout, slice_width):
+                 epochs, batch_size, learning_rate, patience, dropout, slice_width):
         self.logger = logger
         self.log_path_modelling = log_path_modelling
         self.log_path_evaluation = log_path_evaluation
@@ -101,6 +101,7 @@ class CnnBaseModel:
         self.test_dataframes = test_dataframes
 
         self.epochs = epochs
+        self.batch_size = batch_size
         self.learning_rate = learning_rate
         self.patience = patience
         self.dropout = dropout
@@ -220,12 +221,14 @@ class CnnBaseModel:
         # Create data loader for train
         train_array = self.model_preparator.create_array(train_dataframes)
         train_dataset = self.model_preparator.create_dataset(train_array)
-        train_data_loader = self.model_preparator.create_loader(train_dataset, shuffle=False)
+        train_data_loader = self.model_preparator.create_loader(train_dataset, batch_size=self.batch_size,
+                                                                shuffle=False)
 
         # Create data loader for validation
         validation_array = self.model_preparator.create_array(validation_dataframes)
         validation_dataset = self.model_preparator.create_dataset(validation_array)
-        validation_data_loader = self.model_preparator.create_loader(validation_dataset, shuffle=False)
+        validation_data_loader = self.model_preparator.create_loader(validation_dataset, batch_size=self.batch_size,
+                                                                     shuffle=False)
 
         # Plot target variable distribution
         self.model_plotter.plot_split_distribution(
@@ -427,7 +430,8 @@ class CnnBaseModel:
         # Create data loader for train
         train_array = self.model_preparator.create_array(self.train_dataframes)
         train_dataset = self.model_preparator.create_dataset(train_array)
-        train_data_loader = self.model_preparator.create_loader(train_dataset, shuffle=False)
+        train_data_loader = self.model_preparator.create_loader(train_dataset, batch_size=self.batch_size,
+                                                                shuffle=False)
 
         # Determine kernel size based on slice width
         kernel_size = self.model_preparator.get_kernel_size(self.slice_width)
@@ -497,9 +501,10 @@ class CnnBaseModel:
         # Create data loader
         test_array = self.model_preparator.create_array(self.test_dataframes)
         test_dataset = self.model_preparator.create_dataset(test_array)
-        test_data_loader = self.model_preparator.create_loader(test_dataset, shuffle=False)
+        test_data_loader = self.model_preparator.create_loader(test_dataset, batch_size=self.batch_size, shuffle=False)
 
-        test_accuracy, test_precision, test_recall, test_f1_score, test_cohen_kappa_score, test_matthews_correlation_coefficient = self.evaluate_confusion_matrix(
+        test_accuracy, test_precision, test_recall, test_f1_score, test_cohen_kappa_score, \
+        test_matthews_correlation_coefficient = self.evaluate_confusion_matrix(
             test_data_loader=test_data_loader,
             model_name="model-intermediate.pickle",
             confusion_matrix_name="confusion_matrix_intermediate",
@@ -518,7 +523,8 @@ class CnnBaseModel:
             telegram=not quiet and not dry_run
         )
 
-        test_accuracy, test_precision, test_recall, test_f1_score, test_cohen_kappa_score, test_matthews_correlation_coefficient = self.evaluate_confusion_matrix(
+        test_accuracy, test_precision, test_recall, test_f1_score, test_cohen_kappa_score, \
+        test_matthews_correlation_coefficient = self.evaluate_confusion_matrix(
             test_data_loader=test_data_loader,
             model_name="model.pickle",
             confusion_matrix_name="confusion_matrix",
