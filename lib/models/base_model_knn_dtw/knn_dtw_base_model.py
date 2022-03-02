@@ -340,7 +340,7 @@ class KnnDtwBaseModel:
         test_matthews_correlation_coefficient_list = []
 
         # Iterate over hyper-parameter configurations
-        for k in range(1, self.k_nearest_neighbors):
+        for k in range(1, self.k_nearest_neighbors + 1):
             # Get metrics for test data
             test_accuracy, \
             test_precision, \
