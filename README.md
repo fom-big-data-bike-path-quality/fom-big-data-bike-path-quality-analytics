@@ -94,20 +94,43 @@ Examples:
 
 ## Roadmap
 
-See the [open issues](https://github.com/fom-big-data-bike-path-quality/fom-big-data-bike-path-quality-analytics/issues) for a list of proposed features (and
- known issues).
- 
+See the [open issues](https://github.com/fom-big-data-bike-path-quality/fom-big-data-bike-path-quality-analytics/issues)
+for a list of proposed features (and known issues).
+
 ## Metrics
 
 ### Configuration 1
 
-* with slice width 500
+* slice width 500
 * step size 500
 * overlap 0%
 
-<img src="https://raw.githubusercontent.com/fom-big-data-bike-path-quality/fom-big-data-bike-path-quality-results/main/results/cnn/2022-02-24-12:07:23/05-evaluation/confusion_matrix.png" alt="Confusion Matrix" width="300">  |  <img src="https://raw.githubusercontent.com/fom-big-data-bike-path-quality/fom-big-data-bike-path-quality-results/main/results/lstm/2022-02-25-08:43:39/05-evaluation/confusion_matrix.png" alt="Confusion Matrix" width="300">  |  <img src="https://raw.githubusercontent.com/fom-big-data-bike-path-quality/fom-big-data-bike-path-quality-results/main/results/knn-dtw/2022-02-27-22:02:55/05-evaluation/confusion_matrix_k1.png" alt="Confusion Matrix" width="300">
-:-------------------------:|:-------------------------:|:-------------------------:
-Confusion matrix CNN | Confusion matrix LSTM | Confusion matrix kNN-DTW with k=1
+<img src="https://raw.githubusercontent.com/fom-big-data-bike-path-quality/fom-big-data-bike-path-quality-results/main/results/knn-dtw/2022-02-27-22:02:55/05-evaluation/confusion_matrix_k1.png" alt="Confusion Matrix" width="300">  |  <img src="https://raw.githubusercontent.com/fom-big-data-bike-path-quality/fom-big-data-bike-path-quality-results/main/results/knn-dtw/2022-02-27-22:02:55/05-evaluation/confusion_matrix_k9.png" alt="Confusion Matrix" width="300">  |  <img src="https://raw.githubusercontent.com/fom-big-data-bike-path-quality/fom-big-data-bike-path-quality-results/main/results/lstm/2022-02-25-08:43:39/05-evaluation/confusion_matrix.png" alt="Confusion Matrix" width="300">  |  <img src="https://raw.githubusercontent.com/fom-big-data-bike-path-quality/fom-big-data-bike-path-quality-results/main/results/cnn/2022-02-24-12:07:23/05-evaluation/confusion_matrix.png" alt="Confusion Matrix" width="300">
+:-------------------------:|:-------------------------:|:-------------------------:|:-------------------------:
+Confusion matrix kNN-DTW with k=1 | Confusion matrix kNN-DTW with k=9 | Confusion matrix LSTM | Confusion matrix CNN
+Matthews Correlation Coefficient 0.39 | Matthews Correlation Coefficient 0.39 | Matthews Correlation Coefficient 0.31 | Matthews Correlation Coefficient 0.58
+
+### Configuration 2
+
+* slice width 500
+* step size 375
+* overlap 25%
+
+<img src="https://raw.githubusercontent.com/fom-big-data-bike-path-quality/fom-big-data-bike-path-quality-results/main/results/knn-dtw/2022-03-02-09:57:16/05-evaluation/confusion_matrix_k1.png" alt="Confusion Matrix" width="300">  |  <img src="https://raw.githubusercontent.com/fom-big-data-bike-path-quality/fom-big-data-bike-path-quality-results/main/results/knn-dtw/2022-03-02-09:57:16/05-evaluation/confusion_matrix_k9.png" alt="Confusion Matrix" width="300">  |  <img src="https://raw.githubusercontent.com/fom-big-data-bike-path-quality/fom-big-data-bike-path-quality-results/main/results/lstm/2022-02-25-12:01:51/05-evaluation/confusion_matrix.png" alt="Confusion Matrix" width="300">  |  <img src="https://raw.githubusercontent.com/fom-big-data-bike-path-quality/fom-big-data-bike-path-quality-results/main/results/cnn/2022-02-24-13:42:17/05-evaluation/confusion_matrix.png" alt="Confusion Matrix" width="300">
+:-------------------------:|:-------------------------:|:-------------------------:|:-------------------------:
+Confusion matrix kNN-DTW with k=1 | Confusion matrix kNN-DTW with k=9 | Confusion matrix LSTM | Confusion matrix CNN
+Matthews Correlation Coefficient 0.36 | Matthews Correlation Coefficient 0.40 | Matthews Correlation Coefficient 0.31 | Matthews Correlation Coefficient 0.53
+
+### Configuration 3
+
+* slice width 500
+* step size 250
+* overlap 50%
+
+<img src="https://raw.githubusercontent.com/fom-big-data-bike-path-quality/fom-big-data-bike-path-quality-results/main/results/knn-dtw/2022-03-01-01:04:55/05-evaluation/confusion_matrix_k1.png" alt="Confusion Matrix" width="300">  |  <img src="https://raw.githubusercontent.com/fom-big-data-bike-path-quality/fom-big-data-bike-path-quality-results/main/results/knn-dtw/2022-03-01-01:04:55/05-evaluation/confusion_matrix_k9.png" alt="Confusion Matrix" width="300">  |  <img src="https://raw.githubusercontent.com/fom-big-data-bike-path-quality/fom-big-data-bike-path-quality-results/main/results/lstm/2022-02-27-09:22:27/05-evaluation/confusion_matrix.png" alt="Confusion Matrix" width="300">  |  <img src="https://raw.githubusercontent.com/fom-big-data-bike-path-quality/fom-big-data-bike-path-quality-results/main/results/cnn/2022-02-24-14:59:11/05-evaluation/confusion_matrix.png" alt="Confusion Matrix" width="300">
+:-------------------------:|:-------------------------:|:-------------------------:|:-------------------------:
+Confusion matrix kNN-DTW with k=1 | Confusion matrix kNN-DTW with k=9 | Confusion matrix LSTM | Confusion matrix CNN
+Matthews Correlation Coefficient 0.36 | Matthews Correlation Coefficient 0.37 | Matthews Correlation Coefficient 0.32 | Matthews Correlation Coefficient 0.59
 
 ## Contributing
 
