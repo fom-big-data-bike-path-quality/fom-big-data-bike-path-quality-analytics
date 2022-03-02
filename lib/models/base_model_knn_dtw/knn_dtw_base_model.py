@@ -295,10 +295,9 @@ class KnnDtwBaseModel:
             max(validation_matthews_correlation_coefficient_list))
         k_best = index_best + 1
 
-        return k_best, validation_accuracy_list[index_best], validation_precision_list[index_best], \
-               validation_recall_list[index_best], validation_f1_score_list[index_best], \
-               validation_cohen_kappa_score_list[index_best], validation_matthews_correlation_coefficient_list[
-                   index_best]
+        return k_best, validation_accuracy_list[0], validation_precision_list[0], validation_recall_list[0], \
+               validation_f1_score_list[0], validation_cohen_kappa_score_list[0], \
+               validation_matthews_correlation_coefficient_list[0]
 
     @TrackingDecorator.track_time
     def finalize(self, epochs, average_epochs, quiet=False, dry_run=False):
