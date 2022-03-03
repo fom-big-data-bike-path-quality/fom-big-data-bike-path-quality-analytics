@@ -45,7 +45,7 @@ on:
 env:
   PROJECT_ID: "bike-path-quality-339900"
   GCE_INSTANCE: "bike-path-quality-analytics"
-  GCE_INSTANCE_ZONE: "europe-west2-a"
+  GCE_INSTANCE_ZONE: "europe-west2-b"
   GCE_SERVICE_ACCOUNT: "bike-path-quality-analytics@bike-path-quality-339900.iam.gserviceaccount.com"
 jobs:
   build:
