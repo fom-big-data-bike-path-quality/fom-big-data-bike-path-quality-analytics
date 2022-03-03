@@ -5,7 +5,7 @@ on:
       window-step:
         description: 'step size used for sliding window data splitter'
         required: true
-        default: 50
+        default: 500
       slice-width:
         description: 'number of measurements per slice'
         required: true
@@ -29,7 +29,7 @@ on:
       epochs:
         description: 'number of epochs'
         required: true
-        default: 5000
+        default: 10000
       learning-rate:
         description: 'learning rate'
         required: true
