@@ -459,6 +459,7 @@ class LstmBaseModel:
                 loss.backward()
                 optimizer.step()
 
+            train_epoch_loss /= train_array.shape[0]
             classifier.eval()
 
             if epoch == average_epochs:
