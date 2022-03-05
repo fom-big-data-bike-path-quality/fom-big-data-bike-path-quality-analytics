@@ -14,13 +14,15 @@ class CnnClassifier(nn.Module):
             SeparatorConv1d(128, 256, kernel_size, 4, 2),
 
             Flatten(),
+
             nn.Dropout(dropout),
             nn.Linear(linear_channels, 64),
-
-            # nn.ReLU(inplace=True),
-            # nn.Dropout(dropout),
-            # nn.Linear(64, 64),
             nn.ReLU(inplace=True),
+
+            nn.Dropout(dropout),
+            nn.Linear(64, 64),
+            nn.ReLU(inplace=True),
+
             nn.Linear(64, num_classes)
         )
 
