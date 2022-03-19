@@ -363,6 +363,42 @@ def main(argv):
     BikeActivitySurfaceTypePlotter().run_bar(
         logger=logger,
         data=DataStatistics().run(
+            dataframes=train_dataframes
+        ),
+        results_path=log_path_data_preparation,
+        file_name="surface_type_train",
+        title="Surface type distribution (train)",
+        description="Distribution of surface types in train data",
+        xlabel="surface type",
+        color="#3A6FB0",
+        clean=clean,
+        quiet=quiet
+    )
+
+    BikeActivitySurfaceTypePlotter().run_bar2(
+        logger=logger,
+        data1=DataStatistics().run(
+            dataframes=train_dataframes
+        ),
+        data2=DataStatistics().run(
+            dataframes=test_dataframes
+        ),
+        results_path=log_path_data_preparation,
+        file_name="surface_type_train_test",
+        title="Surface type distribution (train, test)",
+        description="Distribution of surface types in train and test data",
+        xlabel="surface type",
+        label1="train",
+        label2="test",
+        color1="#3A6FB0",
+        color2="#79ABD1",
+        clean=clean,
+        quiet=quiet
+    )
+
+    BikeActivitySurfaceTypePlotter().run_bar(
+        logger=logger,
+        data=DataStatistics().run(
             dataframes=resampled_train_dataframes
         ),
         results_path=log_path_data_preparation,
@@ -370,6 +406,27 @@ def main(argv):
         title="Surface type distribution (train, resampled)",
         description="Distribution of surface types in resampled train data",
         xlabel="surface type",
+        clean=clean,
+        quiet=quiet
+    )
+
+    BikeActivitySurfaceTypePlotter().run_bar2(
+        logger=logger,
+        data1=DataStatistics().run(
+            dataframes=train_dataframes
+        ),
+        data2=DataStatistics().run(
+            dataframes=resampled_train_dataframes
+        ),
+        results_path=log_path_data_preparation,
+        file_name="surface_type_train_train_resampled",
+        title="Surface type distribution (train, train resampled)",
+        description="Distribution of surface types in train and resampled data",
+        xlabel="surface type",
+        label1="train",
+        label2="train resampled",
+        color1="#3A6FB0",
+        color2="#79ABD1",
         clean=clean,
         quiet=quiet
     )

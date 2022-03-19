@@ -167,3 +167,73 @@ class BikeActivitySurfaceTypePlotter:
 
         if not quiet:
             logger.log_line(f"{class_name}.{function_name} plotted surface types")
+
+    @TrackingDecorator.track_time
+    def run_bar2(self, logger, data1, data2, results_path, file_name, title, description, xlabel, label1, label2,
+                 color1="#3A6FB0", color2="#3A6FB0", clean=False,
+                 quiet=False):
+        # Make results path
+        os.makedirs(results_path, exist_ok=True)
+
+        # Clean results path
+        if clean:
+            files = glob.glob(os.path.join(results_path, f"{file_name}.png"))
+            for f in files:
+                os.remove(f)
+
+        indices = np.arange(len(data1.keys()))
+        width = 0.5
+
+        plt.figure(2, figsize=(14, 6))
+        plt.clf()
+        plt.title(title)
+        plt.xlabel(xlabel)
+        plt.ylabel("amount")
+        plt.bar(indices, list(data1.values()), width=0.75 * width, label=label1, color=color1)
+        plt.bar(indices + width, list(data2.values()), width=0.75 * width, label=label2, color=color2)
+        plt.legend([label1, label2])
+        plt.xticks(indices + width / 2, data1.keys())
+        plt.savefig(
+            fname=os.path.join(results_path, f"{file_name}_absolute_bar.png"),
+            format="png",
+            metadata={
+                "Title": title,
+                "Author": "Florian Schwanz",
+                "Creation Time": formatdate(timeval=None, localtime=False, usegmt=True),
+                "Description": description
+            }
+        )
+        plt.close()
+
+        plt.figure(2, figsize=(14, 6))
+        plt.clf()
+        plt.title(title)
+        plt.xlabel(xlabel)
+        plt.ylabel("percentage")
+        plt.bar(indices, list(map(lambda x: x / sum(list(data1.values())), list(data1.values()))), width=0.75 * width,
+                color=color1)
+        plt.bar(indices + width, list(map(lambda x: x / sum(list(data2.values())), list(data2.values()))),
+                width=0.75 * width, color=color2)
+        plt.legend([label1, label2])
+        plt.xticks(indices + width / 2, data1.keys())
+        plt.gca().yaxis.set_major_formatter(PercentFormatter(1))
+        plt.savefig(
+            fname=os.path.join(results_path, f"{file_name}_relative_bar.png"),
+            format="png",
+            metadata={
+                "Title": title,
+                "Author": "Florian Schwanz",
+                "Creation Time": formatdate(timeval=None, localtime=False, usegmt=True),
+                "Description": description
+            }
+        )
+        plt.close()
+
+        if not quiet:
+            logger.log_line(f"✓️ Plotting {file_name}", console=False, file=True)
+
+        class_name = self.__class__.__name__
+        function_name = inspect.currentframe().f_code.co_name
+
+        if not quiet:
+            logger.log_line(f"{class_name}.{function_name} plotted surface types")

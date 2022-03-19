@@ -28,13 +28,13 @@ class DataStatistics:
 
         valid_surface_types = [
             "asphalt",
-            "concrete lanes",
+            # "concrete lanes",
             "concrete plates",
             "paving stones",
             "sett",
-            "compacted",
+            # "compacted",
             "fine gravel",
-            "gravel"
+            # "gravel"
         ]
 
         # Initialize counter
